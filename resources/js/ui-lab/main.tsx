@@ -5,10 +5,12 @@ import { LabAutoLockProvider } from './fixtures/useAutoLock';
 import { labEntries, plannedEntries, type LabEntry } from './registry';
 
 // UI lab: mock pages and per-module state sheets, served by Vite alone
-// (`npm run ui-lab`), no Laravel needed. Routing is hash-based: #/<entry id>.
+// (`npm run ui-lab`), no Laravel needed. Routing is hash-based: #/<entry id>,
+// optionally with a query string (#/page-pop-now?product=abc) that the page
+// itself reads via useHashQuery — the router only matches the entry id part.
 
 function currentEntryId(): string {
-    const id = window.location.hash.replace(/^#\//, '');
+    const id = window.location.hash.replace(/^#\//, '').split('?')[0];
     return labEntries.some((e) => e.id === id) ? id : labEntries[0].id;
 }
 
