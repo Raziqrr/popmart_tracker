@@ -40,8 +40,10 @@ interface AutoLockFormProps {
  */
 export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormProps) {
     const set = (patch: Partial<AutoLockRuleDraft>) => onChange({ ...draft, ...patch });
-    const specific = draft.target.kind === 'specific' ? draft.target : null;
-    const triggers: LockTrigger[] = specific ? ['sale_opens', 'restock', 'hint_match'] : ['sale_opens', 'restock'];
+    // Specific and ranked both target boxes by hint, so both need the trust
+    // controls below and can fire on a hint match.
+    const hintBased = draft.target.kind === 'specific' || draft.target.kind === 'ranked' ? draft.target : null;
+    const triggers: LockTrigger[] = hintBased ? ['sale_opens', 'restock', 'hint_match'] : ['sale_opens', 'restock'];
     const holdChoices = HOLD_OPTIONS.filter((s) => s < limits.max_lock_seconds).concat(limits.max_lock_seconds);
 
     const expiry = draft.expires_at === null ? 'draw_end' : new Date(draft.expires_at).getTime() - Date.now() > 2 * 24 * HOUR ? '7d' : '24h';
@@ -57,13 +59,13 @@ export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormP
                         set({ target, trigger: target.kind === 'random' && draft.trigger === 'hint_match' ? 'restock' : draft.trigger })
                     }
                 />
-                {specific && (
+                {hintBased && (
                     <div className="flex flex-wrap items-center gap-4 bg-tile p-3 text-xs">
                         <label className="flex items-center gap-2 font-medium">
                             Trust hints with at least
                             <select
-                                value={specific.min_confirmations}
-                                onChange={(e) => set({ target: { ...specific, min_confirmations: Number(e.target.value) } })}
+                                value={hintBased.min_confirmations}
+                                onChange={(e) => set({ target: { ...hintBased, min_confirmations: Number(e.target.value) } })}
                                 className="border border-black/20 bg-white px-1.5 py-1"
                             >
                                 {[1, 2, 3, 5].map((n) => (
@@ -76,8 +78,8 @@ export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormP
                         <label className="flex items-center gap-1.5 font-medium">
                             <input
                                 type="checkbox"
-                                checked={specific.verified_only}
-                                onChange={(e) => set({ target: { ...specific, verified_only: e.target.checked } })}
+                                checked={hintBased.verified_only}
+                                onChange={(e) => set({ target: { ...hintBased, verified_only: e.target.checked } })}
                                 className="accent-black"
                             />
                             Verified hints only

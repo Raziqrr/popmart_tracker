@@ -14,6 +14,11 @@ interface BoxDetailProps {
     box: PopNowBox;
     /** Exact per-figure probabilities for this box (see lib/popnow.ts boxChances). */
     candidates?: BoxCandidate[];
+    /** Figures where another box is a strictly better bet right now (see lib/popnow.ts betterElsewhereFor). */
+    betterElsewhere?: Map<string, { box: PopNowBox; probability: number }>;
+    /** Clicking a chance row calls this — lets the page highlight that figure's best box(es) in the grid. */
+    onSelectSku?: (skuId: string) => void;
+    selectedSkuId?: string | null;
     /** Lock this one box now (a one-off lock, not an auto-lock rule). */
     onLock?: (box: PopNowBox) => void;
     onRelease?: (box: PopNowBox) => void;
@@ -25,7 +30,7 @@ interface BoxDetailProps {
 }
 
 /** Everything known about one box: state, lock timer, excluded figures with their trust, reveal, and actions. */
-export function BoxDetail({ set, box, candidates, onLock, onRelease, payHref, onReportHint, onConfirmHint }: BoxDetailProps) {
+export function BoxDetail({ set, box, candidates, betterElsewhere, onSelectSku, selectedSkuId, onLock, onRelease, payHref, onReportHint, onConfirmHint }: BoxDetailProps) {
     const now = useNow(1000);
     const [reporting, setReporting] = useState(false);
     const [confirmingLock, setConfirmingLock] = useState(false);
@@ -117,7 +122,13 @@ export function BoxDetail({ set, box, candidates, onLock, onRelease, payHref, on
                     {candidates && (
                         <div className="flex flex-col gap-2 border-t border-black/10 pt-3">
                             <h4 className="text-xs font-bold tracking-wider uppercase">Chances for this box</h4>
-                            <ChanceList candidates={candidates} emptyLabel="No valid candidates — check the set's exclusion data." />
+                            <ChanceList
+                                candidates={candidates}
+                                betterElsewhere={betterElsewhere}
+                                onSelectSku={onSelectSku}
+                                selectedSkuId={selectedSkuId}
+                                emptyLabel="No valid candidates — check the set's exclusion data."
+                            />
                         </div>
                     )}
                 </div>
@@ -127,21 +138,23 @@ export function BoxDetail({ set, box, candidates, onLock, onRelease, payHref, on
             <div className="flex flex-col gap-2 border-t border-black/10 pt-3">
                 {box.state === 'available' && onLock && (
                     confirmingLock ? (
-                        <div className="flex flex-wrap items-center gap-2 bg-status-warning-tint p-2 text-xs text-status-warning-ink" role="alertdialog" aria-label="Confirm lock">
-                            <span className="grow">Lock box {box.box_no} on your Pop Mart account now?</span>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setConfirmingLock(false);
-                                    onLock(box);
-                                }}
-                                className="bg-black px-3 py-1.5 font-bold text-white hover:bg-black/80"
-                            >
-                                Lock
-                            </button>
-                            <button type="button" onClick={() => setConfirmingLock(false)} className="px-2 py-1.5 font-bold hover:underline">
-                                Cancel
-                            </button>
+                        <div className="flex flex-col gap-2 bg-status-warning-tint p-2 text-xs text-status-warning-ink" role="alertdialog" aria-label="Confirm lock">
+                            <span>Lock box {box.box_no} on your Pop Mart account now?</span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setConfirmingLock(false);
+                                        onLock(box);
+                                    }}
+                                    className="bg-black px-3 py-1.5 font-bold text-white hover:bg-black/80"
+                                >
+                                    Lock
+                                </button>
+                                <button type="button" onClick={() => setConfirmingLock(false)} className="px-2 py-1.5 font-bold hover:underline">
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <button

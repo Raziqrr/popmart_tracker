@@ -30,6 +30,12 @@ export interface LockPick {
     count: number;
 }
 
+/** One figure in a priority queue: 1 = try first. */
+export interface LockRankedPick {
+    figure: LockFigure;
+    priority: number;
+}
+
 export type LockTarget =
     /** The system locks any free boxes, up to count. */
     | { kind: 'random'; count: number }
@@ -40,6 +46,19 @@ export type LockTarget =
           /** Only lock boxes whose hint has at least this many confirmations. */
           min_confirmations: number;
           /** Ignore user_reported hints, only trust verified_api ones. */
+          verified_only: boolean;
+      }
+    | {
+          /**
+           * Lock up to `count` boxes total, working down a priority list:
+           * fill from figure #1's hinted boxes first, then #2, and so on,
+           * until `count` is reached — unlike `specific`, which fixes an
+           * exact count per figure regardless of what's actually available.
+           */
+          kind: 'ranked';
+          count: number;
+          picks: LockRankedPick[];
+          min_confirmations: number;
           verified_only: boolean;
       };
 

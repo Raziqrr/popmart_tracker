@@ -24,6 +24,8 @@ interface BoxGridProps {
     boxes: PopNowBox[];
     selectedId?: number | null;
     onSelect?: (box: PopNowBox) => void;
+    /** Lock a free box straight away — via double-click on the tile, or its own Lock button below. Omit to hide both. */
+    onLockBox?: (box: PopNowBox) => void;
     /** Boxes tied for the best shot at whatever figure is currently selected in SetChances. */
     highlightedBoxIds?: Set<number>;
     /** That figure's probability in the highlighted box(es), for the badge. */
@@ -35,9 +37,12 @@ interface BoxGridProps {
  * how many figures its own hints have ruled out (never which figure it IS —
  * a tip-card hint only ever proves an exclusion), live lock countdowns, and
  * the revealed figure once sold. Boxes in `highlightedBoxIds` get a target
- * ring — set by clicking a figure in SetChances.
+ * ring — set by clicking a figure in SetChances. Double-click a free box, or
+ * its Lock button below, to lock it immediately (no confirm step — unlike
+ * BoxDetail's single lock button, both of these are already a deliberate,
+ * distinct gesture from the plain single-click that just selects a box).
  */
-export function BoxGrid({ set, boxes, selectedId, onSelect, highlightedBoxIds, highlightProbability }: BoxGridProps) {
+export function BoxGrid({ set, boxes, selectedId, onSelect, onLockBox, highlightedBoxIds, highlightProbability }: BoxGridProps) {
     const now = useNow(1000);
     const ordered = [...boxes].sort((a, b) => a.position - b.position);
 
@@ -73,14 +78,17 @@ export function BoxGrid({ set, boxes, selectedId, onSelect, highlightedBoxIds, h
                     .filter(Boolean)
                     .join(', ');
 
+                const canLock = box.state === 'available' && onLockBox;
+
                 return (
-                    <li key={box.id}>
+                    <li key={box.id} className="flex flex-col gap-1">
                         <button
                             type="button"
                             onClick={() => onSelect?.(box)}
+                            onDoubleClick={() => canLock && onLockBox(box)}
                             aria-pressed={selected}
-                            aria-label={label}
-                            title={label}
+                            aria-label={canLock ? `${label}, double-click to lock` : label}
+                            title={canLock ? `${label} — double-click to lock` : label}
                             className={`relative flex aspect-square w-full flex-col items-center justify-center border p-1 transition-colors select-none ${
                                 boxStateMeta[box.state].tile
                             } ${selected ? 'outline-3 outline-offset-2 outline-black' : ''} ${
@@ -141,6 +149,19 @@ export function BoxGrid({ set, boxes, selectedId, onSelect, highlightedBoxIds, h
                                 </span>
                             )}
                         </button>
+
+                        {canLock && (
+                            <button
+                                type="button"
+                                onClick={() => onLockBox(box)}
+                                aria-label={`Lock box ${box.box_no} to you`}
+                                title="Lock this box to you"
+                                className="inline-flex items-center justify-center gap-1 border border-black/15 py-1 text-[10px] font-bold hover:border-status-warning-ink hover:bg-status-warning-tint hover:text-status-warning-ink"
+                            >
+                                <Lock aria-hidden="true" className="size-3" />
+                                Lock
+                            </button>
+                        )}
                     </li>
                 );
             })}

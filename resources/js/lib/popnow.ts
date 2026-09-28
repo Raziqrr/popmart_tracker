@@ -177,6 +177,38 @@ export function bestBoxesForSku(chances: Map<number, BoxCandidate[]>, skuId: str
     return { boxIds, probability: best };
 }
 
+/**
+ * For one box's own candidate list, which figures some OTHER box is a
+ * better bet for right now — e.g. this box shows Night Owl at 30%, but box
+ * 03 shows it at 60%. Only includes a figure when another box strictly
+ * beats this one; ties or this box already being the best are omitted.
+ */
+export function betterElsewhereFor(
+    chances: Map<number, BoxCandidate[]>,
+    boxes: PopNowBox[],
+    boxId: number,
+): Map<string, { box: PopNowBox; probability: number }> {
+    const ownProbabilities = new Map((chances.get(boxId) ?? []).map((c) => [c.sku.id, c.probability]));
+    const result = new Map<string, { box: PopNowBox; probability: number }>();
+
+    for (const [otherBoxId, candidates] of chances) {
+        if (otherBoxId === boxId) continue;
+        const box = boxes.find((b) => b.id === otherBoxId);
+        if (!box) continue;
+
+        for (const c of candidates) {
+            const mine = ownProbabilities.get(c.sku.id) ?? 0;
+            if (c.probability <= mine) continue;
+            const existing = result.get(c.sku.id);
+            if (!existing || c.probability > existing.probability) {
+                result.set(c.sku.id, { box, probability: c.probability });
+            }
+        }
+    }
+
+    return result;
+}
+
 export function boxCounts(boxes: PopNowBox[]): Record<PopNowBox['state'], number> {
     const counts = { available: 0, locked_other: 0, locked_mine: 0, sold: 0 };
     for (const box of boxes) counts[box.state]++;
