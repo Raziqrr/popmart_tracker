@@ -1,5 +1,5 @@
 import { CalendarClock, Dices, Lock, MousePointerClick } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { LockToggle } from '@/components/lock/LockToggle';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { BoxDetail } from '@/components/popnow/BoxDetail';
@@ -13,6 +13,7 @@ import { bestBoxesForSku, betterElsewhereFor, boxChances } from '@/lib/popnow';
 import { productStatus } from '@/lib/productStatus';
 import { sampleProducts } from '../fixtures/products';
 import { usePopNow } from '../fixtures/usePopNow';
+import { useHashQuery } from '../useHashQuery';
 import { MockSiteFrame } from './MockSiteFrame';
 
 const popNowProducts = sampleProducts.filter((p) => p.business_type === 'draw');
@@ -21,10 +22,15 @@ const SET_COUNT_OPTIONS = [3, 5, 10] as const;
 /**
  * POP NOW: pick a draw, pick a set, read the box grid (state, hints, locks,
  * reveals), and act on a box. Odds for what's left sit beside the grid.
+ * A "Pop Now" badge elsewhere in the mock (SaleTypeBadge) links here as
+ * #/page-pop-now?product=<id>, preselecting that draw.
  */
 export function PopNowPage() {
     const popNow = usePopNow();
-    const [productId, setProductId] = useState(popNowProducts.find((p) => !p.is_coming_soon)?.id ?? popNowProducts[0].id);
+    const linkedProductId = useHashQuery().get('product');
+    const [productId, setProductId] = useState(
+        popNowProducts.find((p) => p.id === linkedProductId)?.id ?? popNowProducts.find((p) => !p.is_coming_soon)?.id ?? popNowProducts[0].id,
+    );
     const product = popNowProducts.find((p) => p.id === productId)!;
 
     const allProductSets = popNow.sets.filter((entry) => entry.set.product.id === productId);
@@ -35,6 +41,17 @@ export function PopNowPage() {
     const [boxId, setBoxId] = useState<number | null>(null);
     const box = current?.boxes.find((b) => b.id === boxId) ?? null;
     const [selectedSkuId, setSelectedSkuId] = useState<string | null>(null);
+
+    // A badge can link here while already on this page (same entry id, new
+    // query) — the hash router alone wouldn't notice, so watch it directly.
+    useEffect(() => {
+        if (linkedProductId && linkedProductId !== productId && popNowProducts.some((p) => p.id === linkedProductId)) {
+            setProductId(linkedProductId);
+            setSetId(null);
+            setBoxId(null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [linkedProductId]);
 
     const chances = useMemo(() => (current ? boxChances(current.set, current.boxes) : new Map()), [current]);
     const highlight = selectedSkuId ? bestBoxesForSku(chances, selectedSkuId) : null;
