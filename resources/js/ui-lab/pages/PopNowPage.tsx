@@ -9,7 +9,7 @@ import { SetList } from '@/components/popnow/SetList';
 import { SetOdds } from '@/components/popnow/SetOdds';
 import { StatusBadge } from '@/components/product/StatusBadge';
 import { formatCountdown, formatShortDateTime } from '@/lib/format';
-import { bestBoxesForSku, boxChances } from '@/lib/popnow';
+import { bestBoxesForSku, betterElsewhereFor, boxChances } from '@/lib/popnow';
 import { productStatus } from '@/lib/productStatus';
 import { sampleProducts } from '../fixtures/products';
 import { usePopNow } from '../fixtures/usePopNow';
@@ -109,11 +109,11 @@ export function PopNowPage() {
                             type="button"
                             onClick={() => popNow.lockAllSets(productSets)}
                             disabled={!productSets.some(({ boxes }) => boxes.some((b) => b.state === 'available'))}
-                            title="Lock every free box across every set shown below to you"
+                            title={`Lock every free box across all ${productSets.length} sets shown below to you`}
                             className="inline-flex items-center gap-1.5 border border-black bg-status-warning-tint px-3 py-1.5 text-xs font-bold text-status-warning-ink hover:bg-status-warning disabled:cursor-default disabled:opacity-40"
                         >
                             <Lock aria-hidden="true" className="size-3.5" />
-                            Lock all {productSets.length} sets to me
+                            Lock All
                         </button>
                     </div>
 
@@ -142,6 +142,7 @@ export function PopNowPage() {
                                     boxes={current.boxes}
                                     selectedId={boxId}
                                     onSelect={(b) => setBoxId(b.id)}
+                                    onLockBox={popNow.lockBox}
                                     highlightedBoxIds={highlightedBoxIds}
                                     highlightProbability={highlight?.probability}
                                 />
@@ -156,6 +157,9 @@ export function PopNowPage() {
                                     set={current.set}
                                     box={box}
                                     candidates={chances.get(box.id)}
+                                    betterElsewhere={betterElsewhereFor(chances, current.boxes, box.id)}
+                                    onSelectSku={setSelectedSkuId}
+                                    selectedSkuId={selectedSkuId}
                                     onLock={popNow.lockBox}
                                     onRelease={popNow.releaseBox}
                                     payHref={() => 'https://www.popmart.com/my'}

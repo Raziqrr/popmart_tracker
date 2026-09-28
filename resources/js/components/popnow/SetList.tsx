@@ -13,8 +13,11 @@ interface SetListProps {
 
 /** Sets of one POP NOW product as selectable cards: boxes free/locked/sold and whether a secret may remain. */
 export function SetList({ sets, selectedId, onSelect, onLockSet }: SetListProps) {
+    // pt-3 clears the per-set lock badge: setting overflow-x here makes the
+    // browser treat overflow-y as auto too (CSS spec), which would otherwise
+    // clip anything poking above the cards via negative margin.
     return (
-        <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Sets">
+        <ul className="flex gap-2 overflow-x-auto pt-3 pb-1" aria-label="Sets">
             {sets.map(({ set, boxes }) => {
                 const counts = boxCounts(boxes);
                 const secretLeft = setOdds(set, boxes).figures.some((f) => f.sku.is_secret && !f.revealed);
