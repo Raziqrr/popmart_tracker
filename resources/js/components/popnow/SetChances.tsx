@@ -1,22 +1,24 @@
 import { Crown } from 'lucide-react';
 import { bestBoxesForSku, formatPercent } from '@/lib/popnow';
 import type { BoxCandidate } from '@/lib/popnow';
-import type { PopNowSet } from '@/types/popnow';
+import type { PopNowBox, PopNowSet } from '@/types/popnow';
 
 interface SetChancesProps {
     set: PopNowSet;
+    boxes: PopNowBox[];
     chances: Map<number, BoxCandidate[]>;
     selectedSkuId: string | null;
     onSelectSku: (skuId: string | null) => void;
 }
 
 /**
- * Every non-secret figure in the set with its single best shot — which box,
- * and how likely. Click a figure to highlight the box(es) tied for that lead
- * in the grid; click again to clear.
+ * Every non-secret figure in the set with its single best shot — which
+ * box(es), and how likely. Click a figure to highlight the box(es) tied for
+ * that lead in the grid; click again to clear.
  */
-export function SetChances({ set, chances, selectedSkuId, onSelectSku }: SetChancesProps) {
+export function SetChances({ set, boxes, chances, selectedSkuId, onSelectSku }: SetChancesProps) {
     const skus = (set.product.skus ?? []).filter((s) => !s.is_secret);
+    const boxNoOf = (boxId: number) => boxes.find((b) => b.id === boxId)?.box_no ?? '?';
 
     const rows = skus
         .map((sku) => ({ sku, ...bestBoxesForSku(chances, sku.id) }))
@@ -29,6 +31,7 @@ export function SetChances({ set, chances, selectedSkuId, onSelectSku }: SetChan
                 {rows.map(({ sku, boxIds, probability }) => {
                     const selected = sku.id === selectedSkuId;
                     const gone = boxIds.length === 0;
+                    const boxLabel = gone ? 'Gone / unknown' : boxIds.map((id) => `Box ${boxNoOf(id)}`).join(', ');
                     return (
                         <li key={sku.id}>
                             <button
@@ -44,8 +47,8 @@ export function SetChances({ set, chances, selectedSkuId, onSelectSku }: SetChan
                                     {sku.name}
                                     {sku.is_secret && <Crown aria-label="secret" className="ml-1 inline size-3" fill="currentColor" />}
                                 </span>
-                                <span className="shrink-0 text-black/60">
-                                    {gone ? 'Gone / unknown' : `${boxIds.length > 1 ? `${boxIds.length} boxes tied` : '1 box'}`}
+                                <span className="min-w-0 shrink-0 truncate text-black/60" title={boxLabel}>
+                                    {boxLabel}
                                 </span>
                                 <span className="w-10 shrink-0 text-right font-bold tabular-nums">{gone ? '—' : formatPercent(probability)}</span>
                             </button>

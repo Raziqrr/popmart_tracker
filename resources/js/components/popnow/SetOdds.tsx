@@ -60,7 +60,13 @@ export function SetOdds({ set, boxes }: { set: PopNowSet; boxes: PopNowBox[] }) 
                                 <span className="flex items-center gap-2">
                                     <span className="h-1.5 w-20 shrink-0 bg-tile">
                                         {f.trackable && (
-                                            <span className="block h-full rounded-r-sm bg-black" style={{ width: `${(f.chance / top) * 100}%` }} />
+                                            <span
+                                                className="block h-full rounded-r-sm"
+                                                style={{
+                                                    width: `${(f.chance / top) * 100}%`,
+                                                    background: 'linear-gradient(90deg, var(--color-status-warning), var(--color-brand))',
+                                                }}
+                                            />
                                         )}
                                     </span>
                                     <span className="font-bold tabular-nums">

@@ -165,7 +165,7 @@ export function PopNowPage() {
                                 />
                             </div>
                             <BoxGridLegend />
-                            <SetChances set={current.set} chances={chances} selectedSkuId={selectedSkuId} onSelectSku={setSelectedSkuId} />
+                            <SetChances set={current.set} boxes={current.boxes} chances={chances} selectedSkuId={selectedSkuId} onSelectSku={setSelectedSkuId} />
                         </section>
 
                         <aside className="flex flex-col gap-6 lg:sticky lg:top-32 lg:self-start">
