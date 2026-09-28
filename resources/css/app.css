@@ -2,8 +2,64 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    /* Storefront palette, modeled on Pop Mart's: red accent, pale-grey image tiles, square corners. */
+    --color-brand: #d2001e;
+    --color-tile: #f5f5f5;
+
+    /* Fixed status palette (never reused as series colours); always paired with a text label. */
+    --color-status-good: #0ca30c;
+    --color-status-warning: #fab219;
+    --color-status-critical: #d03b3b;
+    --color-good-text: #006300;
+
+    /* Status text/tint pairs for badges: text steps are darkened so labels clear 4.5:1 on their tint. */
+    --color-status-good-ink: #0f6b12;
+    --color-status-good-tint: #e7f6e7;
+    --color-status-warning-ink: #8a5300;
+    --color-status-warning-tint: #fff4d6;
+    --color-status-critical-ink: #b3261e;
+    --color-status-critical-tint: #fdeaea;
+    --color-status-upcoming-ink: #1f1f1f;
+    --color-status-upcoming-tint: #ececec;
+
+    /* Feedback when an alert or pin is switched on. Use with motion-safe: so reduced-motion users skip them. */
+    --animate-bell-ring: bell-ring 0.8s ease-in-out;
+    --animate-pin-drop: pin-drop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+    --animate-pop: pop 0.35s ease-out;
+    --animate-ping-once: ping-once 0.6s cubic-bezier(0, 0, 0.2, 1) forwards;
+    --animate-lock-snap: lock-snap 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+
+    @keyframes lock-snap {
+        0% { transform: translateY(-3px) rotate(-12deg); }
+        55% { transform: translateY(1px) rotate(4deg); }
+        100% { transform: translateY(0) rotate(0); }
+    }
+
+    @keyframes bell-ring {
+        0%, 100% { transform: rotate(0); }
+        15% { transform: rotate(18deg); }
+        30% { transform: rotate(-16deg); }
+        45% { transform: rotate(12deg); }
+        60% { transform: rotate(-8deg); }
+        75% { transform: rotate(4deg); }
+    }
+    @keyframes pin-drop {
+        0% { transform: translateY(-7px) scale(1.25); }
+        60% { transform: translateY(1px) scale(0.95); }
+        100% { transform: translateY(0) scale(1); }
+    }
+    @keyframes pop {
+        0%, 100% { transform: scale(1); }
+        40% { transform: scale(1.05); }
+    }
+    @keyframes ping-once {
+        0% { transform: scale(1); opacity: 0.55; }
+        100% { transform: scale(2.2); opacity: 0; }
+    }
 }

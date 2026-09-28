@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * SYNC: mirrored by hand in resources/js/types/catalog.ts (Product, ProductCardData)
+ * and ui-lab fixtures. Column/cast/enum changes must be copied there; see app/Models/README.md.
+ */
 class Product extends Model
 {
     public $incrementing = false;
