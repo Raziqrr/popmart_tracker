@@ -1,5 +1,5 @@
-import { BadgeCheck, Lock, PackageOpen, XCircle } from 'lucide-react';
-import { hintStrength } from '@/lib/popnow';
+import { BadgeCheck, Lock, PackageOpen, Target, XCircle } from 'lucide-react';
+import { formatPercent, hintStrength } from '@/lib/popnow';
 import { useNow } from '@/lib/useNow';
 import type { BoxState, PopNowBox, PopNowSet } from '@/types/popnow';
 
@@ -24,15 +24,20 @@ interface BoxGridProps {
     boxes: PopNowBox[];
     selectedId?: number | null;
     onSelect?: (box: PopNowBox) => void;
+    /** Boxes tied for the best shot at whatever figure is currently selected in SetChances. */
+    highlightedBoxIds?: Set<number>;
+    /** That figure's probability in the highlighted box(es), for the badge. */
+    highlightProbability?: number;
 }
 
 /**
  * The set as Pop Mart lays it out (width × height). Each box shows its state,
  * how many figures its own hints have ruled out (never which figure it IS —
  * a tip-card hint only ever proves an exclusion), live lock countdowns, and
- * the revealed figure once sold.
+ * the revealed figure once sold. Boxes in `highlightedBoxIds` get a target
+ * ring — set by clicking a figure in SetChances.
  */
-export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
+export function BoxGrid({ set, boxes, selectedId, onSelect, highlightedBoxIds, highlightProbability }: BoxGridProps) {
     const now = useNow(1000);
     const ordered = [...boxes].sort((a, b) => a.position - b.position);
 
@@ -52,6 +57,7 @@ export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
                 const figure = box.reveal?.sku ?? null;
                 const left = box.lock_expires_at ? new Date(box.lock_expires_at).getTime() - now : 0;
                 const selected = box.id === selectedId;
+                const highlighted = highlightedBoxIds?.has(box.id) ?? false;
 
                 const label = [
                     `Box ${box.box_no}`,
@@ -61,6 +67,7 @@ export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
                         : box.hints.length > 0
                           ? `${box.hints.length} figure${box.hints.length > 1 ? 's' : ''} ruled out`
                           : null,
+                    highlighted && highlightProbability !== undefined ? `${formatPercent(highlightProbability)} chance for the selected figure` : null,
                     left > 0 ? `${countdown(left)} left` : null,
                 ]
                     .filter(Boolean)
@@ -76,9 +83,18 @@ export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
                             title={label}
                             className={`relative flex aspect-square w-full flex-col items-center justify-center border p-1 transition-colors select-none ${
                                 boxStateMeta[box.state].tile
-                            } ${selected ? 'outline-3 outline-offset-2 outline-black' : ''}`}
+                            } ${selected ? 'outline-3 outline-offset-2 outline-black' : ''} ${
+                                highlighted ? 'ring-3 ring-brand ring-offset-1' : ''
+                            }`}
                         >
                             <span className="absolute top-1 left-1.5 text-[10px] font-bold tabular-nums">{box.box_no}</span>
+
+                            {highlighted && highlightProbability !== undefined && (
+                                <span className="absolute -top-2 -right-2 z-10 inline-flex items-center gap-0.5 rounded-full bg-brand px-1.5 py-0.5 text-[9px] font-bold text-white shadow">
+                                    <Target aria-hidden="true" className="size-2.5" />
+                                    {formatPercent(highlightProbability)}
+                                </span>
+                            )}
 
                             {/* Only a real reveal ever shows a figure image — an exclusion hint never does. */}
                             {figure?.image_url && (

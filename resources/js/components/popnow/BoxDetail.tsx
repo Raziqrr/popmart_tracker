@@ -1,15 +1,19 @@
 import { BadgeCheck, Crown, ExternalLink, Lock, LockOpen, MessageSquarePlus, PackageOpen, ThumbsUp, Users, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { formatTimeAgo } from '@/lib/format';
+import type { BoxCandidate } from '@/lib/popnow';
 import { hintStrength, isExcludedFromBox } from '@/lib/popnow';
 import { useNow } from '@/lib/useNow';
 import type { SkuSummary } from '@/types/catalog';
 import type { BoxHint, PopNowBox, PopNowSet } from '@/types/popnow';
 import { boxStateMeta, countdown } from './BoxGrid';
+import { ChanceList } from './ChanceList';
 
 interface BoxDetailProps {
     set: PopNowSet;
     box: PopNowBox;
+    /** Exact per-figure probabilities for this box (see lib/popnow.ts boxChances). */
+    candidates?: BoxCandidate[];
     /** Lock this one box now (a one-off lock, not an auto-lock rule). */
     onLock?: (box: PopNowBox) => void;
     onRelease?: (box: PopNowBox) => void;
@@ -21,7 +25,7 @@ interface BoxDetailProps {
 }
 
 /** Everything known about one box: state, lock timer, excluded figures with their trust, reveal, and actions. */
-export function BoxDetail({ set, box, onLock, onRelease, payHref, onReportHint, onConfirmHint }: BoxDetailProps) {
+export function BoxDetail({ set, box, candidates, onLock, onRelease, payHref, onReportHint, onConfirmHint }: BoxDetailProps) {
     const now = useNow(1000);
     const [reporting, setReporting] = useState(false);
     const [confirmingLock, setConfirmingLock] = useState(false);
@@ -108,6 +112,13 @@ export function BoxDetail({ set, box, onLock, onRelease, payHref, onReportHint, 
                                     );
                                 })}
                         </ul>
+                    )}
+
+                    {candidates && (
+                        <div className="flex flex-col gap-2 border-t border-black/10 pt-3">
+                            <h4 className="text-xs font-bold tracking-wider uppercase">Chances for this box</h4>
+                            <ChanceList candidates={candidates} emptyLabel="No valid candidates — check the set's exclusion data." />
+                        </div>
                     )}
                 </div>
             )}
