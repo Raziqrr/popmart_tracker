@@ -1,5 +1,5 @@
-import { BadgeCheck, Lock, PackageOpen, Users } from 'lucide-react';
-import { bestHint, hintStrength } from '@/lib/popnow';
+import { BadgeCheck, Lock, PackageOpen, XCircle } from 'lucide-react';
+import { hintStrength } from '@/lib/popnow';
 import { useNow } from '@/lib/useNow';
 import type { BoxState, PopNowBox, PopNowSet } from '@/types/popnow';
 
@@ -28,8 +28,9 @@ interface BoxGridProps {
 
 /**
  * The set as Pop Mart lays it out (width × height). Each box shows its state,
- * the best hint on it (verified / strongly confirmed / weak), live lock
- * countdowns, and the revealed figure once sold.
+ * how many figures its own hints have ruled out (never which figure it IS —
+ * a tip-card hint only ever proves an exclusion), live lock countdowns, and
+ * the revealed figure once sold.
  */
 export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
     const now = useNow(1000);
@@ -42,16 +43,24 @@ export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
             style={{ gridTemplateColumns: `repeat(${set.width}, minmax(0, 1fr))` }}
         >
             {ordered.map((box) => {
-                const hint = bestHint(box);
-                const strength = hint && hintStrength(hint);
-                const figure = box.reveal?.sku ?? hint?.sku ?? null;
+                // The best (most trusted) exclusion, just for its trust badge —
+                // its sku is never shown as "the figure in the box".
+                const bestExclusion = [...box.hints].sort(
+                    (a, b) => Number(b.source === 'verified_api') - Number(a.source === 'verified_api') || b.confirmations - a.confirmations,
+                )[0];
+                const strength = bestExclusion && hintStrength(bestExclusion);
+                const figure = box.reveal?.sku ?? null;
                 const left = box.lock_expires_at ? new Date(box.lock_expires_at).getTime() - now : 0;
                 const selected = box.id === selectedId;
 
                 const label = [
                     `Box ${box.box_no}`,
                     boxStateMeta[box.state].label,
-                    box.reveal ? `revealed ${box.reveal.sku.name}` : hint ? `hinted ${hint.sku.name} (${strength})` : null,
+                    box.reveal
+                        ? `revealed ${box.reveal.sku.name}`
+                        : box.hints.length > 0
+                          ? `${box.hints.length} figure${box.hints.length > 1 ? 's' : ''} ruled out`
+                          : null,
                     left > 0 ? `${countdown(left)} left` : null,
                 ]
                     .filter(Boolean)
@@ -71,18 +80,18 @@ export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
                         >
                             <span className="absolute top-1 left-1.5 text-[10px] font-bold tabular-nums">{box.box_no}</span>
 
+                            {/* Only a real reveal ever shows a figure image — an exclusion hint never does. */}
                             {figure?.image_url && (
                                 <img
                                     src={figure.image_url}
                                     alt=""
                                     draggable={false}
-                                    // Sold boxes fade; unconfirmed hints are shown faintly so they don't read as certain.
-                                    className={`size-3/5 object-contain ${box.state === 'sold' ? 'opacity-40 grayscale' : strength === 'weak' ? 'opacity-50' : ''}`}
+                                    className={`size-3/5 object-contain ${box.state === 'sold' ? 'opacity-40 grayscale' : ''}`}
                                 />
                             )}
 
-                            {/* Hint trust marker, top right. */}
-                            {hint && !box.reveal && (
+                            {/* Ruled-out count, top right — trust badge reflects the best exclusion on this box. */}
+                            {box.hints.length > 0 && !box.reveal && (
                                 <span
                                     className={`absolute top-1 right-1 inline-flex items-center gap-0.5 px-1 text-[9px] leading-4 font-bold ${
                                         strength === 'verified'
@@ -92,14 +101,9 @@ export function BoxGrid({ set, boxes, selectedId, onSelect }: BoxGridProps) {
                                               : 'bg-white text-black/60 ring-1 ring-black/15'
                                     }`}
                                 >
-                                    {strength === 'verified' ? <BadgeCheck aria-hidden="true" className="size-3" /> : <Users aria-hidden="true" className="size-3" />}
-                                    {strength === 'verified' ? '' : hint.confirmations}
+                                    {strength === 'verified' ? <BadgeCheck aria-hidden="true" className="size-3" /> : <XCircle aria-hidden="true" className="size-3" />}
+                                    {box.hints.length}
                                 </span>
-                            )}
-
-                            {box.hints.some((h) => h.sku.is_secret) && !box.reveal && (
-                                // Under the box number, clear of the lock timer / "Sold" line at the bottom.
-                                <span className="absolute top-5 left-1 bg-black px-1 text-[8px] leading-3.5 font-bold text-white uppercase">Secret?</span>
                             )}
 
                             {(box.state === 'locked_other' || box.state === 'locked_mine') && left > 0 && (
@@ -149,19 +153,19 @@ export function BoxGridLegend() {
                 <span className="inline-flex items-center bg-status-good-tint px-1 text-status-good-ink">
                     <BadgeCheck aria-hidden="true" className="size-3" />
                 </span>
-                Verified hint
+                Verified exclusion
             </li>
             <li className="inline-flex items-center gap-1">
                 <span className="inline-flex items-center gap-0.5 bg-black px-1 text-[9px] font-bold text-white">
-                    <Users aria-hidden="true" className="size-3" />3
+                    <XCircle aria-hidden="true" className="size-3" />3
                 </span>
-                Confirmed by users
+                3 figures ruled out, trusted
             </li>
             <li className="inline-flex items-center gap-1">
                 <span className="inline-flex items-center gap-0.5 bg-white px-1 text-[9px] font-bold text-black/60 ring-1 ring-black/15">
-                    <Users aria-hidden="true" className="size-3" />1
+                    <XCircle aria-hidden="true" className="size-3" />1
                 </span>
-                Unconfirmed
+                1 figure ruled out, unconfirmed
             </li>
         </ul>
     );

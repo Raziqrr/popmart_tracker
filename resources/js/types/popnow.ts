@@ -4,13 +4,14 @@ import type { ProductCardData, SkuSummary } from './catalog';
  * POP NOW draw sets and boxes, mirroring pop_now_sets / pop_now_boxes /
  * pop_now_box_hints / pop_now_box_reveals.
  * SYNC: see app/Models/README.md. Fields marked DERIVED are computed by the controller.
+ *
+ * There is no known-in-advance "recipe" for a set (no `composition` field):
+ * Pop Mart never tells us how many of each figure a set contains before it's
+ * fully revealed, and every set scraped so far has empirically been exactly
+ * one of each non-secret SKU (proven deterministic — see app/Models/README.md).
+ * The full figure list for a set is `product.skus` (secrets excluded client-side
+ * where relevant), not a separate per-set count.
  */
-
-/** How many boxes of each figure a full set contains. DERIVED (from Pop Mart's set spec). */
-export interface SetSlot {
-    sku: SkuSummary;
-    count: number;
-}
 
 export interface PopNowSet {
     id: number;
@@ -20,14 +21,21 @@ export interface PopNowSet {
     width: number;
     height: number;
     total_boxes: number;
-    composition: SetSlot[];
     first_seen_at: string;
     last_seen_at: string;
 }
 
 export type HintSource = 'verified_api' | 'user_reported';
 
-/** A claim that a box holds a figure (pop_now_box_hints). */
+/**
+ * A figure PROVEN EXCLUDED from a box (pop_now_box_hints) — Pop Mart's
+ * tip-card mechanic only ever reveals figures a box is NOT, never confirms
+ * one it is. Proven deterministic and server-side-fixed across 36 real
+ * datapoints on 4 independent accounts: everyone tipping the same box sees
+ * the same exclusions. `source: 'user_reported'` is someone sharing an
+ * exclusion they observed themselves (e.g. from their own tip), not a guess
+ * at what the box holds.
+ */
 export interface BoxHint {
     sku: SkuSummary;
     source: HintSource;

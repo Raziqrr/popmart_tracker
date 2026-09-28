@@ -1,7 +1,7 @@
-import { BadgeCheck, Crown, ExternalLink, Lock, LockOpen, MessageSquarePlus, PackageOpen, ThumbsUp, Users } from 'lucide-react';
+import { BadgeCheck, Crown, ExternalLink, Lock, LockOpen, MessageSquarePlus, PackageOpen, ThumbsUp, Users, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { formatTimeAgo } from '@/lib/format';
-import { hintStrength } from '@/lib/popnow';
+import { hintStrength, isExcludedFromBox } from '@/lib/popnow';
 import { useNow } from '@/lib/useNow';
 import type { SkuSummary } from '@/types/catalog';
 import type { BoxHint, PopNowBox, PopNowSet } from '@/types/popnow';
@@ -14,13 +14,13 @@ interface BoxDetailProps {
     onLock?: (box: PopNowBox) => void;
     onRelease?: (box: PopNowBox) => void;
     payHref?: (box: PopNowBox) => string;
-    /** Report which figure you believe is in the box (adds a user_reported hint). */
+    /** Report a figure you've confirmed this box is NOT (e.g. from your own tip) — adds a user_reported hint. */
     onReportHint?: (box: PopNowBox, sku: SkuSummary) => void;
-    /** Agree with an existing user hint (+1 confirmation). */
+    /** Agree you've also confirmed this exclusion (+1 confirmation). */
     onConfirmHint?: (box: PopNowBox, hint: BoxHint) => void;
 }
 
-/** Everything known about one box: state, lock timer, hints with their trust, reveal, and actions. */
+/** Everything known about one box: state, lock timer, excluded figures with their trust, reveal, and actions. */
 export function BoxDetail({ set, box, onLock, onRelease, payHref, onReportHint, onConfirmHint }: BoxDetailProps) {
     const now = useNow(1000);
     const [reporting, setReporting] = useState(false);
@@ -57,9 +57,9 @@ export function BoxDetail({ set, box, onLock, onRelease, payHref, onReportHint, 
                 </div>
             ) : (
                 <div className="flex flex-col gap-2">
-                    <h4 className="text-xs font-bold tracking-wider uppercase">Hints</h4>
+                    <h4 className="text-xs font-bold tracking-wider uppercase">Ruled out</h4>
                     {box.hints.length === 0 ? (
-                        <p className="text-xs text-black/50">No hints for this box yet.</p>
+                        <p className="text-xs text-black/50">No figures ruled out for this box yet.</p>
                     ) : (
                         <ul className="flex flex-col gap-2">
                             {[...box.hints]
@@ -68,10 +68,13 @@ export function BoxDetail({ set, box, onLock, onRelease, payHref, onReportHint, 
                                     const strength = hintStrength(hint);
                                     return (
                                         <li key={hint.sku.id + hint.source} className="flex items-center gap-2 border border-black/10 p-2">
-                                            {hint.sku.image_url && <img src={hint.sku.image_url} alt="" className="size-10 shrink-0 object-contain" />}
+                                            {hint.sku.image_url && (
+                                                <img src={hint.sku.image_url} alt="" className="size-10 shrink-0 object-contain opacity-50 grayscale" />
+                                            )}
                                             <div className="min-w-0 grow text-xs">
                                                 <p className="inline-flex items-center gap-1 font-bold">
-                                                    {hint.sku.name}
+                                                    <XCircle aria-hidden="true" className="size-3.5 text-black/50" />
+                                                    Not {hint.sku.name}
                                                     {hint.sku.is_secret && <Crown aria-label="secret" className="size-3.5" fill="currentColor" />}
                                                 </p>
                                                 <p className="flex items-center gap-1 text-black/60">
@@ -93,8 +96,8 @@ export function BoxDetail({ set, box, onLock, onRelease, payHref, onReportHint, 
                                                 <button
                                                     type="button"
                                                     onClick={() => onConfirmHint(box, hint)}
-                                                    aria-label={`Agree: box ${box.box_no} holds ${hint.sku.name}`}
-                                                    title="I saw this too"
+                                                    aria-label={`Agree: box ${box.box_no} is not ${hint.sku.name}`}
+                                                    title="I confirmed this exclusion too"
                                                     className="inline-flex shrink-0 items-center gap-1 border border-black/20 px-2 py-1 text-[11px] font-bold hover:border-black"
                                                 >
                                                     <ThumbsUp aria-hidden="true" className="size-3.5" />
@@ -170,22 +173,24 @@ export function BoxDetail({ set, box, onLock, onRelease, payHref, onReportHint, 
                 {!box.reveal && onReportHint && (
                     reporting ? (
                         <div className="flex flex-col gap-2 bg-tile p-2">
-                            <p className="text-xs font-bold">Which figure is in box {box.box_no}?</p>
+                            <p className="text-xs font-bold">Which figure have you confirmed box {box.box_no} is NOT?</p>
                             <div className="grid grid-cols-3 gap-1.5">
-                                {set.composition.map(({ sku }) => (
-                                    <button
-                                        key={sku.id}
-                                        type="button"
-                                        onClick={() => {
-                                            setReporting(false);
-                                            onReportHint(box, sku);
-                                        }}
-                                        className="flex flex-col items-center gap-0.5 border border-black/10 bg-white p-1 text-[10px] font-medium hover:border-black"
-                                    >
-                                        {sku.image_url && <img src={sku.image_url} alt="" className="size-8 object-contain" />}
-                                        <span className="line-clamp-1">{sku.name}</span>
-                                    </button>
-                                ))}
+                                {(set.product.skus ?? [])
+                                    .filter((sku) => !sku.is_secret && !isExcludedFromBox(box, sku.id))
+                                    .map((sku) => (
+                                        <button
+                                            key={sku.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setReporting(false);
+                                                onReportHint(box, sku);
+                                            }}
+                                            className="flex flex-col items-center gap-0.5 border border-black/10 bg-white p-1 text-[10px] font-medium hover:border-black"
+                                        >
+                                            {sku.image_url && <img src={sku.image_url} alt="" className="size-8 object-contain" />}
+                                            <span className="line-clamp-1">{sku.name}</span>
+                                        </button>
+                                    ))}
                             </div>
                             <button type="button" onClick={() => setReporting(false)} className="self-start text-[11px] font-bold hover:underline">
                                 Cancel

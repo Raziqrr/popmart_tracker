@@ -17,28 +17,23 @@ const sku = (name: string) => {
     return found;
 };
 
-/** 12 boxes: every regular figure twice, Night Owl three times, one secret. */
-const composition = [
-    { sku: sku('Midnight Noodles'), count: 2 },
-    { sku: sku('Sleepy Toast'), count: 2 },
-    { sku: sku('Fridge Raid'), count: 2 },
-    { sku: sku('Pillow Fort'), count: 2 },
-    { sku: sku('Night Owl'), count: 3 },
-    { sku: sku('Golden Moon Snack'), count: 1 },
-];
+// 5 boxes: one of each non-secret figure (Golden Moon Snack is the secret,
+// which — per how Pop Mart's API actually behaves — never appears in a set
+// slot count and is never excludable, so it's simply not one of the 5).
+const midnightSnackProduct = { ...midnightSnack, skus };
 
 const makeSet = (id: number, set_no: string, firstSeen: string): PopNowSet => ({
     id,
-    product: midnightSnack,
+    product: midnightSnackProduct,
     set_no,
-    width: 4,
-    height: 3,
-    total_boxes: 12,
-    composition,
+    width: 5,
+    height: 1,
+    total_boxes: 5,
     first_seen_at: firstSeen,
     last_seen_at: minutesAgo(1),
 });
 
+/** A figure PROVEN EXCLUDED from the box (never a claim about what it holds). */
 const hint = (name: string, source: BoxHint['source'], confirmations: number, seen = minutesAgo(20)): BoxHint => ({
     sku: sku(name),
     source,
@@ -71,30 +66,41 @@ export const sampleSets: { set: PopNowSet; boxes: PopNowBox[] }[] = [
         set: makeSet(1042, 'S-1042', hoursAgo(5)),
         boxes: [
             box(0, 'sold', { reveal: reveal('Sleepy Toast', hoursAgo(4)) }),
-            box(1, 'available', { hints: [hint('Midnight Noodles', 'verified_api', 1)] }),
-            box(2, 'sold', { reveal: reveal('Night Owl', hoursAgo(3), 'open_box_api') }),
-            box(3, 'locked_other', { lock_expires_at: inFuture(130) }),
+            // Own hints have ruled out Sleepy Toast and Fridge Raid for this box —
+            // three candidates left (Midnight Noodles, Pillow Fort, Night Owl).
+            box(1, 'available', {
+                hints: [hint('Sleepy Toast', 'verified_api', 1), hint('Fridge Raid', 'verified_api', 1)],
+            }),
+            box(2, 'locked_other', { lock_expires_at: inFuture(130) }),
+            // A second, independent exclusion pair on the same box, one user-reported.
+            box(3, 'locked_mine', {
+                lock_expires_at: heldUntil,
+                hints: [hint('Midnight Noodles', 'verified_api', 1, minutesAgo(12)), hint('Night Owl', 'user_reported', 4)],
+            }),
             box(4, 'available', { hints: [hint('Pillow Fort', 'user_reported', 1)] }),
-            box(5, 'available'),
-            box(6, 'locked_mine', { lock_expires_at: heldUntil, hints: [hint('Golden Moon Snack', 'verified_api', 1, minutesAgo(12))] }),
-            box(7, 'available', { hints: [hint('Night Owl', 'user_reported', 4), hint('Fridge Raid', 'user_reported', 1)] }),
-            box(8, 'sold', { reveal: reveal('Midnight Noodles', hoursAgo(2)) }),
-            box(9, 'available', { hints: [hint('Golden Moon Snack', 'user_reported', 2, minutesAgo(8))] }),
-            box(10, 'locked_other', { lock_expires_at: inFuture(40) }),
-            box(11, 'available'),
         ],
     },
     {
         set: makeSet(1043, 'S-1043', minutesAgo(40)),
-        boxes: Array.from({ length: 12 }, (_, i) =>
-            box(i, 'available', i === 5 ? { hints: [hint('Sleepy Toast', 'user_reported', 3)] } : i === 9 ? { hints: [hint('Night Owl', 'verified_api', 1)] } : {}),
+        boxes: Array.from({ length: 5 }, (_, i) =>
+            box(
+                i,
+                'available',
+                i === 2
+                    ? { hints: [hint('Night Owl', 'user_reported', 3)] }
+                    : i === 4
+                      ? { hints: [hint('Midnight Noodles', 'verified_api', 1)] }
+                      : {},
+            ),
         ),
     },
     {
         set: makeSet(1038, 'S-1038', daysAgo(1)),
-        boxes: Array.from({ length: 12 }, (_, i) => {
-            const names = ['Night Owl', 'Sleepy Toast', 'Golden Moon Snack', 'Fridge Raid', 'Night Owl', 'Pillow Fort', 'Midnight Noodles', 'Night Owl', 'Fridge Raid', 'Sleepy Toast'];
-            return i < names.length ? box(i, 'sold', { reveal: reveal(names[i], hoursAgo(20 - i)) }) : box(i, 'available');
-        }),
+        boxes: (() => {
+            const names = ['Night Owl', 'Sleepy Toast', 'Fridge Raid', 'Pillow Fort'];
+            return Array.from({ length: 5 }, (_, i) =>
+                i < names.length ? box(i, 'sold', { reveal: reveal(names[i], hoursAgo(20 - i)) }) : box(i, 'available'),
+            );
+        })(),
     },
 ];

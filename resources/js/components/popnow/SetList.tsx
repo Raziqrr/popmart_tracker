@@ -15,7 +15,7 @@ export function SetList({ sets, selectedId, onSelect }: SetListProps) {
         <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Sets">
             {sets.map(({ set, boxes }) => {
                 const counts = boxCounts(boxes);
-                const secretLeft = setOdds(set, boxes).figures.some((f) => f.sku.is_secret && f.remaining > 0);
+                const secretLeft = setOdds(set, boxes).figures.some((f) => f.sku.is_secret && !f.revealed);
                 const selected = set.id === selectedId;
 
                 return (
