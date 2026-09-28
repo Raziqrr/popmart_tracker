@@ -77,7 +77,8 @@ export const sampleSets: { set: PopNowSet; boxes: PopNowBox[] }[] = [
                 lock_expires_at: heldUntil,
                 hints: [hint('Midnight Noodles', 'verified_api', 1, minutesAgo(12)), hint('Night Owl', 'user_reported', 4)],
             }),
-            box(4, 'available', { hints: [hint('Pillow Fort', 'user_reported', 1)] }),
+            // No hints yet — the plain "untouched" box.
+            box(4, 'available'),
         ],
     },
     {
@@ -97,7 +98,8 @@ export const sampleSets: { set: PopNowSet; boxes: PopNowBox[] }[] = [
     {
         set: makeSet(1038, 'S-1038', daysAgo(1)),
         boxes: (() => {
-            const names = ['Night Owl', 'Sleepy Toast', 'Fridge Raid', 'Pillow Fort'];
+            // Includes the secret (Golden Moon Snack) — this specimen demos "secret revealed".
+            const names = ['Golden Moon Snack', 'Sleepy Toast', 'Fridge Raid', 'Pillow Fort'];
             return Array.from({ length: 5 }, (_, i) =>
                 i < names.length ? box(i, 'sold', { reveal: reveal(names[i], hoursAgo(20 - i)) }) : box(i, 'available'),
             );
