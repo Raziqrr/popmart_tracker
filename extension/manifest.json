@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Popmart Tracker Connector",
+  "version": "0.1.0",
+  "description": "Captures your Pop Mart session (after you log in for real) and hands it to Popmart Tracker. Never sees your password.",
+
+  "api_base_url": "http://localhost:8000",
+  "popmart_api_base_url": "https://prod-apac-api.popmart.com",
+  "popmart_login_url": "https://m.popmart.com/",
+  "session_token_cookie": "__Secure-ea-production.session_token",
+  "session_data_cookie": "__Secure-ea-production.session_data",
+
+  "permissions": ["cookies", "tabs", "storage"],
+  "host_permissions": [
+    "https://*.popmart.com/*",
+    "http://localhost:8000/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "externally_connectable": {
+    "matches": ["http://localhost:8000/*"]
+  }
+}
