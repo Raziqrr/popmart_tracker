@@ -42,6 +42,7 @@ export const lockStore = {
     deleteRule: (id: string) => set({ rules: state.rules.filter((r) => r.id !== id) }),
     toggleRule: (id: string) => set({ rules: state.rules.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)) }),
     releaseLock: (id: string) => set({ attempts: state.attempts.map((a) => (a.id === id ? { ...a, status: 'released' } : a)) }),
+    addAttempt: (attempt: LockAttempt) => set({ attempts: [attempt, ...state.attempts] }),
     setHandoff: (handoff: LockState['handoff']) => set({ handoff }),
     resetAcknowledgement: () => set({ acknowledged: false }),
 };

@@ -10,6 +10,7 @@ Some models are mirrored by hand as TypeScript types for the React frontend. The
 | `Collection` + `*_create_collections_table.php` | `CollectionSummary` in `resources/js/types/catalog.ts` | `resources/js/ui-lab/fixtures/collections.ts` |
 | `Sku` + `*_create_skus_table.php` | `SkuSummary`, and `ProductCardData.skus` (plus `category_name`, resolved from `products.category_id`) | `skus` / `category_name` in `resources/js/ui-lab/fixtures/products.ts` |
 | `StockSnapshot` / `ProductSnapshot` (diffed) | `ProductEvent` / `ProductChange`, and the derived `stock_history`, `previous_price`, `last_changed_at`, `last_change` on `ProductCardData` | `resources/js/ui-lab/fixtures/events.ts` |
+| `PopNowSet`, `PopNowBox`, `PopNowBoxHint`, `PopNowBoxReveal` | `PopNowSet`, `PopNowBox`, `BoxHint`, `BoxReveal` in `resources/js/types/popnow.ts` (`BoxState` and `composition` are derived) | `resources/js/ui-lab/fixtures/popnow.ts` |
 | `PinnedItem`, `WishlistItem` | `pinnedIds` / `watchedIds` in `resources/js/components/product/actions.ts` | `samplePinnedIds` / `sampleWatchedIds` in fixtures |
 
 ### Frontend fields with no backend yet

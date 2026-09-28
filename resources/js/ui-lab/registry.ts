@@ -3,6 +3,7 @@ import { CalendarLab } from './modules/CalendarLab';
 import { DashboardLab } from './modules/DashboardLab';
 import { LayoutLab } from './modules/LayoutLab';
 import { LockLab } from './modules/LockLab';
+import { PopNowLab } from './modules/PopNowLab';
 import { ProductCardLab } from './modules/ProductCardLab';
 import { ProductListLab } from './modules/ProductListLab';
 import { AutoLockPage } from './pages/AutoLockPage';
@@ -10,6 +11,7 @@ import { AutoLockSetupPage } from './pages/AutoLockSetupPage';
 import { CatalogPage } from './pages/CatalogPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { DropsPage } from './pages/DropsPage';
+import { PopNowPage } from './pages/PopNowPage';
 import { WatchlistPage } from './pages/WatchlistPage';
 
 export interface LabEntry {
@@ -26,6 +28,7 @@ export const labEntries: LabEntry[] = [
     { id: 'page-watchlist', title: 'Watchlist', kind: 'page', component: WatchlistPage },
     { id: 'page-drops', title: 'Drops', kind: 'page', component: DropsPage },
     { id: 'page-catalog', title: 'Catalog', kind: 'page', component: CatalogPage },
+    { id: 'page-pop-now', title: 'POP NOW', kind: 'page', component: PopNowPage },
     { id: 'page-auto-lock', title: 'Auto-lock', kind: 'page', component: AutoLockPage },
     { id: 'page-auto-lock-setup', title: 'Auto-lock setup', kind: 'page', component: AutoLockSetupPage },
 
@@ -34,6 +37,7 @@ export const labEntries: LabEntry[] = [
     { id: 'module-product-lists', title: 'Product lists', kind: 'module', component: ProductListLab },
     { id: 'module-dashboard', title: 'Dashboard widgets', kind: 'module', component: DashboardLab },
     { id: 'module-calendar', title: 'Calendar & timeline', kind: 'module', component: CalendarLab },
+    { id: 'module-popnow', title: 'POP NOW', kind: 'module', component: PopNowLab },
     { id: 'module-lock', title: 'Auto-lock', kind: 'module', component: LockLab },
 ];
 
@@ -41,11 +45,9 @@ export const labEntries: LabEntry[] = [
 export const plannedEntries: { title: string; kind: LabEntry['kind'] }[] = [
     { title: 'Product detail', kind: 'page' },
     { title: 'Collection detail', kind: 'page' },
-    { title: 'POP NOW', kind: 'page' },
     { title: 'Store finder', kind: 'page' },
     { title: 'Alerts inbox', kind: 'page' },
     { title: 'Stock history chart', kind: 'module' },
     { title: 'SKU / figure list', kind: 'module' },
-    { title: 'POP NOW box grid', kind: 'module' },
     { title: 'Store card & map', kind: 'module' },
 ];

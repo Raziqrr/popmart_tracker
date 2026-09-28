@@ -87,6 +87,8 @@ export interface SkuSummary {
     bar_code: string | null;
     /** skus.box_type === 'secret'. */
     is_secret: boolean;
+    /** skus.main_image. */
+    image_url?: string | null;
 }
 
 /** One stock reading: stock_snapshots.stock at stock_snapshots.checked_at (summed across SKUs). */
