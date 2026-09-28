@@ -1,4 +1,4 @@
-import { Crown } from 'lucide-react';
+import { Crown, Lock } from 'lucide-react';
 import { formatTimeAgo } from '@/lib/format';
 import { boxCounts, setOdds } from '@/lib/popnow';
 import type { PopNowBox, PopNowSet } from '@/types/popnow';
@@ -7,10 +7,12 @@ interface SetListProps {
     sets: { set: PopNowSet; boxes: PopNowBox[] }[];
     selectedId: number | null;
     onSelect: (set: PopNowSet) => void;
+    /** Lock every free box in this one set to you. Omit to hide the per-set lock button. */
+    onLockSet?: (set: PopNowSet, boxes: PopNowBox[]) => void;
 }
 
 /** Sets of one POP NOW product as selectable cards: boxes free/locked/sold and whether a secret may remain. */
-export function SetList({ sets, selectedId, onSelect }: SetListProps) {
+export function SetList({ sets, selectedId, onSelect, onLockSet }: SetListProps) {
     return (
         <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Sets">
             {sets.map(({ set, boxes }) => {
@@ -19,7 +21,7 @@ export function SetList({ sets, selectedId, onSelect }: SetListProps) {
                 const selected = set.id === selectedId;
 
                 return (
-                    <li key={set.id} className="shrink-0">
+                    <li key={set.id} className="relative shrink-0">
                         <button
                             type="button"
                             onClick={() => onSelect(set)}
@@ -46,6 +48,19 @@ export function SetList({ sets, selectedId, onSelect }: SetListProps) {
                             </span>
                             <span className="text-[10px] text-black/50">checked {formatTimeAgo(set.last_seen_at)}</span>
                         </button>
+
+                        {onLockSet && counts.available > 0 && (
+                            <button
+                                type="button"
+                                onClick={() => onLockSet(set, boxes)}
+                                aria-label={`Lock all ${counts.available} free boxes in set ${set.set_no} to you`}
+                                title="Lock every free box in this set to you"
+                                className="absolute -top-2 -right-2 inline-flex items-center gap-0.5 border border-black bg-status-warning-tint px-1.5 py-1 text-[10px] font-bold text-status-warning-ink shadow hover:bg-status-warning"
+                            >
+                                <Lock aria-hidden="true" className="size-3" />
+                                {counts.available}
+                            </button>
+                        )}
                     </li>
                 );
             })}

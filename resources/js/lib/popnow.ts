@@ -79,6 +79,104 @@ export function setOdds(set: PopNowSet, boxes: PopNowBox[]): { unopened: number;
     return { unopened, figures };
 }
 
+export interface BoxCandidate {
+    sku: SkuSummary;
+    probability: number;
+}
+
+/**
+ * Exact per-box, per-figure probabilities — mirrors the backend's
+ * App\Services\Analytics\ExclusionBoxPredictor::predictSet(): count every
+ * valid way to assign a distinct non-secret figure to each unrevealed box,
+ * respecting each box's own excluded hints, then a figure's probability in
+ * a box is how often it landed there ÷ total valid completions. A revealed
+ * box is a fixed fact and removes its figure from the pool for every other
+ * box in the set — this is what makes it "cross-box", not just per-box.
+ */
+export function boxChances(set: PopNowSet, boxes: PopNowBox[]): Map<number, BoxCandidate[]> {
+    const pool = (set.product.skus ?? []).filter((s) => !s.is_secret);
+    const result = new Map<number, BoxCandidate[]>();
+
+    const usedIds = new Set<string>();
+    const unresolved: PopNowBox[] = [];
+
+    for (const box of boxes) {
+        if (box.reveal) {
+            usedIds.add(box.reveal.sku.id);
+            result.set(box.id, [{ sku: box.reveal.sku, probability: 1 }]);
+        } else {
+            unresolved.push(box);
+        }
+    }
+
+    const available = pool.filter((s) => !usedIds.has(s.id));
+    const allowed = unresolved.map((box) => available.filter((s) => !isExcludedFromBox(box, s.id)));
+
+    const n = unresolved.length;
+    const counts: Record<string, number>[] = Array.from({ length: n }, () => ({}));
+    let total = 0;
+    const inUse = new Set<string>();
+    const assignment: string[] = [];
+
+    const dfs = (i: number) => {
+        if (i === n) {
+            total++;
+            assignment.forEach((skuId, idx) => {
+                counts[idx][skuId] = (counts[idx][skuId] ?? 0) + 1;
+            });
+            return;
+        }
+        for (const sku of allowed[i]) {
+            if (inUse.has(sku.id)) continue;
+            inUse.add(sku.id);
+            assignment[i] = sku.id;
+            dfs(i + 1);
+            inUse.delete(sku.id);
+        }
+    };
+    if (n > 0) dfs(0);
+
+    unresolved.forEach((box, i) => {
+        if (total === 0) {
+            result.set(box.id, []);
+            return;
+        }
+        const entries = Object.entries(counts[i]).map(([skuId, count]) => ({
+            sku: available.find((s) => s.id === skuId)!,
+            probability: count / total,
+        }));
+        entries.sort((a, b) => b.probability - a.probability);
+        result.set(box.id, entries);
+    });
+
+    return result;
+}
+
+/**
+ * Which box(es) have the best shot at a given figure, and what that chance
+ * is — used to highlight the grid when someone clicks a figure. Ties (equal
+ * top probability) return every box tied for the lead, not just one.
+ */
+export function bestBoxesForSku(chances: Map<number, BoxCandidate[]>, skuId: string): { boxIds: number[]; probability: number } {
+    let best = 0;
+    const byBox = new Map<number, number>();
+
+    for (const [boxId, candidates] of chances) {
+        const found = candidates.find((c) => c.sku.id === skuId);
+        if (found) {
+            byBox.set(boxId, found.probability);
+            best = Math.max(best, found.probability);
+        }
+    }
+
+    if (best === 0) {
+        return { boxIds: [], probability: 0 };
+    }
+
+    const boxIds = [...byBox.entries()].filter(([, p]) => p === best).map(([boxId]) => boxId);
+    return { boxIds, probability: best };
+}
+
 export function boxCounts(boxes: PopNowBox[]): Record<PopNowBox['state'], number> {
     const counts = { available: 0, locked_other: 0, locked_mine: 0, sold: 0 };
     for (const box of boxes) counts[box.state]++;

@@ -1,19 +1,22 @@
-import { CalendarClock, Dices, MousePointerClick } from 'lucide-react';
-import { useState } from 'react';
+import { CalendarClock, Dices, Lock, MousePointerClick } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { LockToggle } from '@/components/lock/LockToggle';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { BoxDetail } from '@/components/popnow/BoxDetail';
 import { BoxGrid, BoxGridLegend } from '@/components/popnow/BoxGrid';
+import { SetChances } from '@/components/popnow/SetChances';
 import { SetList } from '@/components/popnow/SetList';
 import { SetOdds } from '@/components/popnow/SetOdds';
 import { StatusBadge } from '@/components/product/StatusBadge';
 import { formatCountdown, formatShortDateTime } from '@/lib/format';
+import { bestBoxesForSku, boxChances } from '@/lib/popnow';
 import { productStatus } from '@/lib/productStatus';
 import { sampleProducts } from '../fixtures/products';
 import { usePopNow } from '../fixtures/usePopNow';
 import { MockSiteFrame } from './MockSiteFrame';
 
 const popNowProducts = sampleProducts.filter((p) => p.business_type === 'draw');
+const SET_COUNT_OPTIONS = [3, 5, 10] as const;
 
 /**
  * POP NOW: pick a draw, pick a set, read the box grid (state, hints, locks,
@@ -24,11 +27,18 @@ export function PopNowPage() {
     const [productId, setProductId] = useState(popNowProducts.find((p) => !p.is_coming_soon)?.id ?? popNowProducts[0].id);
     const product = popNowProducts.find((p) => p.id === productId)!;
 
-    const productSets = popNow.sets.filter((entry) => entry.set.product.id === productId);
+    const allProductSets = popNow.sets.filter((entry) => entry.set.product.id === productId);
+    const [visibleSetCount, setVisibleSetCount] = useState<number | 'all'>(5);
+    const productSets = visibleSetCount === 'all' ? allProductSets : allProductSets.slice(0, visibleSetCount);
     const [setId, setSetId] = useState<number | null>(productSets[0]?.set.id ?? null);
     const current = productSets.find((entry) => entry.set.id === setId) ?? productSets[0] ?? null;
     const [boxId, setBoxId] = useState<number | null>(null);
     const box = current?.boxes.find((b) => b.id === boxId) ?? null;
+    const [selectedSkuId, setSelectedSkuId] = useState<string | null>(null);
+
+    const chances = useMemo(() => (current ? boxChances(current.set, current.boxes) : new Map()), [current]);
+    const highlight = selectedSkuId ? bestBoxesForSku(chances, selectedSkuId) : null;
+    const highlightedBoxIds = highlight ? new Set(highlight.boxIds) : undefined;
 
     return (
         <MockSiteFrame currentHref="/pop-now">
@@ -79,6 +89,34 @@ export function PopNowPage() {
                 </section>
             ) : (
                 <>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <label className="flex items-center gap-2 text-xs text-black/60">
+                            Show
+                            <select
+                                value={visibleSetCount}
+                                onChange={(e) => setVisibleSetCount(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                                className="border border-black/20 px-1.5 py-1 text-xs font-bold"
+                            >
+                                {SET_COUNT_OPTIONS.map((n) => (
+                                    <option key={n} value={n}>
+                                        {n} sets
+                                    </option>
+                                ))}
+                                <option value="all">All ({allProductSets.length})</option>
+                            </select>
+                        </label>
+                        <button
+                            type="button"
+                            onClick={() => popNow.lockAllSets(productSets)}
+                            disabled={!productSets.some(({ boxes }) => boxes.some((b) => b.state === 'available'))}
+                            title="Lock every free box across every set shown below to you"
+                            className="inline-flex items-center gap-1.5 border border-black bg-status-warning-tint px-3 py-1.5 text-xs font-bold text-status-warning-ink hover:bg-status-warning disabled:cursor-default disabled:opacity-40"
+                        >
+                            <Lock aria-hidden="true" className="size-3.5" />
+                            Lock all {productSets.length} sets to me
+                        </button>
+                    </div>
+
                     <SetList
                         sets={productSets}
                         selectedId={current.set.id}
@@ -86,6 +124,7 @@ export function PopNowPage() {
                             setSetId(set.id);
                             setBoxId(null);
                         }}
+                        onLockSet={popNow.lockAllInSet}
                     />
 
                     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -98,9 +137,17 @@ export function PopNowPage() {
                                 </span>
                             </div>
                             <div className="mx-auto w-full max-w-xl">
-                                <BoxGrid set={current.set} boxes={current.boxes} selectedId={boxId} onSelect={(b) => setBoxId(b.id)} />
+                                <BoxGrid
+                                    set={current.set}
+                                    boxes={current.boxes}
+                                    selectedId={boxId}
+                                    onSelect={(b) => setBoxId(b.id)}
+                                    highlightedBoxIds={highlightedBoxIds}
+                                    highlightProbability={highlight?.probability}
+                                />
                             </div>
                             <BoxGridLegend />
+                            <SetChances set={current.set} chances={chances} selectedSkuId={selectedSkuId} onSelectSku={setSelectedSkuId} />
                         </section>
 
                         <aside className="flex flex-col gap-6 lg:sticky lg:top-32 lg:self-start">
@@ -108,6 +155,7 @@ export function PopNowPage() {
                                 <BoxDetail
                                     set={current.set}
                                     box={box}
+                                    candidates={chances.get(box.id)}
                                     onLock={popNow.lockBox}
                                     onRelease={popNow.releaseBox}
                                     payHref={() => 'https://www.popmart.com/my'}
