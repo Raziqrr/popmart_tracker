@@ -51,7 +51,13 @@ export function ChanceList({ candidates, onSelectSku, selectedSkuId, emptyLabel 
                                 )}
                             </span>
                             <span className="h-1.5 w-14 shrink-0 bg-tile">
-                                <span className="block h-full rounded-r-sm bg-black" style={{ width: `${(c.probability / top) * 100}%` }} />
+                                <span
+                                    className="block h-full rounded-r-sm"
+                                    style={{
+                                        width: `${(c.probability / top) * 100}%`,
+                                        background: 'linear-gradient(90deg, var(--color-status-warning), var(--color-brand))',
+                                    }}
+                                />
                             </span>
                             <span className="w-10 shrink-0 text-right font-bold tabular-nums">{formatPercent(c.probability)}</span>
                         </Row>
