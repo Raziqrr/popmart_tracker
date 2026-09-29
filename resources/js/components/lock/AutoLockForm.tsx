@@ -8,7 +8,7 @@ import { fitRenewal, RenewalControls } from './RenewalControls';
 const HOLD_OPTIONS = [60, 120, 180, 300, 600];
 const HOUR = 3_600_000;
 /** Thresholds offered for the 'chance_reached' trigger. */
-const CHANCE_OPTIONS = [0.34, 0.5, 0.6, 0.75, 0.9];
+export const CHANCE_OPTIONS = [0.5, 0.6, 0.75, 0.9];
 
 /** Why saving is blocked, or null when the account can lock. */
 export function accountBlocker(account: LockAccount | null): string | null {

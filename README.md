@@ -45,7 +45,7 @@ Set the `DB_*` values in `.env` first (database `popmart_tracker`). `POPMART_API
 
 ## POP NOW odds in one paragraph
 
-Pop Mart's tip card only ever tells you what a box is **not**, so every row in `pop_now_box_hints` is an exclusion. Every set seen so far is one of each non-secret figure. `ExclusionBoxPredictor` counts every valid way to give each unopened box a different figure (respecting exclusions and removing revealed figures) to get an exact chance per box and figure. A box left with one option is "confirmed by elimination". Secrets have no odds, because nothing says which box is the secret.
+Pop Mart's tip card only ever tells you what a box is **not**, so every row in `pop_now_box_hints` is an exclusion. Every set seen so far is one of each non-secret figure. `ExclusionBoxPredictor` counts every valid way to give each unopened box a different figure (respecting exclusions and removing revealed figures) to get an exact chance per box and figure. A box left with one option is "confirmed by elimination". Secrets have no odds, because nothing says which box is the secret. When a set does contain the secret, it takes one normal figure's place, so that set's odds are slightly overconfident.
 
 - **Per set:** `GET /api/pop-now-sets/{set}/predictions`.
 - **Per product:** `GET /api/products/{product}/box-ranking?sku_id=` for the best box for a figure across sets.
@@ -62,7 +62,7 @@ Pop Mart's tip card only ever tells you what a box is **not**, so every row in `
 - [ ] User login. Account-bound API calls (anything that uses a Pop Mart session: connect, claim tasks, locks) are only available to logged-in users, for accounts they've connected. Guests get read-only data.
 - [ ] `PopmartAccountRepository::connect()` upserts on `(user_id, popmart_member_id)` instead of always inserting.
 - [ ] Extension: set the real domain in `manifest.json` (`api_base_url`, `externally_connectable`, `host_permissions`).
-- [ ] Rate limiting towards Pop Mart (see `docs/tickets/auto-lock.md`).
+- [ ] Rate limits: Pop Mart's limits are unknown, so nothing throttles calls yet and users need to be careful. Build a rate-limit detector once we see real traffic after deploying.
 
 ## Contributing
 

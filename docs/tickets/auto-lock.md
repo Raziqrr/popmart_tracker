@@ -32,6 +32,8 @@ Every set seen so far holds exactly one of each non-secret figure. So `Exclusion
 
 **Secrets have no odds.** Nothing in Pop Mart's API says which box is the secret, so no chance-based trigger can target a secret. Only Random targets (or `sale_opens` / `restock` triggers) can end up with one.
 
+**A secret replaces a normal figure.** Checked on CRYBABY × Care Bears (`GetAssignSetStatic`, 2026-09-29): a 3×3 grid of 9 boxes, with 9 normal figures plus 1 secret. So a set without the secret is one of each normal figure. A set *with* the secret is missing one normal figure, and the predictor's odds for that set are slightly overconfident. Worth handling once we can see how often secrets turn up.
+
 Everything below targets boxes through these **chances**, never through "a hint says it's figure X".
 
 ## Setup flow
@@ -162,14 +164,11 @@ Still to confirm against real traffic: which of `EnterBox` / `SwitchBox` is the 
    - Schedule with slack for queue delays: the renew point is the latest safe moment, not a target.
 5. **A scheduled check** marks holds `expired` once `lock_expires_at` passes, and `purchased` when the order sync sees the order.
 
-## Rate limiting
+## Rate limits (not handled yet)
 
-Every call above goes to Pop Mart on the user's account, and too many will get us rate-limited. So:
+We don't know Pop Mart's limits, so nothing throttles calls for now. It's up to the user to be careful with how many rules, boxes and renewals they set up. Once the app is deployed and we see real responses, we'll build a rate-limit detector (spot throttling responses, then slow down or pause).
 
-- **Don't poll per box.** Check lock state with one `CheckSetBoxLock` per set per interval, only while the account holds a box in it.
-- **Reuse predictions.** Compute `predictSet()` from our own database, never by calling Pop Mart. Only re-run it when hints or reveals actually change.
-- **Queue lock calls one at a time per account** (one lock job per account in flight at any moment), with a small gap between calls.
-- **Back off** on Pop Mart errors or throttling responses, and pause the account's rules after repeated failures instead of retrying in a tight loop.
+Until then, one thing costs nothing and should be done anyway: compute `predictSet()` from our own database, never by calling Pop Mart.
 
 ## Access
 
@@ -204,6 +203,5 @@ API calls that act on a Pop Mart account (locking, renewing, claiming tasks, any
   - each trigger;
   - each target kind (including Ranked fallback order);
   - failure paths: box taken, session expired, Pop Mart error, throttled.
-- [ ] Rate limiting in place (one lock job in flight per account, backoff)
 - [ ] Expiry / purchase reconciliation job
 - [ ] `types/lock.ts` confirmed (drop the "proposal" note) and added to the `app/Models/README.md` sync table

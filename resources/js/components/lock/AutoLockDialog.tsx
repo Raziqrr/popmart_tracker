@@ -3,8 +3,8 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { SaleTypeBadge } from '@/components/product/SaleTypeBadge';
 import type { ProductCardData } from '@/types/catalog';
 import type { AutoLockRule, AutoLockRuleDraft, LockAccount, LockFigure, PopNowLockLimits } from '@/types/lock';
-import { AccountNotice, accountBlocker, draftIsValid, RiskAcknowledgement, RuleSummary } from './AutoLockForm';
-import { defaultTrigger, formatHold, newDraft, triggerLabels, isFigureTrigger } from './lockText';
+import { AccountNotice, accountBlocker, draftIsValid, RiskAcknowledgement, RuleSummary, CHANCE_OPTIONS } from './AutoLockForm';
+import { defaultTrigger, formatHold, newDraft, triggerLabels, isFigureTrigger, DEFAULT_MIN_CHANCE } from './lockText';
 import { LockPicker } from './LockPicker';
 
 interface AutoLockDialogProps {
@@ -104,11 +104,35 @@ export function AutoLockDialog({
                             setDraft((d) => ({
                                 ...d,
                                 target,
-                                // Keep a chance trigger only while figures are chosen.
-                                trigger: target.kind === 'random' && isFigureTrigger(d.trigger) ? defaultTrigger(product, target) : d.trigger,
+                                // Switching mode re-picks that mode's default trigger (e.g. the chance
+                                // trigger for Specific/Ranked on an open draw); a chance trigger is
+                                // never kept for Random.
+                                trigger:
+                                    target.kind !== d.target.kind || (target.kind === 'random' && isFigureTrigger(d.trigger))
+                                        ? defaultTrigger(product, target)
+                                        : d.trigger,
                             }))
                         }
                     />
+
+                    {/* Chance threshold: only for Specific/Ranked, which are the modes that can use the chance trigger. */}
+                    {draft.target.kind !== 'random' && draft.trigger === 'chance_reached' && (
+                        <label className="flex flex-wrap items-center gap-2 bg-tile p-2 text-xs font-medium">
+                            Lock when a box's chance for my figure reaches
+                            <select
+                                aria-label="Chance threshold"
+                                value={draft.min_chance ?? DEFAULT_MIN_CHANCE}
+                                onChange={(e) => setDraft((d) => ({ ...d, min_chance: Number(e.target.value) }))}
+                                className="border border-black/20 bg-white px-1.5 py-1"
+                            >
+                                {CHANCE_OPTIONS.map((c) => (
+                                    <option key={c} value={c}>
+                                        {Math.round(c * 100)}%
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    )}
 
                     <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-black/60">
                         <span>
