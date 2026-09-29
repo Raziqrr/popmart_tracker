@@ -57,7 +57,7 @@ export function ActiveLocks({ locks, payHref, onRelease }: ActiveLocksProps) {
                                 {lock.figure && (
                                     <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium">
                                         {lock.figure.is_secret && <Crown aria-hidden="true" className="size-3" fill="currentColor" />}
-                                        Hinted: {lock.figure.name}
+                                        Going for: {lock.figure.name}
                                     </p>
                                 )}
                             </div>

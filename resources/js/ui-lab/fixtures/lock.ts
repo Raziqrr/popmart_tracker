@@ -30,7 +30,8 @@ export const sampleLockLimits: PopNowLockLimits = { max_lock_seconds: 300 };
 
 export const sampleLockAccount: LockAccount = { label: 'raziq@…', area: 'MY', session_valid: true };
 
-const secretMoon = sampleFigures[midnightSnack.id][5];
+// Chance-based rules can only chase non-secret figures (secrets have no odds).
+const nightOwl = sampleFigures[midnightSnack.id][4];
 
 export const sampleLockRules: AutoLockRule[] = [
     {
@@ -40,12 +41,13 @@ export const sampleLockRules: AutoLockRule[] = [
             kind: 'specific',
             picks: [
                 { figure: sampleFigures[midnightSnack.id][1], count: 2 },
-                { figure: secretMoon, count: 1 },
+                { figure: nightOwl, count: 1 },
             ],
             min_confirmations: 2,
             verified_only: false,
         },
-        trigger: 'hint_match',
+        trigger: 'chance_reached',
+        min_chance: 0.6,
         lock_duration_seconds: 300,
         renew: { renew_when_seconds_left: 30, max_total_hold_seconds: 900 },
         locks_made: 0,
@@ -58,6 +60,7 @@ export const sampleLockRules: AutoLockRule[] = [
         product: tinyGarden,
         target: { kind: 'random', count: 2 },
         trigger: 'sale_opens',
+        min_chance: null,
         lock_duration_seconds: 180,
         renew: null,
         locks_made: 0,
@@ -79,15 +82,15 @@ const holdEndsAt = new Date(new Date(heldSince).getTime() + 900_000).toISOString
 
 export const sampleLockAttempts: LockAttempt[] = [
     {
-        id: 'att-4', rule_id: 'rule-1', product: midnightSnack, set_no: 'S-1042', box_no: '07', figure: secretMoon,
+        id: 'att-4', rule_id: 'rule-1', product: midnightSnack, set_no: 'S-1042', box_no: '07', figure: nightOwl,
         status: 'locked', attempted_at: heldSince, locked_at: heldAt, lock_expires_at: heldUntil, renewals: 2, hold_ends_at: holdEndsAt, error: null,
     },
     {
-        id: 'att-3', rule_id: 'rule-1', product: midnightSnack, set_no: 'S-1038', box_no: '03', figure: secretMoon,
+        id: 'att-3', rule_id: 'rule-1', product: midnightSnack, set_no: 'S-1038', box_no: '03', figure: nightOwl,
         status: 'failed', attempted_at: hoursAgo(2), locked_at: null, lock_expires_at: null, renewals: 0, hold_ends_at: null, error: 'Box already locked by another shopper',
     },
     {
-        id: 'att-2', rule_id: 'rule-1', product: midnightSnack, set_no: 'S-1031', box_no: '11', figure: secretMoon,
+        id: 'att-2', rule_id: 'rule-1', product: midnightSnack, set_no: 'S-1031', box_no: '11', figure: nightOwl,
         status: 'expired', attempted_at: hoursAgo(9), locked_at: hoursAgo(9), lock_expires_at: hoursAgo(8.9), renewals: 3, hold_ends_at: hoursAgo(8.75), error: null,
     },
     {

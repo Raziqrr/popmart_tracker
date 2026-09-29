@@ -10,7 +10,7 @@ Some models are mirrored by hand as TypeScript types for the React frontend. The
 | `Collection` + `*_create_collections_table.php` | `CollectionSummary` in `resources/js/types/catalog.ts` | `resources/js/ui-lab/fixtures/collections.ts` |
 | `Sku` + `*_create_skus_table.php` | `SkuSummary`, and `ProductCardData.skus` (plus `category_name`, resolved from `products.category_id`) | `skus` / `category_name` in `resources/js/ui-lab/fixtures/products.ts` |
 | `StockSnapshot` / `ProductSnapshot` (diffed) | `ProductEvent` / `ProductChange`, and the derived `stock_history`, `previous_price`, `last_changed_at`, `last_change` on `ProductCardData` | `resources/js/ui-lab/fixtures/events.ts` |
-| `PopNowSet`, `PopNowBox`, `PopNowBoxHint`, `PopNowBoxReveal` | `PopNowSet`, `PopNowBox`, `BoxHint`, `BoxReveal` in `resources/js/types/popnow.ts` (`BoxState` and `composition` are derived) | `resources/js/ui-lab/fixtures/popnow.ts` |
+| `PopNowSet`, `PopNowBox`, `PopNowBoxHint`, `PopNowBoxReveal` | `PopNowSet`, `PopNowBox`, `BoxHint`, `BoxReveal` in `resources/js/types/popnow.ts` (`BoxState` is derived) | `resources/js/ui-lab/fixtures/popnow.ts` |
 | `PinnedItem`, `WishlistItem` | `pinnedIds` / `watchedIds` in `resources/js/components/product/actions.ts` | `samplePinnedIds` / `sampleWatchedIds` in fixtures |
 
 ### Frontend fields with no backend yet
@@ -31,6 +31,10 @@ Adding, renaming, removing or retyping a column, a cast, a generated column (`is
 2. Update the type in `resources/js/types/catalog.ts`. Field names stay **snake_case**, matching `toArray()` output passed through Inertia props.
 3. Update the UI-lab fixtures so every state still has sample data.
 4. Run `npm run typecheck`. It flags every component and fixture using the old shape.
+
+### POP NOW hints are exclusions
+
+A row in `pop_now_box_hints` means the box is **not** that figure. Pop Mart's tip card only ever rules figures out; it never confirms what a box holds. Every set seen so far is exactly one of each non-secret figure, so there is no per-set make-up to store. Odds come from `ExclusionBoxPredictor`: it counts every valid way to give each unopened box a different figure, respecting each box's exclusions and removing revealed figures. Secrets have no odds, because nothing in Pop Mart's API says which box is the secret. `resources/js/lib/popnow.ts` mirrors the same maths for the UI lab.
 
 ### Conventions the frontend relies on
 

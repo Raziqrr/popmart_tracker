@@ -4,7 +4,7 @@ import { SaleTypeBadge } from '@/components/product/SaleTypeBadge';
 import type { ProductCardData } from '@/types/catalog';
 import type { AutoLockRule, AutoLockRuleDraft, LockAccount, LockFigure, PopNowLockLimits } from '@/types/lock';
 import { AccountNotice, accountBlocker, draftIsValid, RiskAcknowledgement, RuleSummary } from './AutoLockForm';
-import { defaultTrigger, formatHold, newDraft, triggerLabels } from './lockText';
+import { defaultTrigger, formatHold, newDraft, triggerLabels, isFigureTrigger } from './lockText';
 import { LockPicker } from './LockPicker';
 
 interface AutoLockDialogProps {
@@ -46,7 +46,7 @@ export function AutoLockDialog({
     const titleId = useId();
     const [draft, setDraft] = useState<AutoLockRuleDraft>(() =>
         rule
-            ? { target: rule.target, trigger: rule.trigger, lock_duration_seconds: rule.lock_duration_seconds, renew: rule.renew, enabled: true, expires_at: rule.expires_at }
+            ? { target: rule.target, trigger: rule.trigger, min_chance: rule.min_chance, lock_duration_seconds: rule.lock_duration_seconds, renew: rule.renew, enabled: true, expires_at: rule.expires_at }
             : newDraft(product, limits),
     );
     const [accepted, setAccepted] = useState(acknowledged || !!rule);
@@ -104,8 +104,8 @@ export function AutoLockDialog({
                             setDraft((d) => ({
                                 ...d,
                                 target,
-                                // Keep a hint trigger only while figures are chosen.
-                                trigger: target.kind === 'random' && d.trigger === 'hint_match' ? defaultTrigger(product, target) : d.trigger,
+                                // Keep a chance trigger only while figures are chosen.
+                                trigger: target.kind === 'random' && isFigureTrigger(d.trigger) ? defaultTrigger(product, target) : d.trigger,
                             }))
                         }
                     />
