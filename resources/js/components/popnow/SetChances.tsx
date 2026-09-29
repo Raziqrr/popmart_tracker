@@ -20,8 +20,19 @@ export function SetChances({ set, boxes, chances, selectedSkuId, onSelectSku }: 
     const skus = (set.product.skus ?? []).filter((s) => !s.is_secret);
     const boxNoOf = (boxId: number) => boxes.find((b) => b.id === boxId)?.box_no ?? '?';
 
+    // A sold box's own chances entry is its confirmed 100% reveal — correct
+    // to show on that box specifically, but not something you can still act
+    // on, so it shouldn't count as this figure's "best bet" going forward.
+    // Excluding it here naturally sends an already-revealed figure to 0%
+    // (its pool is fully consumed elsewhere too), same as "Gone" in SetOdds.
+    const openChances = new Map([...chances].filter(([boxId]) => boxes.find((b) => b.id === boxId)?.state !== 'sold'));
+
     const rows = skus
-        .map((sku) => ({ sku, ...bestBoxesForSku(chances, sku.id) }))
+        .map((sku) => ({
+            sku,
+            revealed: boxes.some((b) => b.reveal?.sku.id === sku.id),
+            ...bestBoxesForSku(openChances, sku.id),
+        }))
         .sort((a, b) => b.probability - a.probability);
 
     return (
