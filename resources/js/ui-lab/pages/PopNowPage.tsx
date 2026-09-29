@@ -57,6 +57,18 @@ export function PopNowPage() {
     const highlight = selectedSkuId ? bestBoxesForSku(chances, selectedSkuId) : null;
     const highlightedBoxIds = highlight ? new Set(highlight.boxIds) : undefined;
 
+    // Selecting a figure (from "Best bet per figure" or a box's own chance
+    // list) highlights its best box(es) on the grid — it should also open
+    // that box's detail panel, not leave whatever box happened to be open
+    // before showing unrelated hints.
+    const selectSku = (skuId: string | null) => {
+        setSelectedSkuId(skuId);
+        if (skuId) {
+            const best = bestBoxesForSku(chances, skuId);
+            if (best.boxIds.length > 0) setBoxId(best.boxIds[0]);
+        }
+    };
+
     return (
         <MockSiteFrame currentHref="/pop-now">
             <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'POP NOW' }]} />
@@ -165,7 +177,7 @@ export function PopNowPage() {
                                 />
                             </div>
                             <BoxGridLegend />
-                            <SetChances set={current.set} boxes={current.boxes} chances={chances} selectedSkuId={selectedSkuId} onSelectSku={setSelectedSkuId} />
+                            <SetChances set={current.set} boxes={current.boxes} chances={chances} selectedSkuId={selectedSkuId} onSelectSku={selectSku} />
                         </section>
 
                         <aside className="flex flex-col gap-6 lg:sticky lg:top-32 lg:self-start">
@@ -175,7 +187,7 @@ export function PopNowPage() {
                                     box={box}
                                     candidates={chances.get(box.id)}
                                     betterElsewhere={betterElsewhereFor(chances, current.boxes, box.id)}
-                                    onSelectSku={setSelectedSkuId}
+                                    onSelectSku={selectSku}
                                     selectedSkuId={selectedSkuId}
                                     onLock={popNow.lockBox}
                                     onRelease={popNow.releaseBox}
