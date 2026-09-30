@@ -90,6 +90,12 @@ export interface AutoLockRule {
     lock_duration_seconds: number;
     /** Auto-renew the hold; null = hold once, let it lapse. */
     renew: LockRenewal | null;
+    /**
+     * Send the locked boxes straight to Pop Mart's checkout (draw/box/checkoutValidate)
+     * so the user only has to pay. Checkout doesn't extend the hold: the user must pay
+     * before the soonest box hold runs out, or the checkout fails. See UserCheckout.
+     */
+    checkout_immediately: boolean;
     /** Successful locks so far; the rule is done at totalBoxes(target). */
     locks_made: number;
     enabled: boolean;
@@ -99,7 +105,41 @@ export interface AutoLockRule {
 }
 
 /** A rule without server-side fields, as edited in the setup dialog. */
-export type AutoLockRuleDraft = Pick<AutoLockRule, 'target' | 'trigger' | 'min_chance' | 'lock_duration_seconds' | 'renew' | 'enabled' | 'expires_at'>;
+export type AutoLockRuleDraft = Pick<
+    AutoLockRule,
+    'target' | 'trigger' | 'min_chance' | 'lock_duration_seconds' | 'renew' | 'checkout_immediately' | 'enabled' | 'expires_at'
+>;
+
+/** Mirrors user_checkouts.status (app/Models/UserCheckout.php). */
+export type UserCheckoutStatus =
+    /** Sending the boxes to Pop Mart's checkout. */
+    | 'pending'
+    /** Pop Mart accepted the checkout; waiting for the user to pay before expires_at. */
+    | 'ready'
+    /** The order sync saw the order. */
+    | 'paid'
+    /** Not paid before the hold ran out, or Pop Mart refused the checkout. */
+    | 'failed';
+
+/** Held boxes sent to checkout (user_checkouts + user_checkout_boxes). */
+export interface UserCheckout {
+    id: string;
+    /** Null for a checkout started by hand. */
+    rule_id: string | null;
+    product: ProductCardData;
+    set_no: string;
+    box_nos: string[];
+    status: UserCheckoutStatus;
+    /** 'expired' (not paid in time) or 'invalid' (Pop Mart refused); null unless failed. */
+    failure_reason: 'expired' | 'invalid' | null;
+    /** Pop Mart's lockRemainingSeconds when the checkout was accepted. */
+    hold_seconds: number | null;
+    ready_at: string | null;
+    /** Pay by this time; the soonest box hold ends here. */
+    expires_at: string | null;
+    paid_at: string | null;
+    failed_at: string | null;
+}
 
 export type LockAttemptStatus =
     /** Trigger fired, request in flight. */

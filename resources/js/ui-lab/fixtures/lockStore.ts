@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { ProductCardData } from '@/types/catalog';
-import type { AutoLockRule, AutoLockRuleDraft, LockAttempt } from '@/types/lock';
+import type { AutoLockRule, AutoLockRuleDraft, LockAttempt, UserCheckout } from '@/types/lock';
 import { sampleLockAttempts, sampleLockRules } from './lock';
 
 /**
@@ -15,9 +15,13 @@ interface LockState {
     handoff: { product: ProductCardData; draft: AutoLockRuleDraft; ruleId: string | null } | null;
     /** The user has ticked the risk acknowledgement at least once. */
     acknowledged: boolean;
+    /** Checkouts created after a lock (user_checkouts). */
+    checkouts: UserCheckout[];
+    /** Manual locks (box grid, Lock All) go straight to checkout afterwards. */
+    checkoutAfterLock: boolean;
 }
 
-let state: LockState = { rules: sampleLockRules, attempts: sampleLockAttempts, handoff: null, acknowledged: true };
+let state: LockState = { rules: sampleLockRules, attempts: sampleLockAttempts, handoff: null, acknowledged: true, checkouts: [], checkoutAfterLock: true };
 const listeners = new Set<() => void>();
 
 function set(patch: Partial<LockState>) {
@@ -43,6 +47,8 @@ export const lockStore = {
     toggleRule: (id: string) => set({ rules: state.rules.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)) }),
     releaseLock: (id: string) => set({ attempts: state.attempts.map((a) => (a.id === id ? { ...a, status: 'released' } : a)) }),
     addAttempt: (attempt: LockAttempt) => set({ attempts: [attempt, ...state.attempts] }),
+    addCheckout: (checkout: UserCheckout) => set({ checkouts: [checkout, ...state.checkouts] }),
+    setCheckoutAfterLock: (checkoutAfterLock: boolean) => set({ checkoutAfterLock }),
     setHandoff: (handoff: LockState['handoff']) => set({ handoff }),
     resetAcknowledgement: () => set({ acknowledged: false }),
 };

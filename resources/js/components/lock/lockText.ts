@@ -55,6 +55,7 @@ export function newDraft(product: ProductCardData, limits: PopNowLockLimits): Au
         min_chance: DEFAULT_MIN_CHANCE,
         lock_duration_seconds: limits.max_lock_seconds,
         renew: null,
+        checkout_immediately: true,
         enabled: true,
         expires_at: null,
     };
@@ -113,5 +114,7 @@ export function describeRule(rule: AutoLockRuleDraft): string {
           )} left on each ${formatHold(rule.lock_duration_seconds)} hold)`
         : `for ${formatHold(rule.lock_duration_seconds)} each`;
 
-    return `${when}, lock ${describeTarget(rule.target)}${total} ${hold} and alert you to pay.`;
+    const pay = rule.checkout_immediately ? 'go straight to checkout, and alert you to pay before the hold ends' : 'alert you to pay';
+
+    return `${when}, lock ${describeTarget(rule.target)}${total} ${hold}, then ${pay}.`;
 }

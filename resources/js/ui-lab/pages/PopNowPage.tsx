@@ -1,5 +1,6 @@
 import { CalendarClock, Dices, Lock, MousePointerClick } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { CheckoutToggle } from '@/components/lock/AutoLockForm';
 import { LockToggle } from '@/components/lock/LockToggle';
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { BoxDetail } from '@/components/popnow/BoxDetail';
@@ -9,9 +10,10 @@ import { SetList } from '@/components/popnow/SetList';
 import { SetOdds } from '@/components/popnow/SetOdds';
 import { StatusBadge } from '@/components/product/StatusBadge';
 import { formatCountdown, formatShortDateTime } from '@/lib/format';
-import { bestBoxesForSku, betterElsewhereFor, boxChances } from '@/lib/popnow';
+import { bestBoxesForSku, betterElsewhereFor, betterInOtherSets, boxChances, obtainableChances } from '@/lib/popnow';
 import { productStatus } from '@/lib/productStatus';
 import { sampleProducts } from '../fixtures/products';
+import { lockStore, useLockStore } from '../fixtures/lockStore';
 import { usePopNow } from '../fixtures/usePopNow';
 import { useHashQuery } from '../useHashQuery';
 import { MockSiteFrame } from './MockSiteFrame';
@@ -27,6 +29,7 @@ const SET_COUNT_OPTIONS = [3, 5, 10] as const;
  */
 export function PopNowPage() {
     const popNow = usePopNow();
+    const { checkoutAfterLock } = useLockStore();
     const linkedProductId = useHashQuery().get('product');
     const [productId, setProductId] = useState(
         popNowProducts.find((p) => p.id === linkedProductId)?.id ?? popNowProducts.find((p) => !p.is_coming_soon)?.id ?? popNowProducts[0].id,
@@ -54,8 +57,19 @@ export function PopNowPage() {
     }, [linkedProductId]);
 
     const chances = useMemo(() => (current ? boxChances(current.set, current.boxes) : new Map()), [current]);
-    const highlight = selectedSkuId ? bestBoxesForSku(chances, selectedSkuId) : null;
+    // Only boxes you can still get count as a bet: never a sold (already opened) or someone else's box.
+    const betChances = useMemo(() => (current ? obtainableChances(chances, current.boxes) : new Map()), [chances, current]);
+    const highlight = selectedSkuId ? bestBoxesForSku(betChances, selectedSkuId) : null;
     const highlightedBoxIds = highlight ? new Set(highlight.boxIds) : undefined;
+
+    // Other sets shown for this draw, so "Best bet per figure" can point at a better one.
+    const betterElsewhere = current
+        ? betterInOtherSets(
+              betChances,
+              productSets.filter((entry) => entry.set.id !== current.set.id).map((entry) => ({ ...entry, chances: boxChances(entry.set, entry.boxes) })),
+              (current.set.product.skus ?? []).filter((s) => !s.is_secret).map((s) => s.id),
+          )
+        : undefined;
 
     return (
         <MockSiteFrame currentHref="/pop-now">
@@ -122,16 +136,19 @@ export function PopNowPage() {
                                 <option value="all">All ({allProductSets.length})</option>
                             </select>
                         </label>
-                        <button
-                            type="button"
-                            onClick={() => popNow.lockAllSets(productSets)}
-                            disabled={!productSets.some(({ boxes }) => boxes.some((b) => b.state === 'available'))}
-                            title={`Lock every free box across all ${productSets.length} sets shown below to you`}
-                            className="inline-flex items-center gap-1.5 border border-black bg-status-warning-tint px-3 py-1.5 text-xs font-bold text-status-warning-ink hover:bg-status-warning disabled:cursor-default disabled:opacity-40"
-                        >
-                            <Lock aria-hidden="true" className="size-3.5" />
-                            Lock All
-                        </button>
+                        <span className="flex flex-wrap items-center gap-3">
+                            <CheckoutToggle compact checked={checkoutAfterLock} onChange={lockStore.setCheckoutAfterLock} />
+                            <button
+                                type="button"
+                                onClick={() => popNow.lockAllSets(productSets)}
+                                disabled={!productSets.some(({ boxes }) => boxes.some((b) => b.state === 'available'))}
+                                title={`Lock every free box across all ${productSets.length} sets shown below to you`}
+                                className="inline-flex items-center gap-1.5 border border-black bg-status-warning-tint px-3 py-1.5 text-xs font-bold text-status-warning-ink hover:bg-status-warning disabled:cursor-default disabled:opacity-40"
+                            >
+                                <Lock aria-hidden="true" className="size-3.5" />
+                                Lock All
+                            </button>
+                        </span>
                     </div>
 
                     <SetList
@@ -165,7 +182,19 @@ export function PopNowPage() {
                                 />
                             </div>
                             <BoxGridLegend />
-                            <SetChances set={current.set} boxes={current.boxes} chances={chances} selectedSkuId={selectedSkuId} onSelectSku={setSelectedSkuId} />
+                            <SetChances
+                                set={current.set}
+                                boxes={current.boxes}
+                                chances={betChances}
+                                selectedSkuId={selectedSkuId}
+                                onSelectSku={setSelectedSkuId}
+                                betterElsewhere={betterElsewhere}
+                                onViewElsewhere={(set, elsewhereBox, skuId) => {
+                                    setSetId(set.id);
+                                    setBoxId(elsewhereBox.id);
+                                    setSelectedSkuId(skuId);
+                                }}
+                            />
                         </section>
 
                         <aside className="flex flex-col gap-6 lg:sticky lg:top-32 lg:self-start">
@@ -174,7 +203,7 @@ export function PopNowPage() {
                                     set={current.set}
                                     box={box}
                                     candidates={chances.get(box.id)}
-                                    betterElsewhere={betterElsewhereFor(chances, current.boxes, box.id)}
+                                    betterElsewhere={betterElsewhereFor(betChances, current.boxes, box.id)}
                                     onSelectSku={setSelectedSkuId}
                                     selectedSkuId={selectedSkuId}
                                     onLock={popNow.lockBox}

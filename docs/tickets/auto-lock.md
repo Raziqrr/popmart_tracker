@@ -51,7 +51,7 @@ Everything below targets boxes through these **chances**, never through "a hint 
 
   It has a sticky summary and a Confirm button.
 - **Risk acknowledgement:** asked once per user (`acknowledged_at`), then skipped.
-- **Auto-renew (optional, off by default):** keep a box past Pop Mart's single-hold limit by re-selecting it shortly before each hold runs out. Per rule you set *re-lock when N seconds are left* and *keep holding for up to T in total*; T is required whenever auto-renew is on.
+- **Auto-renew (optional, off by default): blocked, needs redesign.** It assumed re-selecting a held box resets Pop Mart's timer. Live tests (2026-09-29) show it doesn't: a held box keeps counting down whatever we send. See "What the lock API does". The UI's renew controls stay until we decide to drop the feature or turn it into "re-lock after it lapses".
 - **No cap** on boxes per rule (product decision). Pop Mart may still enforce its own per-account limit; show its refusal as a failed attempt.
 
 ### Triggers
@@ -137,13 +137,42 @@ All of these are already in `app/Services/Api/PopMart/Endpoints/Draw/` and requi
 
 | endpoint | role in auto-lock |
 | --- | --- |
-| `AssignSet` / `GetAssignSetStatic` | get the set (and its boxes) the account is working in |
-| `EnterBox` / `SwitchBox` | **select a box, which locks it.** Re-selecting a box you already hold resets Pop Mart's hold timer (confirmed manually), which is how auto-renew works |
-| `CheckSetBoxLock` | read which boxes are locked and until when; used to confirm a lock took, and for the expiry check |
+| `AssignSet` / `GetAssignSetStatic` | get the set (and its boxes). **`AssignSet` releases every box the account holds**, so only call it before locking, never while holding |
+| `EnterBox` | **the lock.** `{ spuId, setNo, boxNos: [...] }`. One call can lock many boxes |
+| `SwitchBox` | moves one held box to another: `{ spuId, setNo, currentBoxNo, direction: 'direct', boxNo }`. Not needed for auto-lock |
+| `CheckSetBoxLock` | per box: `isLockedByMe`, `lockRemainingSeconds`. **The only reliable way to confirm a hold** (`AssignSet`'s lock flags don't show the account's own holds) |
 | `GetPropStatus` | how many tip cards the account has left (display only) |
 | `UseTipCard` | spends a tip card to reveal exclusions for a box. **Never automated:** the user triggers it themselves, because it uses up their tip cards |
 
-Still to confirm against real traffic: which of `EnterBox` / `SwitchBox` is the lock (or whether both are needed), and whether there's an explicit release.
+### What the lock API does (tested live, 2026-09-29, CRYBABY × Care Bears, 26 calls, no throttling)
+
+- **Bulk:** one `EnterBox` with all 8 free boxes held all 8.
+- **Adds, doesn't replace:** locking box 2 after box 1 left both held.
+- **Per-box timers:** a newly locked box gets ~300s. A box already held keeps its running timer, even when it's in a later `EnterBox` call. The response's `lockRemainingSeconds` is the soonest-expiring hold, not the new box's.
+- **No renewal:** re-sending a held box doesn't reset its timer (274s stayed 274s). `SwitchBox` gives a fresh 300s, but only by releasing the old box.
+- **`AssignSet` drops holds:** calling it released every held box. Likely the same happens if the user opens the set on Pop Mart's own site with the same account (untested); warn users.
+
+Still unknown: an explicit release call, a per-account box cap, and `SwitchBox`'s `left` / `right` directions.
+
+### Buy now / checkout (recorded from Pop Mart's own page, 2026-09-29)
+
+POP NOW has no cart: a held box can only be bought straight away. The site's flow:
+
+1. **Buy now** → `draw/box/checkoutValidate` `{ spuId, setNo, boxNos, pageType: 'checkout' }` → `{ valid, lockRemainingSeconds }`. Takes a list, so one checkout can likely cover several held boxes (untested).
+2. The site moves to `/my/checkout?channel=popNow` (no page reload) and polls `draw/box/getMinLockTTL` `{ spuId, setNo, boxNos }` → `{ lockRemainingSeconds }` to show the countdown.
+3. **Reaching checkout does not extend the hold.** The box timer kept running (296s → 195s) and re-selecting the box on the way didn't reset it either.
+4. **Place order** (not yet recorded) should create an unpaid draw order. `ec/order/getUserHasUnpaidOrder` returns `{ hasUnpaidOrder, closeCountdown }`, which suggests the order has its own payment window. If that window is longer than the remaining hold, "lock → place order at once → alert the user to pay" replaces auto-renew. **Unconfirmed**; also an unpaid order is a real order on the account, and repeatedly letting them lapse may be penalised.
+
+`GetMinLockTTL` is the cheapest way to track the deadline of a whole group of held boxes (one call instead of one `CheckSetBoxLock` per box).
+
+### Checkouts (`user_checkouts`, built)
+
+"After locking, go straight to checkout" is part of the lock step: after `EnterBox` holds the boxes, `CheckoutValidate` sends them to checkout and a `user_checkouts` row is created, so the user only has to pay. It applies to auto-lock rules (`checkout_immediately`, on by default) and to manual locks from the box grid, a set's "lock all" and Lock All (one page-level setting, on by default). Each lock action creates one checkout per set, since `checkoutValidate` takes one set's boxes.
+
+- **Tables:** `user_checkouts` (one row per checkout, per user and Pop Mart account) and `user_checkout_boxes` (which boxes it covers). Model `App\Models\UserCheckout`, mirrored by `UserCheckout` in `resources/js/types/lock.ts`.
+- **States:** `pending` (sending to Pop Mart) → `ready` (`checkoutValidate` passed; `expires_at` = now + its `lockRemainingSeconds`) → `paid` (order sync sees the order) or `failed` (`failure_reason`: `expired` = not paid in time, `invalid` = Pop Mart refused).
+- **Expiry:** `php artisan popnow:expire-checkouts` runs every minute and fails ready checkouts past `expires_at`.
+- **Still to build:** the job that calls `CheckoutValidate` after a lock and creates the row, linking `paid` to the order sync, the `auto_lock_rule_id` foreign key once `auto_lock_rules` exists, and a UI list of checkouts with their countdown.
 
 ## How it runs
 
@@ -156,12 +185,8 @@ Still to confirm against real traffic: which of `EnterBox` / `SwitchBox` is the 
    - `specific`: for each figure with count left, the free box with the highest chance for it (the same as `GET /api/products/{product}/box-ranking?sku_id=`). It must meet the trigger's condition, and is computed with only the exclusions the rule trusts.
    - `ranked`: work down the priority list, taking the best box for priority 1, then 2, and so on until `count` is reached. Skip a figure when no free box meets the condition.
    - Never lock the same box twice for one account; resolve clashes between rules by rule creation order.
-3. **The job selects the box** (`EnterBox` / `SwitchBox`) with the account's session, confirms it with `CheckSetBoxLock`, records the attempt (including `sku_id` and `chance_at_lock`), and alerts the user ("Box 07 held for you (Night Owl, 75%), pay within 5:00").
-4. **Auto-renew:** when a held box reaches `renew_when_seconds_left` and `now + lock_duration_seconds` is still before `hold_ends_at`, a delayed job re-selects the same box.
-   - On success it updates `locked_at` / `lock_expires_at` and increments `renewals`.
-   - On failure the attempt keeps its current expiry and the user is alerted.
-   - The last renewal is skipped once it would run past `hold_ends_at`.
-   - Schedule with slack for queue delays: the renew point is the latest safe moment, not a target.
+3. **The job locks all its boxes in one `EnterBox` call** with the account's session, then confirms each with `CheckSetBoxLock` (taking `lock_expires_at` from that box's own `lockRemainingSeconds`, not from the `EnterBox` response). It records one attempt per box (including `sku_id` and `chance_at_lock`) and alerts the user ("Box 07 held for you (Night Owl, 75%), pay within 5:00"). It must not call `AssignSet` while the account holds boxes.
+4. **Auto-renew: not possible as designed** (a held box's timer can't be reset). Options: drop it, or re-lock a box after its hold lapses, which risks another shopper taking it in between. Decide before building.
 5. **A scheduled check** marks holds `expired` once `lock_expires_at` passes, and `purchased` when the order sync sees the order.
 
 ## Rate limits (not handled yet)
@@ -176,10 +201,9 @@ API calls that act on a Pop Mart account (locking, renewing, claiming tasks, any
 
 ## Open questions
 
-- **Which call locks.** `EnterBox`, `SwitchBox`, or both (see above).
-- **Maximum hold time.** The UI assumes `pop_now_boxes.lock_duration_seconds` (300s in fixtures). Can the user shorten it, or only release early?
-- **Release.** Does Pop Mart have a release call, or does the hold simply lapse?
-- **Renew limits.** Re-selecting resets the timer (confirmed). Is there a cap on how many times, or a cooldown, before Pop Mart refuses or flags the account?
+- **Auto-renew.** Drop it, or redesign as re-lock after lapse (see "How it runs")?
+- **Maximum hold time.** 300s confirmed live. Can the user shorten it, or only release early?
+- **Release.** Does Pop Mart have a release call, or does the hold simply lapse? (`AssignSet` releases everything as a side effect.)
 - **Exclusion freshness.** Exclusions are fixed on Pop Mart's side, so they shouldn't go stale, but should a user-reported one expire if it's never confirmed?
 
 ## Risks: decide before building
@@ -197,7 +221,8 @@ API calls that act on a Pop Mart account (locking, renewing, claiming tasks, any
 ## Done when
 
 - [ ] Decision recorded on the ToS and fairness risks
-- [ ] Which draw call locks (and releases) confirmed against real traffic
+- [x] Which draw call locks confirmed against real traffic (`EnterBox`, 2026-09-29)
+- [ ] Decision on auto-renew (drop, or re-lock after lapse)
 - [ ] Migrations and models for the three tables, plus policies (users only see their own rules)
 - [ ] Trigger → queued lock job → attempt row → alert, with feature tests for:
   - each trigger;

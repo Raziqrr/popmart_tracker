@@ -145,6 +145,7 @@ export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormP
                     Pop Mart holds a locked box for at most {formatHold(limits.max_lock_seconds)}. You'll get an alert to pay before it runs out.
                 </p>
                 <RenewalControls holdSeconds={draft.lock_duration_seconds} value={draft.renew} onChange={(renew) => set({ renew })} />
+                <CheckoutToggle checked={draft.checkout_immediately} onChange={(checkout_immediately) => set({ checkout_immediately })} />
             </Section>
 
             <Section title="4. Rule ends">
@@ -200,6 +201,37 @@ export function RuleSummary({ draft }: { draft: AutoLockRuleDraft }) {
         <p className="border-l-4 border-black bg-tile px-3 py-2 text-sm font-medium" aria-live="polite">
             {totalBoxes(draft.target) === 0 ? 'Pick at least one figure.' : describeRule(draft)}
         </p>
+    );
+}
+
+/**
+ * Send locked boxes straight to Pop Mart's checkout so only payment is left.
+ * `compact`: a one-line checkbox for toolbars (e.g. next to Lock All).
+ */
+export function CheckoutToggle({ checked, onChange, compact = false }: { checked: boolean; onChange: (checked: boolean) => void; compact?: boolean }) {
+    if (compact) {
+        return (
+            <label
+                title="Locked boxes go straight to checkout so you only need to pay. Checkout doesn't add time: pay before the hold runs out."
+                className="flex items-center gap-1.5 text-xs font-medium"
+            >
+                <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="accent-black" />
+                After locking, go straight to checkout
+            </label>
+        );
+    }
+
+    return (
+        <label className="flex items-start gap-2 bg-tile p-3 text-xs">
+            <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-0.5 accent-black" />
+            <span className="flex flex-col gap-0.5">
+                <span className="font-bold">After locking, go straight to checkout</span>
+                <span className="text-black/60">
+                    Locked boxes go straight to checkout so you only need to pay. Checkout doesn't add time: pay before the hold runs out, or
+                    the checkout fails.
+                </span>
+            </span>
+        </label>
     );
 }
 

@@ -29,3 +29,6 @@ Thumbs.db
 
 # Pop Mart trademark assets: local UI-lab mockups only, never committed
 /resources/js/ui-lab/assets/popmart/
+
+# Local POP NOW API test call log
+/scripts/popnow-calls.log

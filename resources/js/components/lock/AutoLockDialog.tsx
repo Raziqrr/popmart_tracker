@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { SaleTypeBadge } from '@/components/product/SaleTypeBadge';
 import type { ProductCardData } from '@/types/catalog';
 import type { AutoLockRule, AutoLockRuleDraft, LockAccount, LockFigure, PopNowLockLimits } from '@/types/lock';
-import { AccountNotice, accountBlocker, draftIsValid, RiskAcknowledgement, RuleSummary, CHANCE_OPTIONS } from './AutoLockForm';
+import { AccountNotice, accountBlocker, CheckoutToggle, draftIsValid, RiskAcknowledgement, RuleSummary, CHANCE_OPTIONS } from './AutoLockForm';
 import { defaultTrigger, formatHold, newDraft, triggerLabels, isFigureTrigger, DEFAULT_MIN_CHANCE } from './lockText';
 import { LockPicker } from './LockPicker';
 
@@ -46,7 +46,16 @@ export function AutoLockDialog({
     const titleId = useId();
     const [draft, setDraft] = useState<AutoLockRuleDraft>(() =>
         rule
-            ? { target: rule.target, trigger: rule.trigger, min_chance: rule.min_chance, lock_duration_seconds: rule.lock_duration_seconds, renew: rule.renew, enabled: true, expires_at: rule.expires_at }
+            ? {
+                  target: rule.target,
+                  trigger: rule.trigger,
+                  min_chance: rule.min_chance,
+                  lock_duration_seconds: rule.lock_duration_seconds,
+                  renew: rule.renew,
+                  checkout_immediately: rule.checkout_immediately,
+                  enabled: true,
+                  expires_at: rule.expires_at,
+              }
             : newDraft(product, limits),
     );
     const [accepted, setAccepted] = useState(acknowledged || !!rule);
@@ -150,6 +159,8 @@ export function AutoLockDialog({
                             </button>
                         )}
                     </p>
+
+                    <CheckoutToggle checked={draft.checkout_immediately} onChange={(checkout_immediately) => setDraft((d) => ({ ...d, checkout_immediately }))} />
 
                     <RuleSummary draft={draft} />
                     {blocked && <AccountNotice account={account} />}
