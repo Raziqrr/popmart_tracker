@@ -9,6 +9,9 @@ use App\Services\Api\RequiresAuthentication;
 // Assigns the requesting session a live set for a product and returns its
 // current setNo + full box grid (status/lock state per box) — this is the
 // real mechanism for discovering a fresh setNo, not something scraped off a page.
+// WARNING: calling it releases every box the session holds (confirmed 2026-09-29),
+// and its isLockedByMe flags don't reflect the session's own holds. Never call it
+// while holding boxes; read lock state from CheckSetBoxLock instead.
 class AssignSet extends PopMartEndpoint implements RequiresAuthentication
 {
     protected PopMartDomain $domain = PopMartDomain::Draw;

@@ -152,6 +152,21 @@ export function boxChances(set: PopNowSet, boxes: PopNowBox[]): Map<number, BoxC
     return result;
 }
 
+/** A box you can still get: free, or already held by you. Sold boxes are opened and locked ones are someone else's. */
+export function isObtainable(box: PopNowBox): boolean {
+    return box.state === 'available' || box.state === 'locked_mine';
+}
+
+/**
+ * boxChances limited to obtainable boxes, for anything that recommends a box
+ * (best bets, highlights, "better elsewhere"). A sold box's revealed figure
+ * is 100% certain but not a bet, so it must never be suggested.
+ */
+export function obtainableChances(chances: Map<number, BoxCandidate[]>, boxes: PopNowBox[]): Map<number, BoxCandidate[]> {
+    const obtainable = new Set(boxes.filter(isObtainable).map((b) => b.id));
+    return new Map([...chances].filter(([boxId]) => obtainable.has(boxId)));
+}
+
 /**
  * Which box(es) have the best shot at a given figure, and what that chance
  * is — used to highlight the grid when someone clicks a figure. Ties (equal
@@ -175,6 +190,38 @@ export function bestBoxesForSku(chances: Map<number, BoxCandidate[]>, skuId: str
 
     const boxIds = [...byBox.entries()].filter(([, p]) => p === best).map(([boxId]) => boxId);
     return { boxIds, probability: best };
+}
+
+/**
+ * For each figure, the best obtainable box in any of the other sets, when it
+ * beats the current set's best chance for that figure (pass the current set's
+ * obtainableChances). Only obtainable boxes count, so every suggestion is one
+ * you can lock right now (or already hold). Used by "Best bet per
+ * figure" to point at a better set.
+ */
+export function betterInOtherSets(
+    currentChances: Map<number, BoxCandidate[]>,
+    others: { set: PopNowSet; boxes: PopNowBox[]; chances: Map<number, BoxCandidate[]> }[],
+    skuIds: string[],
+): Map<string, { set: PopNowSet; box: PopNowBox; probability: number }> {
+    const result = new Map<string, { set: PopNowSet; box: PopNowBox; probability: number }>();
+
+    for (const skuId of skuIds) {
+        const here = bestBoxesForSku(currentChances, skuId).probability;
+        let best: { set: PopNowSet; box: PopNowBox; probability: number } | null = null;
+
+        for (const { set, boxes, chances } of others) {
+            for (const box of boxes) {
+                if (!isObtainable(box)) continue;
+                const p = chances.get(box.id)?.find((c) => c.sku.id === skuId)?.probability ?? 0;
+                if (p > here && p > (best?.probability ?? 0)) best = { set, box, probability: p };
+            }
+        }
+
+        if (best) result.set(skuId, best);
+    }
+
+    return result;
 }
 
 /**

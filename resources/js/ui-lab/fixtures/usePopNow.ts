@@ -18,32 +18,62 @@ export function usePopNow() {
 
     const setOf = (boxId: number) => sets.find((entry) => entry.boxes.some((b) => b.id === boxId))!;
 
-    const lockBox = (box: PopNowBox) => {
-        const { set } = setOf(box.id);
+    /**
+     * Lock boxes from one set in one go (one enterBox call), then, when
+     * "After locking, go straight to checkout" is on, send them to checkout
+     * together: one user_checkouts row per set, due when the holds run out.
+     */
+    const lockBoxes = (set: PopNowSet, boxes: PopNowBox[]) => {
+        if (boxes.length === 0) return;
         const now = new Date().toISOString();
         const expires = new Date(Date.now() + HOLD_SECONDS * 1000).toISOString();
-        updateBox(box.id, (b) => ({ ...b, state: 'locked_mine', lock_expires_at: expires }));
-        // Shows up under "Held for you" on the Auto-lock page too.
-        lockStore.addAttempt({
-            id: `att-manual-${box.id}-${Date.now()}`,
-            rule_id: 'manual',
-            product: set.product,
-            set_no: set.set_no,
-            box_no: box.box_no,
-            figure: null,
-            status: 'locked',
-            attempted_at: now,
-            locked_at: now,
-            lock_expires_at: expires,
-            renewals: 0,
-            hold_ends_at: null,
-            error: null,
+
+        boxes.forEach((box) => {
+            updateBox(box.id, (b) => ({ ...b, state: 'locked_mine', lock_expires_at: expires }));
+            // Shows up under "Held for you" on the Auto-lock page too.
+            lockStore.addAttempt({
+                id: `att-manual-${box.id}-${Date.now()}`,
+                rule_id: 'manual',
+                product: set.product,
+                set_no: set.set_no,
+                box_no: box.box_no,
+                figure: null,
+                status: 'locked',
+                attempted_at: now,
+                locked_at: now,
+                lock_expires_at: expires,
+                renewals: 0,
+                hold_ends_at: null,
+                error: null,
+            });
         });
+
+        if (lockStore.get().checkoutAfterLock) {
+            lockStore.addCheckout({
+                id: `checkout-${set.set_no}-${Date.now()}`,
+                rule_id: null,
+                product: set.product,
+                set_no: set.set_no,
+                box_nos: boxes.map((b) => b.box_no),
+                status: 'ready',
+                failure_reason: null,
+                hold_seconds: HOLD_SECONDS,
+                ready_at: now,
+                expires_at: expires,
+                paid_at: null,
+                failed_at: null,
+            });
+        }
     };
 
+    const lockBox = (box: PopNowBox) => lockBoxes(setOf(box.id).set, [box]);
+
     /** Lock every currently-free box in one set to you. */
-    const lockAllInSet = (_set: PopNowSet, boxes: PopNowBox[]) => {
-        boxes.filter((b) => b.state === 'available').forEach(lockBox);
+    const lockAllInSet = (set: PopNowSet, boxes: PopNowBox[]) => {
+        lockBoxes(
+            set,
+            boxes.filter((b) => b.state === 'available'),
+        );
     };
 
     /** Lock every currently-free box across every given set to you. */

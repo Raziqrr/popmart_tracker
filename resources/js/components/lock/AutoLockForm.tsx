@@ -1,12 +1,14 @@
 import { CircleUserRound, ShieldAlert } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { AutoLockRuleDraft, LockAccount, LockFigure, LockTrigger, PopNowLockLimits } from '@/types/lock';
-import { describeRule, formatHold, totalBoxes, triggerLabels } from './lockText';
+import { describeRule, formatHold, totalBoxes, triggerLabels, FIGURE_TRIGGERS, isFigureTrigger, DEFAULT_MIN_CHANCE } from './lockText';
 import { LockPicker } from './LockPicker';
 import { fitRenewal, RenewalControls } from './RenewalControls';
 
 const HOLD_OPTIONS = [60, 120, 180, 300, 600];
 const HOUR = 3_600_000;
+/** Thresholds offered for the 'chance_reached' trigger. */
+export const CHANCE_OPTIONS = [0.5, 0.6, 0.75, 0.9];
 
 /** Why saving is blocked, or null when the account can lock. */
 export function accountBlocker(account: LockAccount | null): string | null {
@@ -23,7 +25,7 @@ export function draftIsValid(draft: AutoLockRuleDraft, limits: PopNowLockLimits)
     if (draft.renew && (draft.renew.renew_when_seconds_left >= draft.lock_duration_seconds || draft.renew.max_total_hold_seconds <= draft.lock_duration_seconds)) {
         return false;
     }
-    return !(draft.target.kind === 'random' && draft.trigger === 'hint_match');
+    return !(draft.target.kind === 'random' && isFigureTrigger(draft.trigger));
 }
 
 interface AutoLockFormProps {
@@ -40,10 +42,10 @@ interface AutoLockFormProps {
  */
 export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormProps) {
     const set = (patch: Partial<AutoLockRuleDraft>) => onChange({ ...draft, ...patch });
-    // Specific and ranked both target boxes by hint, so both need the trust
-    // controls below and can fire on a hint match.
+    // Specific and ranked both target figures, so both need the exclusion-trust
+    // controls below and can use the chance-based triggers.
     const hintBased = draft.target.kind === 'specific' || draft.target.kind === 'ranked' ? draft.target : null;
-    const triggers: LockTrigger[] = hintBased ? ['sale_opens', 'restock', 'hint_match'] : ['sale_opens', 'restock'];
+    const triggers: LockTrigger[] = hintBased ? ['sale_opens', 'restock', ...FIGURE_TRIGGERS] : ['sale_opens', 'restock'];
     const holdChoices = HOLD_OPTIONS.filter((s) => s < limits.max_lock_seconds).concat(limits.max_lock_seconds);
 
     const expiry = draft.expires_at === null ? 'draw_end' : new Date(draft.expires_at).getTime() - Date.now() > 2 * 24 * HOUR ? '7d' : '24h';
@@ -55,14 +57,14 @@ export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormP
                     value={draft.target}
                     figures={figures}
                     onChange={(target) =>
-                        // Hint triggers need specific figures; fall back when switching to random.
-                        set({ target, trigger: target.kind === 'random' && draft.trigger === 'hint_match' ? 'restock' : draft.trigger })
+                        // Chance triggers need chosen figures; fall back when switching to random.
+                        set({ target, trigger: target.kind === 'random' && isFigureTrigger(draft.trigger) ? 'restock' : draft.trigger })
                     }
                 />
                 {hintBased && (
                     <div className="flex flex-wrap items-center gap-4 bg-tile p-3 text-xs">
                         <label className="flex items-center gap-2 font-medium">
-                            Trust hints with at least
+                            Count user-reported exclusions with at least
                             <select
                                 value={hintBased.min_confirmations}
                                 onChange={(e) => set({ target: { ...hintBased, min_confirmations: Number(e.target.value) } })}
@@ -82,7 +84,7 @@ export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormP
                                 onChange={(e) => set({ target: { ...hintBased, verified_only: e.target.checked } })}
                                 className="accent-black"
                             />
-                            Verified hints only
+                            Verified exclusions only
                         </label>
                     </div>
                 )}
@@ -96,9 +98,27 @@ export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormP
                             className="flex cursor-pointer items-start gap-2 border border-black/20 p-3 hover:border-black has-checked:border-2 has-checked:border-black"
                         >
                             <input type="radio" name="trigger" checked={draft.trigger === t} onChange={() => set({ trigger: t })} className="mt-0.5 accent-black" />
-                            <span className="flex flex-col">
+                            <span className="flex flex-col gap-2">
                                 <span className="text-sm font-bold">{triggerLabels[t].title}</span>
                                 <span className="text-xs text-black/60">{triggerLabels[t].detail}</span>
+                                {t === 'chance_reached' && draft.trigger === 'chance_reached' && (
+                                    <span className="flex items-center gap-2 text-xs font-medium">
+                                        Fire at
+                                        <select
+                                            aria-label="Chance threshold"
+                                            value={draft.min_chance ?? DEFAULT_MIN_CHANCE}
+                                            onChange={(e) => set({ min_chance: Number(e.target.value) })}
+                                            className="border border-black/20 bg-white px-1.5 py-1"
+                                        >
+                                            {CHANCE_OPTIONS.map((c) => (
+                                                <option key={c} value={c}>
+                                                    {Math.round(c * 100)}%
+                                                </option>
+                                            ))}
+                                        </select>
+                                        or higher
+                                    </span>
+                                )}
                             </span>
                         </label>
                     ))}
@@ -125,6 +145,7 @@ export function AutoLockForm({ draft, onChange, figures, limits }: AutoLockFormP
                     Pop Mart holds a locked box for at most {formatHold(limits.max_lock_seconds)}. You'll get an alert to pay before it runs out.
                 </p>
                 <RenewalControls holdSeconds={draft.lock_duration_seconds} value={draft.renew} onChange={(renew) => set({ renew })} />
+                <CheckoutToggle checked={draft.checkout_immediately} onChange={(checkout_immediately) => set({ checkout_immediately })} />
             </Section>
 
             <Section title="4. Rule ends">
@@ -180,6 +201,37 @@ export function RuleSummary({ draft }: { draft: AutoLockRuleDraft }) {
         <p className="border-l-4 border-black bg-tile px-3 py-2 text-sm font-medium" aria-live="polite">
             {totalBoxes(draft.target) === 0 ? 'Pick at least one figure.' : describeRule(draft)}
         </p>
+    );
+}
+
+/**
+ * Send locked boxes straight to Pop Mart's checkout so only payment is left.
+ * `compact`: a one-line checkbox for toolbars (e.g. next to Lock All).
+ */
+export function CheckoutToggle({ checked, onChange, compact = false }: { checked: boolean; onChange: (checked: boolean) => void; compact?: boolean }) {
+    if (compact) {
+        return (
+            <label
+                title="Locked boxes go straight to checkout so you only need to pay. Checkout doesn't add time: pay before the hold runs out."
+                className="flex items-center gap-1.5 text-xs font-medium"
+            >
+                <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="accent-black" />
+                After locking, go straight to checkout
+            </label>
+        );
+    }
+
+    return (
+        <label className="flex items-start gap-2 bg-tile p-3 text-xs">
+            <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-0.5 accent-black" />
+            <span className="flex flex-col gap-0.5">
+                <span className="font-bold">After locking, go straight to checkout</span>
+                <span className="text-black/60">
+                    Locked boxes go straight to checkout so you only need to pay. Checkout doesn't add time: pay before the hold runs out, or
+                    the checkout fails.
+                </span>
+            </span>
+        </label>
     );
 }
 

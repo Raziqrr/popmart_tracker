@@ -1,4 +1,4 @@
-import { CalendarClock, Crown, Pencil, RefreshCw, Sparkles } from 'lucide-react';
+import { CalendarClock, Crown, Percent, Pencil, RefreshCw, Target } from 'lucide-react';
 import { formatTimeAgo } from '@/lib/format';
 import type { AutoLockRule, LockAttempt, LockTrigger } from '@/types/lock';
 import { attemptStatusMeta, describeRule, totalBoxes } from './lockText';
@@ -6,7 +6,8 @@ import { attemptStatusMeta, describeRule, totalBoxes } from './lockText';
 const triggerIcons: Record<LockTrigger, typeof CalendarClock> = {
     sale_opens: CalendarClock,
     restock: RefreshCw,
-    hint_match: Sparkles,
+    chance_reached: Percent,
+    narrowed: Target,
 };
 
 interface LockRulesProps {

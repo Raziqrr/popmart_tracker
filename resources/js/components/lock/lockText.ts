@@ -5,8 +5,23 @@ import type { AutoLockRuleDraft, LockAttemptStatus, LockRenewal, LockTarget, Loc
 export const triggerLabels: Record<LockTrigger, { title: string; detail: string }> = {
     sale_opens: { title: 'As soon as the draw opens', detail: 'Fires at the sale start time.' },
     restock: { title: 'When boxes come back', detail: 'Fires when a sold-out set gets new boxes.' },
-    hint_match: { title: 'When a box is hinted to hold a chosen figure', detail: 'Fires when a hint for one of your figures appears.' },
+    chance_reached: {
+        title: "When a box's chance for my figure is high enough",
+        detail: 'Fires once other figures are ruled out of a box until your figure reaches the chance you set. Secrets have no odds, so they never fire this.',
+    },
+    narrowed: {
+        title: 'When a box is narrowed down to my figure',
+        detail: 'Fires when every other figure has been ruled out of a box, so it can only be yours.',
+    },
 };
+
+/** Triggers that watch a box's odds for the rule's figures, so they need Specific or Ranked picks. */
+export const FIGURE_TRIGGERS: LockTrigger[] = ['chance_reached', 'narrowed'];
+
+export const isFigureTrigger = (trigger: LockTrigger) => FIGURE_TRIGGERS.includes(trigger);
+
+/** Default chance threshold for 'chance_reached'. */
+export const DEFAULT_MIN_CHANCE = 0.5;
 
 export const attemptStatusMeta: Record<LockAttemptStatus, { label: string; tone: string }> = {
     pending: { label: 'Locking…', tone: 'bg-status-upcoming-tint text-status-upcoming-ink' },
@@ -23,18 +38,27 @@ export function totalBoxes(target: LockTarget): number {
     return target.picks.reduce((sum, pick) => sum + pick.count, 0);
 }
 
-/** Trigger to preselect: the draw opening before sale, restock once sold out, hints otherwise. */
+/** Trigger to preselect: the draw opening before sale, restock once sold out, a chance threshold otherwise. */
 export function defaultTrigger(product: ProductCardData, target: LockTarget): LockTrigger {
     const status = productStatus(product);
     if (status === 'coming_soon') return 'sale_opens';
     if (status === 'sold_out') return 'restock';
-    return target.kind === 'specific' || target.kind === 'ranked' ? 'hint_match' : 'restock';
+    return target.kind === 'specific' || target.kind === 'ranked' ? 'chance_reached' : 'restock';
 }
 
 /** A fresh draft for a product: random, 1 box, default trigger, Pop Mart's max hold. */
 export function newDraft(product: ProductCardData, limits: PopNowLockLimits): AutoLockRuleDraft {
     const target: LockTarget = { kind: 'random', count: 1 };
-    return { target, trigger: defaultTrigger(product, target), lock_duration_seconds: limits.max_lock_seconds, renew: null, enabled: true, expires_at: null };
+    return {
+        target,
+        trigger: defaultTrigger(product, target),
+        min_chance: DEFAULT_MIN_CHANCE,
+        lock_duration_seconds: limits.max_lock_seconds,
+        renew: null,
+        checkout_immediately: true,
+        enabled: true,
+        expires_at: null,
+    };
 }
 
 export function formatHold(seconds: number): string {
@@ -77,7 +101,9 @@ export function describeRule(rule: AutoLockRuleDraft): string {
             ? 'When the draw opens'
             : rule.trigger === 'restock'
               ? 'When boxes come back'
-              : 'When boxes are hinted to hold your figures';
+              : rule.trigger === 'narrowed'
+                ? 'When a box is narrowed down to one of your figures'
+                : `When a box's chance for one of your figures reaches ${Math.round((rule.min_chance ?? DEFAULT_MIN_CHANCE) * 100)}%`;
 
     // A total only adds information when several figures are picked.
     const total = rule.target.kind === 'specific' && rule.target.picks.length > 1 ? ` (${boxes(totalBoxes(rule.target))} total)` : '';
@@ -88,5 +114,7 @@ export function describeRule(rule: AutoLockRuleDraft): string {
           )} left on each ${formatHold(rule.lock_duration_seconds)} hold)`
         : `for ${formatHold(rule.lock_duration_seconds)} each`;
 
-    return `${when}, lock ${describeTarget(rule.target)}${total} ${hold} and alert you to pay.`;
+    const pay = rule.checkout_immediately ? 'go straight to checkout, and alert you to pay before the hold ends' : 'alert you to pay';
+
+    return `${when}, lock ${describeTarget(rule.target)}${total} ${hold}, then ${pay}.`;
 }

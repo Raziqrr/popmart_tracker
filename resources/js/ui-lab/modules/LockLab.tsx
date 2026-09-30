@@ -56,7 +56,7 @@ export function LockLab() {
                     <LockPicker
                         value={pickerDraft.target}
                         figures={sampleFigures[drawOnSale.id]}
-                        onChange={(target) => setPickerDraft((d) => ({ ...d, target, trigger: target.kind === 'specific' ? 'hint_match' : 'restock' }))}
+                        onChange={(target) => setPickerDraft((d) => ({ ...d, target, trigger: target.kind === 'specific' ? 'chance_reached' : 'restock' }))}
                     />
                     <RuleSummary draft={pickerDraft} />
                 </div>
