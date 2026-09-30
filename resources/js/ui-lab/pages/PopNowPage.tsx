@@ -71,6 +71,18 @@ export function PopNowPage() {
           )
         : undefined;
 
+    // Selecting a figure (from "Best bet per figure" or a box's own chance
+    // list) highlights its best box(es) on the grid — it should also open
+    // that box's detail panel, not leave whatever box happened to be open
+    // before showing unrelated hints.
+    const selectSku = (skuId: string | null) => {
+        setSelectedSkuId(skuId);
+        if (skuId) {
+            const best = bestBoxesForSku(betChances, skuId);
+            if (best.boxIds.length > 0) setBoxId(best.boxIds[0]);
+        }
+    };
+
     return (
         <MockSiteFrame currentHref="/pop-now">
             <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'POP NOW' }]} />
@@ -187,7 +199,7 @@ export function PopNowPage() {
                                 boxes={current.boxes}
                                 chances={betChances}
                                 selectedSkuId={selectedSkuId}
-                                onSelectSku={setSelectedSkuId}
+                                onSelectSku={selectSku}
                                 betterElsewhere={betterElsewhere}
                                 onViewElsewhere={(set, elsewhereBox, skuId) => {
                                     setSetId(set.id);
@@ -204,7 +216,7 @@ export function PopNowPage() {
                                     box={box}
                                     candidates={chances.get(box.id)}
                                     betterElsewhere={betterElsewhereFor(betChances, current.boxes, box.id)}
-                                    onSelectSku={setSelectedSkuId}
+                                    onSelectSku={selectSku}
                                     selectedSkuId={selectedSkuId}
                                     onLock={popNow.lockBox}
                                     onRelease={popNow.releaseBox}
