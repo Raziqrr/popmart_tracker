@@ -1,15 +1,23 @@
 <?php
 
 use App\Http\Controllers\AlertController;
+use App\Http\Controllers\ListController;
 use App\Http\Controllers\LuckyPointsController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\PopmartAccountController;
 use App\Http\Controllers\PopMartTaskController;
 use App\Http\Controllers\PopNowRefreshController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// Inertia pages (resources/js/Pages). Login and register pages come from
+// Fortify (views registered in AppServiceProvider).
+Route::get('/', [PageController::class, 'dashboard'])->name('dashboard');
+Route::get('/catalog', [PageController::class, 'catalog'])->name('catalog');
+Route::get('/drops', [PageController::class, 'drops'])->name('drops');
+Route::middleware('auth')->group(function () {
+    Route::get('/watchlist', [PageController::class, 'watchlist'])->name('watchlist');
+    Route::get('/alerts', [PageController::class, 'alerts'])->name('alerts');
 });
 
 // Throwaway page for manually testing the browser extension handshake.
@@ -38,6 +46,11 @@ Route::prefix('api')->group(function () {
 
     Route::post('/popmart-accounts/{popmartAccount}/redeem-points', [LuckyPointsController::class, 'redeem'])
         ->middleware('capability:redeem_points');
+
+    Route::middleware('capability:watchlist')->group(function () {
+        Route::post('/pins', [ListController::class, 'togglePin']);
+        Route::post('/watches', [ListController::class, 'toggleWatch']);
+    });
 
     Route::middleware('capability:alerts')->group(function () {
         Route::get('/alerts', [AlertController::class, 'index']);

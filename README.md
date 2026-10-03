@@ -2,12 +2,12 @@
 
 A tracker for Pop Mart: stock, restocks, prices and new drops across regions (MY, SG, TH), plus tools for POP NOW, Pop Mart's online blind-box draw: live box grids, odds per box and figure, and (planned) auto-lock.
 
-> **Status: early.** The data model, the Pop Mart API client, box predictions and the browser extension are in place. The React frontend exists as components and page mockups in a UI lab, not yet wired to Laravel. This README grows as the project does.
+> **Status: early.** The data model, the Pop Mart API client and sync, box predictions, alerts and the browser extension are in place. The dashboard, catalog, drops, watchlist, alerts and login pages are served by Laravel through Inertia; POP NOW and auto-lock pages still run on UI-lab sample data. Nothing has been run against real Pop Mart responses yet (see "Data sync").
 
 ## Stack
 
 - **Backend:** Laravel 13 (PHP 8.3+), MySQL/MariaDB (the migrations use generated columns and spatial/full-text indexes, so SQLite won't work), Pest.
-- **Frontend:** React 19 + TypeScript, Tailwind CSS v4, Lucide icons, built with Vite. Inertia is planned for connecting it to Laravel.
+- **Frontend:** React 19 + TypeScript, Tailwind CSS v4, Lucide icons, built with Vite. Inertia connects it to Laravel (`resources/js/Pages`, entry `resources/js/app.tsx`).
 - **Browser extension:** Manifest V3, in `extension/`.
 
 ## Getting started
@@ -23,6 +23,8 @@ npm run typecheck
 ### Full app
 
 ```bash
+composer require laravel/fortify inertiajs/inertia-laravel   # not yet in composer.json
+php artisan fortify:install
 composer run setup    # composer install, .env, key, migrations, npm build
 composer run dev
 ```
@@ -42,6 +44,7 @@ Set the `DB_*` values in `.env` first (database `popmart_tracker`). `POPMART_API
 | `app/Auth` | `Capability`: who can do what (see "Who can do what" below) |
 | `extension/` | Captures a user's Pop Mart session after they log in on Pop Mart's own page. See `extension/README.md` |
 | `resources/js/components` | React components: products, dashboard, drops (calendar/timeline), POP NOW, auto-lock, layout |
+| `resources/js/Pages` | Inertia pages (Dashboard, Catalog, Drops, Watchlist, Alerts, Auth). Page bodies shared with the lab live in `components/pages` |
 | `resources/js/ui-lab` | Vite-only lab: page mockups (`pages/`), module state sheets (`modules/`), sample data (`fixtures/`) |
 | `docs/tickets` | Backend work the UI already expects: auto-lock, lucky points, fast-selling products |
 
