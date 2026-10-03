@@ -43,6 +43,11 @@ class PopMartException extends RuntimeException
         return new self(PopMartError::Rejected, $reason ? "Pop Mart refused the request: {$reason}" : "Pop Mart refused the request (HTTP {$status}).", $status);
     }
 
+    public static function throttled(int $retryAfter): self
+    {
+        return new self(PopMartError::Throttled, 'Too many Pop Mart requests right now. Try again shortly.', retryAfter: $retryAfter);
+    }
+
     public static function unexpectedResponse(string $endpoint): self
     {
         return new self(PopMartError::UnexpectedResponse, "Pop Mart sent a response we don't understand ({$endpoint}).");
@@ -56,7 +61,7 @@ class PopMartException extends RuntimeException
     /** Failures that would hit every following call too, so a batch should stop. */
     public function abortsBatch(): bool
     {
-        return in_array($this->error, [PopMartError::SessionExpired, PopMartError::RateLimited, PopMartError::Unreachable], true);
+        return in_array($this->error, [PopMartError::SessionExpired, PopMartError::RateLimited, PopMartError::Throttled, PopMartError::Unreachable], true);
     }
 
     public function render(): JsonResponse

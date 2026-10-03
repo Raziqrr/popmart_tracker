@@ -3,6 +3,7 @@
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PopmartAccountController;
 use App\Http\Controllers\PopMartTaskController;
+use App\Http\Controllers\PopNowRefreshController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,4 +27,7 @@ Route::prefix('api')->group(function () {
 
     Route::post('/popmart-accounts/{popmartAccount}/claim-tasks', [PopMartTaskController::class, 'claim'])
         ->middleware('capability:claim_tasks');
+
+    Route::post('/pop-now-sets/{popNowSet}/refresh', PopNowRefreshController::class)
+        ->middleware('capability:refresh_popnow');
 });

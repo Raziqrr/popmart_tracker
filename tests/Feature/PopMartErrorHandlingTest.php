@@ -6,10 +6,16 @@ use App\Services\Api\PopMart\Endpoints\Auth\GetSession;
 use App\Services\Api\PopMart\PopMartError;
 use App\Services\Api\PopMart\PopMartException;
 use App\Services\PopMartTaskClaimer;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
-    config(['app.key' => 'base64:'.base64_encode(str_repeat('k', 32))]);
+    config([
+        'app.key' => 'base64:'.base64_encode(str_repeat('k', 32)),
+        // No database here: skip the call log and the field register.
+        'apis.popmart.log_calls' => false,
+        'apis.popmart.record_fields' => false,
+    ]);
 });
 
 function popMartErrorOf(callable $call): PopMartException
@@ -51,6 +57,8 @@ it('keeps the retry delay and Pop Mart\'s reason', function () {
         ->push(['error' => ['json' => ['message' => 'Task already claimed']]], 400)]);
 
     $limited = popMartErrorOf(fn () => (new ClaimTask)->withSession('cookie')->data());
+    // A 429 pauses every call (PopMartThrottle); lift it so the second call reaches Pop Mart.
+    Cache::flush();
     $rejected = popMartErrorOf(fn () => (new ClaimTask)->withSession('cookie')->data());
 
     expect($limited->retryAfter)->toBe(30)

@@ -22,6 +22,7 @@ class Product extends Model
         'price', 'currency', 'business_type', 'spec_type', 'area_codes',
         'sale_start_at', 'sale_end_at', 'tags', 'sales', 'remain_stock',
         'warehouse', 'raw_payload', 'last_seen_at',
+        'sale_mode', 'sync_tier', 'next_stock_check_at', 'hot_until',
     ];
 
     protected function casts(): array
@@ -33,6 +34,8 @@ class Product extends Model
             'sale_start_at' => 'datetime',
             'sale_end_at' => 'datetime',
             'last_seen_at' => 'datetime',
+            'next_stock_check_at' => 'datetime',
+            'hot_until' => 'datetime',
             'is_new' => 'boolean',
             'is_sold_out' => 'boolean',
             'is_coming_soon' => 'boolean',

@@ -125,18 +125,34 @@ export interface CollectionSummary {
 }
 
 /**
- * A detected change, built from consecutive stock_snapshots / product_snapshots
- * rows (not stored as its own table yet).
+ * A detected change, as stored in product_events by the Pop Mart sync.
+ * SYNC: mirrors App\Services\PopMart\Sync\ProductEventType. Release and
+ * pre-order events are separate: a pre-order is buy-now-ship-later.
  */
-export type ProductEventType = 'restocked' | 'sold_out' | 'price_drop' | 'price_rise' | 'listed' | 'sale_started' | 'low_stock';
+export type ProductEventType =
+    | 'restocked'
+    | 'sold_out'
+    | 'price_drop'
+    | 'price_rise'
+    | 'listed'
+    | 'sale_started'
+    | 'sale_time_changed'
+    | 'low_stock'
+    | 'preorder_opened'
+    | 'preorder_closed'
+    | 'tag_added'
+    | 'tag_removed';
 
 /** A change without its product: what happened, when, and the before/after values. */
 export interface ProductChange {
     type: ProductEventType;
     occurred_at: string;
-    /** Before/after values: stock for stock events, minor-unit price for price events. */
-    from?: number | null;
-    to?: number | null;
+    /**
+     * Before/after values: stock for stock events, minor-unit price for price
+     * events, an ISO time for sale_time_changed, the tag for tag events.
+     */
+    from?: number | string | null;
+    to?: number | string | null;
 }
 
 export interface ProductEvent extends ProductChange {

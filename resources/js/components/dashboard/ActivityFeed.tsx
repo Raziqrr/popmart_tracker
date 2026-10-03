@@ -6,7 +6,7 @@ import type { ProductEvent } from '@/types/catalog';
 
 type EventGroup = 'all' | ChangeGroup;
 
-const groupLabels: Record<EventGroup, string> = { all: 'All', stock: 'Stock', price: 'Price', new: 'New & drops' };
+const groupLabels: Record<EventGroup, string> = { all: 'All', stock: 'Stock', price: 'Price', new: 'New & drops', preorder: 'Pre-orders' };
 
 
 interface ActivityFeedProps {

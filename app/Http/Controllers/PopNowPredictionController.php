@@ -7,6 +7,7 @@ use App\Models\PopNowSet;
 use App\Models\Product;
 use App\Models\Sku;
 use App\Repositories\PopNowBoxRepository;
+use App\Services\PopMart\Sync\PopNowSync;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -19,6 +20,7 @@ class PopNowPredictionController extends Controller
 
     public function forSet(PopNowSet $popNowSet)
     {
+        PopNowSync::markViewed($popNowSet->product_id);
         $results = $this->predictor->predictSet($popNowSet);
 
         $predictions = $results->map(function ($prediction) {
@@ -58,6 +60,7 @@ class PopNowPredictionController extends Controller
         ]);
 
         $sku = isset($validated['sku_id']) ? Sku::find($validated['sku_id']) : null;
+        PopNowSync::markViewed($product->id);
 
         $sets = $this->boxes->setsForProduct($product->id);
 

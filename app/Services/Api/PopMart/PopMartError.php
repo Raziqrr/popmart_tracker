@@ -13,13 +13,15 @@ enum PopMartError: string
     case Unreachable = 'popmart_unreachable';
     case Rejected = 'popmart_rejected';
     case UnexpectedResponse = 'popmart_unexpected_response';
+    /** Our own budget for Pop Mart calls is used up (PopMartThrottle); Pop Mart itself didn't refuse. */
+    case Throttled = 'popmart_throttled';
 
     /** HTTP status our own API answers with. */
     public function httpStatus(): int
     {
         return match ($this) {
             self::SessionExpired => 409,
-            self::RateLimited => 429,
+            self::RateLimited, self::Throttled => 429,
             self::Unreachable => 503,
             self::Rejected, self::UnexpectedResponse => 502,
         };
