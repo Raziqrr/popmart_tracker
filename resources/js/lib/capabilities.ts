@@ -19,6 +19,7 @@ export const CAPABILITIES = {
     auto_lock: { requires: 'popmart', label: 'set up auto-lock' },
     checkout: { requires: 'popmart', label: 'check out' },
     refresh_popnow: { requires: 'popmart', label: 'refresh live box grids' },
+    alerts: { requires: 'member', label: 'get alerts' },
 } as const satisfies Record<string, { requires: Access; label: string }>;
 
 export type Capability = keyof typeof CAPABILITIES;

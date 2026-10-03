@@ -1,5 +1,6 @@
 import type { AuthState } from '@/lib/capabilities';
 import type { TaskClaimResult } from '@/types/account';
+import type { AlertInbox, AlertSettings } from '@/types/alerts';
 
 /**
  * Error codes our API returns in { error: { code, message } }.
@@ -48,7 +49,7 @@ function xsrfToken(): string | null {
  * ApiError for every failure (offline, not logged in, Pop Mart errors,
  * validation), so callers only ever handle one error type.
  */
-export async function apiRequest<T>(path: string, init: { method?: 'GET' | 'POST'; body?: unknown } = {}): Promise<T> {
+export async function apiRequest<T>(path: string, init: { method?: 'GET' | 'POST' | 'PUT'; body?: unknown } = {}): Promise<T> {
     const method = init.method ?? 'GET';
     const token = method === 'GET' ? null : xsrfToken();
     let response: Response;
@@ -144,4 +145,24 @@ export function connectPopMart(session: { cookie: string; expires_at: string | n
 /** POST /api/popmart-accounts/{id}/claim-tasks */
 export function claimTasks(accountId: number): Promise<{ results: TaskClaimResult[] }> {
     return apiRequest(`/api/popmart-accounts/${accountId}/claim-tasks`, { method: 'POST' });
+}
+
+/** GET /api/alerts: the newest alerts and how many are unread. */
+export function fetchAlerts(): Promise<AlertInbox> {
+    return apiRequest('/api/alerts');
+}
+
+/** POST /api/alerts/read: mark these alerts read, or all of them without ids. */
+export function markAlertsRead(ids?: string[]): Promise<{ unread: number }> {
+    return apiRequest('/api/alerts/read', { method: 'POST', body: ids ? { ids } : {} });
+}
+
+/** GET /api/alert-settings */
+export function fetchAlertSettings(): Promise<AlertSettings> {
+    return apiRequest('/api/alert-settings');
+}
+
+/** PUT /api/alert-settings */
+export function saveAlertSettings(settings: Pick<AlertSettings, 'types' | 'email' | 'telegram' | 'telegram_chat_id'>): Promise<AlertSettings> {
+    return apiRequest('/api/alert-settings', { method: 'PUT', body: settings });
 }

@@ -30,7 +30,7 @@ Also expose `hours_to_sell_out = remain_stock / rate` (the UI currently computes
 
 ## Done when
 
-- [x] Rate computed and stored/refreshed on a schedule (`popmart:sell-rates`, `AppServicesPopMartSyncSellRate`)
+- [x] Rate computed and stored/refreshed on a schedule (`popmart:sell-rates`, `App\Services\PopMart\Sync\SellRate`)
 - [ ] `sell_rate_per_hour` included in the dashboard/catalog payloads
 - [x] Test with a snapshot sequence including a restock in the middle (`tests/Feature/PopMartSyncTest.php`)
 - [ ] "estimate" badge and the info note removed from `FastSellers.tsx` / the stat tile

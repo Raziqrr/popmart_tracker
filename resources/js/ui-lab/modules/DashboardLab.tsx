@@ -1,4 +1,7 @@
 import { CalendarClock, Flame, PackageCheck } from 'lucide-react';
+import { useState } from 'react';
+import { AlertSettingsForm } from '@/components/alerts/AlertSettingsForm';
+import { AlertsInbox } from '@/components/alerts/AlertsInbox';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { CollectionStatus } from '@/components/dashboard/CollectionStatus';
 import { FastSellers } from '@/components/dashboard/FastSellers';
@@ -18,6 +21,7 @@ import {
     sampleLuckyPoints,
     sampleLuckyPointsStates,
 } from '../fixtures/account';
+import { fakeSaveAlertSettings, sampleAlerts, sampleAlertSettings } from '../fixtures/alerts';
 import { sampleCollections } from '../fixtures/collections';
 import { sampleEvents } from '../fixtures/events';
 import { samplePinnedIds, sampleProducts, sampleWatchedIds } from '../fixtures/products';
@@ -26,6 +30,9 @@ import { LabHeader, Specimen, SpecimenGrid } from '../Specimen';
 
 export function DashboardLab() {
     const actions = useProductActions(samplePinnedIds, sampleWatchedIds);
+    const [alerts, setAlerts] = useState(sampleAlerts);
+    const markRead = (ids?: string[]) =>
+        setAlerts((all) => all.map((a) => (!ids || ids.includes(a.id) ? { ...a, read_at: a.read_at ?? new Date().toISOString() } : a)));
 
     return (
         <div className="flex flex-col gap-12">
@@ -92,6 +99,21 @@ export function DashboardLab() {
                         </Specimen>
                     ))}
                 </SpecimenGrid>
+            </section>
+
+            <section className="flex flex-col gap-6">
+                <h2 className="text-lg font-bold">Alerts</h2>
+                <div className="grid gap-8 lg:grid-cols-2">
+                    <Specimen label="AlertsInbox" note="GET /api/alerts: single alerts and a digest (open it); click to mark read">
+                        <AlertsInbox alerts={alerts} unread={alerts.filter((a) => !a.read_at).length} onMarkRead={markRead} />
+                    </Specimen>
+                    <Specimen label="AlertsInbox: empty" note="No alerts yet">
+                        <AlertsInbox alerts={[]} unread={0} />
+                    </Specimen>
+                    <Specimen label="AlertSettingsForm" note="PUT /api/alert-settings; inbox always on, email / Telegram opt-in">
+                        <AlertSettingsForm value={sampleAlertSettings} onSave={fakeSaveAlertSettings} />
+                    </Specimen>
+                </div>
             </section>
 
             <section className="flex flex-col gap-6">

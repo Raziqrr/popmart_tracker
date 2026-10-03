@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PopmartAccountController;
 use App\Http\Controllers\PopMartTaskController;
@@ -30,4 +31,11 @@ Route::prefix('api')->group(function () {
 
     Route::post('/pop-now-sets/{popNowSet}/refresh', PopNowRefreshController::class)
         ->middleware('capability:refresh_popnow');
+
+    Route::middleware('capability:alerts')->group(function () {
+        Route::get('/alerts', [AlertController::class, 'index']);
+        Route::post('/alerts/read', [AlertController::class, 'markRead']);
+        Route::get('/alert-settings', [AlertController::class, 'settings']);
+        Route::put('/alert-settings', [AlertController::class, 'updateSettings']);
+    });
 });

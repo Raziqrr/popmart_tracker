@@ -74,6 +74,16 @@ The server keeps its own copy of Pop Mart's data and pages read only from it. Co
 - **Unconfirmed field names.** Pop Mart field names live in one adapter per endpoint (`Sync/Adapters`). Only `PopNowSetAdapter` is confirmed. Before trusting the catalog and stock sync, run `popmart:capture <Endpoint> '<payload>' --check` for each listing endpoint and `CheckSkuStock`, fix any names it reports, and set `CONFIRMED = true`.
 - **Learning Pop Mart's schema.** Every field path in every response is recorded in `popmart_payload_fields`; `popmart:status` lists new ones. That's how the pre-order marker and early-pass state will be found (`SpuAdapter::saleMode()` returns `regular` until then).
 
+## Alerts
+
+`popmart:dispatch-alerts` (every minute) turns new `product_events` into alerts for watchers (`wishlist_items`). Code: `app/Services/Alerts`.
+
+- **Who:** watching a product gets every alert about it; watching one figure gets that figure's stock news plus product-wide news (sale opening, pre-order, price); following a collection only gets new listings, sale openings and pre-orders.
+- **What:** each user picks event types in alert settings (defaults: restock, sale opened or scheduled, pre-order opened, low stock, price drop, new listing).
+- **Where:** the in-app inbox (Laravel's `notifications` table) always; email and Telegram are opt-in. Telegram needs `TELEGRAM_BOT_TOKEN` on the server and a chat id per user.
+- **Not too much:** the same alert for the same product is sent at most once per cooldown (low stock 6 h, price drop 12 h, others 15 min); more than 5 alerts for one user in one run become a single digest; events older than an hour (after downtime) are marked handled without alerting.
+- **API:** `GET /api/alerts`, `POST /api/alerts/read`, `GET|PUT /api/alert-settings` (capability `alerts`). UI: `components/alerts/AlertsInbox` and `AlertSettingsForm`.
+
 ## Who can do what
 
 There are three access levels: **guest** (browse, POP NOW odds), **member** (logged in with Fortify: watchlist, connect Pop Mart) and **Pop Mart** (logged in *and* a connected Pop Mart account with a live session: claim tasks, redeem, lock, auto-lock, checkout).
