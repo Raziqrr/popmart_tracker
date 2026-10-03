@@ -111,10 +111,13 @@ export interface StatusCounts {
  */
 export interface CollectionSummary {
     id: string; // Pop Mart collectionId
-    theme_id: string;
+    /** Null when the collection was discovered without its theme (ipId). */
+    theme_id: string | null;
     area: AreaCode;
+    /** A placeholder like "Collection 1a2b3c4d" while name_confirmed is false. */
     name: string;
     slug: string;
+    name_confirmed: boolean;
     theme_name: string | null;
     image_url: string | null;
     product_count: number;

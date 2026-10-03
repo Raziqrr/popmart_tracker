@@ -21,6 +21,10 @@ use Illuminate\Support\Facades\Log;
  *    don't know yet is looked up. This works without knowing the CMS layout.
  * 3. Products we have but without SKUs get their details (FindByIds).
  *
+ * New collections are found along the way (CollectionDiscovery): from the
+ * collectionId in product payloads, and by probing CMS IDs that turn out not
+ * to be products. Collections are visited least recently swept first.
+ *
  * Stops early when the call budget runs out; the next run carries on.
  */
 class CatalogSweep
@@ -29,12 +33,15 @@ class CatalogSweep
 
     private const UNRESOLVED_KEY = 'popmart:cms:unresolved';
 
-    public function __construct(private ProductWriter $writer) {}
+    public function __construct(
+        private ProductWriter $writer,
+        private CollectionDiscovery $discovery,
+    ) {}
 
-    /** @return array{collections: int, products: int, events: int, skipped: int, stopped: ?string} */
+    /** @return array{collections: int, new_collections: int, products: int, events: int, skipped: int, stopped: ?string} */
     public function run(): array
     {
-        $report = ['collections' => 0, 'products' => 0, 'events' => 0, 'skipped' => 0, 'stopped' => null];
+        $report = self::emptyReport();
 
         try {
             foreach ($this->collections() as $collection) {
@@ -53,6 +60,27 @@ class CatalogSweep
             }
 
             $this->fillMissingDetails($report);
+        } catch (PopMartException $e) {
+            if (! $e->abortsBatch()) {
+                throw $e;
+            }
+            $report['stopped'] = $e->getMessage();
+        }
+
+        return $report;
+    }
+
+    /**
+     * Sweep one collection now (popmart:add-collection).
+     *
+     * @return array{collections: int, new_collections: int, products: int, events: int, skipped: int, stopped: ?string}
+     */
+    public function sweepOne(Collection $collection): array
+    {
+        $report = self::emptyReport();
+
+        try {
+            $this->sweepCollection($collection, $report);
         } catch (PopMartException $e) {
             if (! $e->abortsBatch()) {
                 throw $e;
@@ -86,10 +114,11 @@ class CatalogSweep
                 continue;
             }
 
-            $active = $this->writeAll($products, $collection, $report) || $active;
+            $active = $this->writeAll($products, $collection, $country, $report) || $active;
         }
 
         $report['collections']++;
+        $collection->update(['last_swept_at' => now()]);
 
         if ($active) {
             // Drops come in clusters: watch the rest of this collection closely for a while.
@@ -106,16 +135,29 @@ class CatalogSweep
 
         $unresolved = Cache::get(self::UNRESOLVED_KEY, []);
         $candidates = array_diff(PopMartIds::extract($json), array_keys($unresolved));
-        $known = Product::whereIn('id', $candidates)->pluck('id')->all();
+        $known = array_merge(
+            Product::whereIn('id', $candidates)->pluck('id')->all(),
+            Collection::whereIn('id', $candidates)->pluck('id')->all(),
+        );
         $unknown = array_values(array_diff($candidates, $known));
+        $notProducts = [];
 
         foreach (array_chunk($unknown, self::DETAILS_BATCH) as $ids) {
             $found = $this->fetchDetails($ids, $country, $report);
+            array_push($notProducts, ...array_diff($ids, $found));
+        }
 
-            // IDs that aren't products (images, campaigns, collections): don't ask again for a day.
-            foreach (array_diff($ids, $found) as $id) {
-                $unresolved[$id] = true;
-            }
+        // Not products: maybe collections. A few are probed per sweep; the rest wait for the next one.
+        $probe = $this->discovery->probe($notProducts, $country);
+        foreach ($probe['collections'] as $collection) {
+            $report['new_collections'] += (int) $collection->wasRecentlyCreated;
+            $this->writeAll($probe['products'][$collection->id], $collection, $country, $report);
+        }
+
+        // Neither a product nor a collection (images, campaigns…): don't ask again for a day.
+        $collectionIds = array_map(fn (Collection $c) => $c->id, $probe['collections']);
+        foreach (array_diff($probe['checked'], $collectionIds) as $id) {
+            $unresolved[$id] = true;
         }
 
         Cache::put(self::UNRESOLVED_KEY, $unresolved, now()->addDay());
@@ -146,19 +188,29 @@ class CatalogSweep
 
         $existing = Product::whereIn('id', array_column($products, 'id'))->get()->keyBy('id');
         foreach ($products as $product) {
-            $this->writeAll([$product], $existing->get($product['id'])?->collection, $report);
+            $this->writeAll([$product], $existing->get($product['id'])?->collection, $country, $report);
         }
 
         return array_column($products, 'id');
     }
 
-    /** @return bool whether anything happened worth bumping the collection to hot */
-    private function writeAll(array $products, ?Collection $collection, array &$report): bool
+    /**
+     * Without a known $collection, each product's own collectionId decides
+     * (creating the collection if it's new).
+     *
+     * @return bool whether anything happened worth bumping the collection to hot
+     */
+    private function writeAll(array $products, ?Collection $collection, Country $country, array &$report): bool
     {
         $active = false;
 
         foreach ($products as $product) {
-            $events = $this->writer->write($product, $collection);
+            $target = $collection ?? $this->discovery->fromProduct($product, $country);
+            if ($collection === null && $target?->wasRecentlyCreated) {
+                $report['new_collections']++;
+            }
+
+            $events = $this->writer->write($product, $target);
             $report['products']++;
             $report['events'] += count($events);
             $active = $active || collect($events)->contains(fn (ProductEventType $type) => $type->signalsActivity());
@@ -167,10 +219,18 @@ class CatalogSweep
         return $active;
     }
 
-    /** @return iterable<Collection> */
+    /** @return iterable<Collection> least recently swept first, so a run cut short by the budget doesn't starve the rest */
     private function collections(): iterable
     {
-        return Collection::whereIn('area', config('apis.popmart.areas', ['MY']))->lazyById();
+        return Collection::whereIn('area', config('apis.popmart.areas', ['MY']))
+            ->orderByRaw('last_swept_at is not null')
+            ->orderBy('last_swept_at')
+            ->get();
+    }
+
+    private static function emptyReport(): array
+    {
+        return ['collections' => 0, 'new_collections' => 0, 'products' => 0, 'events' => 0, 'skipped' => 0, 'stopped' => null];
     }
 
     /** @return list<Country> */

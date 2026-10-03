@@ -59,7 +59,8 @@ The server keeps its own copy of Pop Mart's data and pages read only from it. Co
 
 | Command | Schedule | What it does |
 | --- | --- | --- |
-| `popmart:sweep` | every 3 min | Discovery: every known collection's listings, plus any product ID in Pop Mart's live CMS content (so unannounced drops and pre-orders show up), plus details for products without SKUs |
+| `popmart:sweep` | every 3 min | Discovery: every known collection's listings (least recently swept first), plus any product ID in Pop Mart's live CMS content (so unannounced drops and pre-orders show up), plus details for products without SKUs. Finds new collections along the way |
+| `popmart:add-collection <id>` | by hand | Adds a collection by its Pop Mart id and sweeps it straight away |
 | `popmart:sync-stock` | every minute | Stock for products that are due, by tier: **hot** (pinned/watched, pre-order, sale within 2 h, recent activity in its collection) every minute, **normal** every 20 min, **cold** (sold out and quiet, or delisted) daily |
 | `popmart:poll-popnow` | every minute | Live POP NOW grids via the **house account** (`POPMART_HOUSE_ACCOUNT_ID`), for draws someone is viewing, watching or that are hot |
 | `popmart:prune-calls` | daily | Keeps 7 days of the call log |
@@ -67,6 +68,7 @@ The server keeps its own copy of Pop Mart's data and pages read only from it. Co
 | `popmart:capture` | by hand | Calls one endpoint, saves the raw response, `--check` runs its adapter over it |
 
 - **One budget.** Every call goes through `PopMartThrottle`: `POPMART_CALLS_PER_MINUTE` (60) shared, background sync capped at `POPMART_BACKGROUND_PER_MINUTE` (40) so user actions always have room. A 429 from Pop Mart pauses everything. Every call is logged in `popmart_calls`.
+- **New collections.** There's no known "all collections" endpoint, so `CollectionDiscovery` learns them from the `collectionId` / `ipId` in product payloads, by probing CMS IDs that aren't products (a few per sweep: a collection's listing returns products), and from `popmart:add-collection`. Without a name from Pop Mart a collection gets a placeholder (`name_confirmed = false`) until a payload carries the real one.
 - **Changes become events.** `ProductChangeDetector` writes `product_events`: `listed`, `sale_started`, `sale_time_changed`, `restocked`, `sold_out`, `low_stock`, price moves, `preorder_opened` / `preorder_closed` (kept apart from releases) and raw tag changes. Stock snapshots are only written when stock changes; `skus.last_checked_at` records every check.
 - **The house account only watches.** `AssignSet` releases any boxes a session holds, so background grid polling only uses the house account, and endpoints marked `HoldsBoxes` refuse to run with it. A logged-in viewer can refresh one set with their own session through `POST /api/pop-now-sets/{set}/refresh`, which only uses the read-only `CheckSetBoxLock`.
 - **Unconfirmed field names.** Pop Mart field names live in one adapter per endpoint (`Sync/Adapters`). Only `PopNowSetAdapter` is confirmed. Before trusting the catalog and stock sync, run `popmart:capture <Endpoint> '<payload>' --check` for each listing endpoint and `CheckSkuStock`, fix any names it reports, and set `CONFIRMED = true`.

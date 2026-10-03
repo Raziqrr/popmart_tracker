@@ -1,10 +1,13 @@
 <?php
 
+use App\Models\Collection;
 use App\Models\Product;
 use App\Models\UserCheckout;
 use App\Services\PopMart\HouseAccount;
 use App\Services\PopMart\PopMartThrottle;
+use App\Services\Locator\Country;
 use App\Services\PopMart\Sync\CatalogSweep;
+use App\Services\PopMart\Sync\CollectionDiscovery;
 use App\Services\PopMart\Sync\PopNowSync;
 use App\Services\PopMart\Sync\StockSync;
 use Illuminate\Foundation\Inspiring;
@@ -36,11 +39,31 @@ Schedule::command('popnow:expire-checkouts')->everyMinute()->withoutOverlapping(
 
 Artisan::command('popmart:sweep', function (CatalogSweep $sweep) {
     $report = $sweep->run();
-    $this->info("Swept {$report['collections']} collection(s): {$report['products']} product(s), {$report['events']} event(s), {$report['skipped']} skipped.");
+    $this->info("Swept {$report['collections']} collection(s), found {$report['new_collections']} new: {$report['products']} product(s), {$report['events']} event(s), {$report['skipped']} skipped.");
     if ($report['stopped']) {
         $this->warn("Stopped early: {$report['stopped']}");
     }
-})->purpose('Find new products and changes: collection listings, live CMS content, missing details');
+})->purpose('Find new products, collections and changes: collection listings, live CMS content, missing details');
+
+Artisan::command('popmart:add-collection {id : Pop Mart collectionId (from the collection page URL)} {--area=MY} {--name=}', function (CollectionDiscovery $discovery, CatalogSweep $sweep) {
+    $area = Country::tryFrom(strtoupper($this->option('area')));
+    if ($area === null) {
+        $this->error('Unknown area '.$this->option('area').'. Known: '.implode(', ', array_column(Country::cases(), 'value')));
+
+        return 1;
+    }
+
+    $collection = $discovery->ensure($this->argument('id'), $area, 'manual', $this->option('name'));
+    $report = $sweep->sweepOne($collection);
+
+    $this->info(($collection->wasRecentlyCreated ? 'Added' : 'Already had')." {$collection->name}: swept {$report['products']} product(s), {$report['events']} event(s).");
+    if ($report['products'] === 0) {
+        $this->warn('Pop Mart returned no products for it. Check the id, or run popmart:capture FindSummariesByCollectionId with it.');
+    }
+    if ($report['stopped']) {
+        $this->warn("Stopped early: {$report['stopped']}");
+    }
+})->purpose('Add a Pop Mart collection by id and sweep it now');
 
 Artisan::command('popmart:sync-stock {--batch=}', function (StockSync $stock) {
     $report = $stock->runDue($this->option('batch') ? (int) $this->option('batch') : null);
@@ -76,6 +99,7 @@ Artisan::command('popmart:status', function (PopMartThrottle $throttle, HouseAcc
     $account = $house->get();
     $this->line('House account: '.($account ? "#{$account->id}, session ".($account->sessionIsValid() ? 'live' : 'EXPIRED') : 'not set'));
     $this->line('Products due for a stock check: '.Product::where(fn ($q) => $q->whereNull('next_stock_check_at')->orWhere('next_stock_check_at', '<=', now()))->count());
+    $this->line('Collections: '.Collection::count().', '.Collection::where('name_confirmed', false)->count().' still with a placeholder name, '.Collection::where('created_at', '>=', now()->subDay())->count().' found in the last 24h');
     $this->line('By tier: '.Product::groupBy('sync_tier')->selectRaw('sync_tier, count(*) as n')->pluck('n', 'sync_tier')->map(fn ($n, $tier) => "{$tier} {$n}")->implode(', '));
 
     $fields = DB::table('popmart_payload_fields')->where('first_seen_at', '>=', now()->subDay())->orderBy('endpoint')->get(['endpoint', 'path', 'example']);

@@ -20,6 +20,7 @@ use App\Services\Locator\Country;
  *     spec_type: string|null, area_codes: list<string>, sale_start_at: \Illuminate\Support\Carbon|null,
  *     sale_end_at: \Illuminate\Support\Carbon|null, tags: list<string>, sales: int|null,
  *     remain_stock: int|null, category_id: string|null, sale_mode: 'regular'|'preorder',
+ *     collection: array{collection_id: string, collection_name: string|null, theme_id: string|null, theme_name: string|null}|null,
  *     raw_payload: array, skus: list<SkuData>|null
  * }
  * @phpstan-type SkuData array{
@@ -92,6 +93,7 @@ class SpuAdapter extends Adapter
             'remain_stock' => self::pick($item, ['remainStock', 'stock']),
             'category_id' => self::pick($item, ['categoryId']),
             'sale_mode' => self::saleMode($item),
+            'collection' => self::collectionRef($item),
             'raw_payload' => $item,
             'skus' => is_array($skus) ? array_map(fn ($sku) => self::mapSku($sku, (string) $currency), $skus) : null,
         ];
@@ -109,6 +111,30 @@ class SpuAdapter extends Adapter
             'price' => self::toMinorUnits(self::pick($sku, ['price', 'salePrice'])),
             'currency' => $currency,
             'main_image' => self::pick($sku, ['mainImage', 'image', 'mainImageUrl']),
+        ];
+    }
+
+    /**
+     * Which collection (and theme / IP) a product says it belongs to, for
+     * collection discovery. Null when the item doesn't say.
+     *
+     * @return array{collection_id: string, collection_name: string|null, theme_id: string|null, theme_name: string|null}|null
+     */
+    public static function collectionRef(array $item): ?array
+    {
+        $collectionId = self::pick($item, ['collectionId', 'collection.id']);
+
+        if (! is_string($collectionId) || $collectionId === '') {
+            return null;
+        }
+
+        $themeId = self::pick($item, ['ipId', 'themeId', 'ip.id']);
+
+        return [
+            'collection_id' => strtolower($collectionId),
+            'collection_name' => self::pick($item, ['collectionName', 'collection.name', 'collectionTitle']),
+            'theme_id' => is_string($themeId) && $themeId !== '' ? strtolower($themeId) : null,
+            'theme_name' => self::pick($item, ['ipName', 'themeName', 'ip.name']),
         ];
     }
 

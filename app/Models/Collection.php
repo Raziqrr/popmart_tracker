@@ -15,7 +15,15 @@ class Collection extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = ['id', 'theme_id', 'area', 'name', 'slug'];
+    protected $fillable = ['id', 'theme_id', 'area', 'name', 'slug', 'name_confirmed', 'source', 'last_swept_at'];
+
+    protected function casts(): array
+    {
+        return [
+            'name_confirmed' => 'boolean',
+            'last_swept_at' => 'datetime',
+        ];
+    }
 
     public function theme(): BelongsTo
     {

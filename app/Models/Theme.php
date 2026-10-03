@@ -14,7 +14,14 @@ class Theme extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = ['id', 'name', 'slug', 'main_image'];
+    protected $fillable = ['id', 'name', 'slug', 'main_image', 'name_confirmed'];
+
+    protected function casts(): array
+    {
+        return [
+            'name_confirmed' => 'boolean',
+        ];
+    }
 
     public function collections(): HasMany
     {

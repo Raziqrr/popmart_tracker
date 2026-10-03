@@ -136,6 +136,21 @@ describe('adapters', function () {
             ->and($products[0]['sale_mode'])->toBe('regular');
     });
 
+    it('reads which collection and theme a product belongs to (assumed field names)', function () {
+        expect(SpuAdapter::collectionRef([
+            'collectionId' => 'C0A1B2C3-0001-4D5E-8F90-000000000009',
+            'collectionName' => 'Pebble Pals',
+            'ipId' => 'D0000000-0000-4000-8000-000000000001',
+        ]))->toBe([
+            'collection_id' => 'c0a1b2c3-0001-4d5e-8f90-000000000009',
+            'collection_name' => 'Pebble Pals',
+            'theme_id' => 'd0000000-0000-4000-8000-000000000001',
+            'theme_name' => null,
+        ])
+            ->and(SpuAdapter::collectionRef(['title' => 'No collection']))->toBeNull()
+            ->and(SpuAdapter::mapProduct(['id' => 'x', 'title' => 'Y', 'collectionId' => 'c1'], Country::Malaysia)['collection']['collection_id'])->toBe('c1');
+    });
+
     it('refuses to guess when an item has no id', function () {
         SpuAdapter::mapList([['title' => 'No id']], Country::Malaysia);
     })->throws(UnexpectedPayload::class, 'spu id');
