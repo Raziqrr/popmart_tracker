@@ -7,6 +7,7 @@ use App\Services\PopMart\HouseAccount;
 use App\Services\PopMart\LuckyPoints;
 use App\Services\PopMart\PopMartThrottle;
 use App\Services\Alerts\AlertDispatcher;
+use App\Services\AutoLock\AutoLockTriggers;
 use App\Services\Locator\Country;
 use App\Services\PopMart\Sync\CatalogSweep;
 use App\Services\PopMart\Sync\CollectionDiscovery;
@@ -33,6 +34,20 @@ Artisan::command('popnow:expire-checkouts', function () {
 })->purpose('Fail POP NOW checkouts whose hold ran out before payment');
 
 Schedule::command('popnow:expire-checkouts')->everyMinute()->withoutOverlapping();
+
+// POP NOW auto-lock (docs/tickets/auto-lock.md). Queues rule runs only when
+// POPMART_AUTOLOCK_ENABLED is on; expiring finished holds happens either way.
+Artisan::command('popnow:auto-lock', function (AutoLockTriggers $triggers) {
+    $report = $triggers->run();
+    if (! $report['enabled']) {
+        $this->line('Auto-lock is switched off (POPMART_AUTOLOCK_ENABLED). Nothing queued.');
+    } else {
+        $this->info("Queued {$report['queued']} rule run(s).");
+    }
+    $this->line("Marked {$report['expired']} hold(s) expired.");
+})->purpose('Queue auto-lock rules whose trigger fired; expire finished holds');
+
+Schedule::command('popnow:auto-lock')->everyMinute()->withoutOverlapping();
 
 /*
 | Pop Mart sync (README.md, "Data sync"). Every call goes through

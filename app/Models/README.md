@@ -12,6 +12,7 @@ Some models are mirrored by hand as TypeScript types for the React frontend. The
 | `StockSnapshot` / `ProductSnapshot` (diffed) | `ProductEvent` / `ProductChange`, and the derived `stock_history`, `previous_price`, `last_changed_at`, `last_change` on `ProductCardData` | `resources/js/ui-lab/fixtures/events.ts` |
 | `PopNowSet`, `PopNowBox`, `PopNowBoxHint`, `PopNowBoxReveal` | `PopNowSet`, `PopNowBox`, `BoxHint`, `BoxReveal` in `resources/js/types/popnow.ts` (`BoxState` is derived) | `resources/js/ui-lab/fixtures/popnow.ts` |
 | `UserCheckout` + `*_create_user_checkouts_table.php` | `UserCheckout`, `UserCheckoutStatus` in `resources/js/types/lock.ts` | — (no fixtures yet) |
+| `AutoLockRule`, `AutoLockRulePick`, `AutoLockAttempt` (served by `AutoLockController`) | `AutoLockRule`, `LockTarget`, `LockAttempt`, `LockFigure` in `resources/js/types/lock.ts` (`renew` is always null) | `resources/js/ui-lab/fixtures/lock.ts` |
 | `PinnedItem`, `WishlistItem` | `pinnedIds` / `watchedIds` in `resources/js/components/product/actions.ts` | `samplePinnedIds` / `sampleWatchedIds` in fixtures |
 
 ### Frontend fields with no backend yet
@@ -21,7 +22,7 @@ These are in the TypeScript types and UI but **nothing on the backend produces t
 | Field / type | Ticket |
 | --- | --- |
 | `LuckyPoints` (`resources/js/types/account.ts`) | `docs/tickets/lucky-points.md` |
-| `AutoLockRule`, `LockAttempt`, `LockFigure`, `PopNowLockLimits` (`resources/js/types/lock.ts`) | `docs/tickets/auto-lock.md` |
+| `PopNowLockLimits` (`resources/js/types/lock.ts`) | `docs/tickets/auto-lock.md` |
 
 ### When you change a mirrored model
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlertController;
+use App\Http\Controllers\AutoLockController;
 use App\Http\Controllers\ListController;
 use App\Http\Controllers\LuckyPointsController;
 use App\Http\Controllers\MeController;
@@ -50,6 +51,13 @@ Route::prefix('api')->group(function () {
     Route::middleware('capability:watchlist')->group(function () {
         Route::post('/pins', [ListController::class, 'togglePin']);
         Route::post('/watches', [ListController::class, 'toggleWatch']);
+    });
+
+    Route::middleware('capability:auto_lock')->group(function () {
+        Route::get('/auto-lock', [AutoLockController::class, 'index']);
+        Route::post('/auto-lock', [AutoLockController::class, 'store']);
+        Route::patch('/auto-lock/{rule}', [AutoLockController::class, 'update']);
+        Route::delete('/auto-lock/{rule}', [AutoLockController::class, 'destroy']);
     });
 
     Route::middleware('capability:alerts')->group(function () {

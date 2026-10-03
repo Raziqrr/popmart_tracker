@@ -51,14 +51,27 @@ class PopNowSetAdapter extends Adapter
         ];
     }
 
-    /** @return array{is_locked: bool, lock_remaining_seconds: int|null} */
+    /**
+     * is_mine: whether the asking session holds it (isLockedByMe, per the
+     * auto-lock ticket); null when the response doesn't say.
+     *
+     * @return array{is_locked: bool, is_mine: bool|null, lock_remaining_seconds: int|null}
+     */
     public static function mapLock(array $json): array
     {
         $remaining = self::pick($json, ['lockRemainingSeconds']);
+        $mine = self::pick($json, ['isLockedByMe']);
 
         return [
-            'is_locked' => (bool) self::pick($json, ['isLocked', 'locked'], $remaining !== null && $remaining > 0),
+            'is_locked' => (bool) self::pick($json, ['isLocked', 'locked'], ($remaining !== null && $remaining > 0) || $mine === true),
+            'is_mine' => $mine === null ? null : (bool) $mine,
             'lock_remaining_seconds' => $remaining !== null ? (int) $remaining : null,
         ];
+    }
+
+    /** Lock, confirm and checkout requests share this shape. */
+    public static function boxesRequest(string $spuId, string $setNo, array $boxNos, array $extra = []): array
+    {
+        return ['spuId' => $spuId, 'setNo' => $setNo, 'boxNos' => array_values($boxNos), ...$extra];
     }
 }

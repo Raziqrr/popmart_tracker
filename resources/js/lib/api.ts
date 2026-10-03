@@ -1,6 +1,7 @@
 import type { AuthState } from '@/lib/capabilities';
 import type { LuckyPoints, TaskClaimResult } from '@/types/account';
 import type { AlertInbox, AlertSettings } from '@/types/alerts';
+import type { AutoLockRule, AutoLockRuleDraft, LockAttempt } from '@/types/lock';
 
 /**
  * Error codes our API returns in { error: { code, message } }.
@@ -52,7 +53,7 @@ function xsrfToken(): string | null {
  * ApiError for every failure (offline, not logged in, Pop Mart errors,
  * validation), so callers only ever handle one error type.
  */
-export async function apiRequest<T>(path: string, init: { method?: 'GET' | 'POST' | 'PUT'; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
+export async function apiRequest<T>(path: string, init: { method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
     const method = init.method ?? 'GET';
     const token = method === 'GET' ? null : xsrfToken();
     let response: Response;
@@ -197,4 +198,54 @@ export function fetchAlertSettings(): Promise<AlertSettings> {
 /** PUT /api/alert-settings */
 export function saveAlertSettings(settings: Pick<AlertSettings, 'types' | 'email' | 'telegram' | 'telegram_chat_id'>): Promise<AlertSettings> {
     return apiRequest('/api/alert-settings', { method: 'PUT', body: settings });
+}
+
+/** GET /api/auto-lock: the user's rules, recent lock attempts, and whether the server has auto-lock switched on. */
+export function fetchAutoLock(): Promise<{ enabled_on_server: boolean; rules: AutoLockRule[]; attempts: LockAttempt[] }> {
+    return apiRequest('/api/auto-lock');
+}
+
+/**
+ * POST /api/auto-lock. `acknowledged` is the risk tick box; renew must stay
+ * null (auto-renew isn't supported: Pop Mart doesn't reset a held box's timer).
+ */
+export function createAutoLockRule(productId: string, draft: AutoLockRuleDraft, acknowledged: boolean): Promise<AutoLockRule> {
+    const { target } = draft;
+    const picks =
+        target.kind === 'specific'
+            ? target.picks.map((p) => ({ sku_id: p.figure.sku_id, count: p.count }))
+            : target.kind === 'ranked'
+              ? target.picks.map((p) => ({ sku_id: p.figure.sku_id, priority: p.priority }))
+              : undefined;
+
+    return apiRequest('/api/auto-lock', {
+        method: 'POST',
+        body: {
+            product_id: productId,
+            target: {
+                kind: target.kind,
+                count: target.kind === 'specific' ? undefined : target.count,
+                picks,
+                min_confirmations: target.kind === 'random' ? undefined : target.min_confirmations,
+                verified_only: target.kind === 'random' ? undefined : target.verified_only,
+            },
+            trigger: draft.trigger,
+            min_chance: draft.min_chance,
+            lock_duration_seconds: draft.lock_duration_seconds,
+            checkout_immediately: draft.checkout_immediately,
+            enabled: draft.enabled,
+            expires_at: draft.expires_at,
+            acknowledged,
+        },
+    });
+}
+
+/** PATCH /api/auto-lock/{id}: switch a rule on or off, or change when it ends. */
+export function updateAutoLockRule(ruleId: string, changes: { enabled?: boolean; expires_at?: string | null }): Promise<AutoLockRule> {
+    return apiRequest(`/api/auto-lock/${ruleId}`, { method: 'PATCH', body: changes });
+}
+
+/** DELETE /api/auto-lock/{id} */
+export function deleteAutoLockRule(ruleId: string): Promise<{ deleted: true }> {
+    return apiRequest(`/api/auto-lock/${ruleId}`, { method: 'DELETE' });
 }

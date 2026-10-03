@@ -87,6 +87,10 @@ The server keeps its own copy of Pop Mart's data and pages read only from it. Co
 - **Not too much:** the same alert for the same product is sent at most once per cooldown (low stock 6 h, price drop 12 h, others 15 min); more than 5 alerts for one user in one run become a single digest; events older than an hour (after downtime) are marked handled without alerting.
 - **API:** `GET /api/alerts`, `POST /api/alerts/read`, `GET|PUT /api/alert-settings` (capability `alerts`). UI: `components/alerts/AlertsInbox` and `AlertSettingsForm`.
 
+## Auto-lock
+
+Locks POP NOW boxes for a user when a trigger fires (sale opens, restock, a box's odds for a wanted figure reach a threshold or certainty). **Switched off by default** with `POPMART_AUTOLOCK_ENABLED`, because automated locking may break Pop Mart's terms; rules can still be saved. Code: `app/Services/AutoLock`, API under `/api/auto-lock`, details and decisions in `docs/tickets/auto-lock.md`. Auto-renew was dropped (Pop Mart doesn't reset a held box's timer).
+
 ## Who can do what
 
 There are three access levels: **guest** (browse, POP NOW odds), **member** (logged in with Fortify: watchlist, connect Pop Mart) and **Pop Mart** (logged in *and* a connected Pop Mart account with a live session: claim tasks, redeem, lock, auto-lock, checkout).

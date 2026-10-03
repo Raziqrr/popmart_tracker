@@ -41,7 +41,16 @@ class ExclusionBoxPredictor implements BoxPredictorContract
 
     public function predictSet(PopNowSet $set): Collection
     {
-        $boxes = $this->boxes->boxesForSet($set);
+        return $this->predictBoxes($set, $this->boxes->boxesForSet($set));
+    }
+
+    /**
+     * predictSet() over boxes the caller already loaded, e.g. with some hints
+     * filtered out (auto-lock rules that only trust verified or well-confirmed
+     * exclusions). Each box needs its hints and reveals (with sku) loaded.
+     */
+    public function predictBoxes(PopNowSet $set, Collection $boxes): Collection
+    {
         // Eloquent Collection's except()/diff() filter by model key rather than
         // array key and silently re-index — collect() forces plain array semantics
         // so keyBy('id') survives the except() calls below.

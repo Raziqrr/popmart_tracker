@@ -28,6 +28,11 @@ return [
         'log_calls' => (bool) env('POPMART_LOG_CALLS', true),
         'record_fields' => (bool) env('POPMART_RECORD_FIELDS', true),
 
+        // POP NOW auto-lock kill switch (App\Services\AutoLock). Off by default:
+        // automated locking may break Pop Mart's terms (docs/tickets/auto-lock.md).
+        // Rules can be saved either way; nothing touches Pop Mart until this is on.
+        'auto_lock_enabled' => (bool) env('POPMART_AUTOLOCK_ENABLED', false),
+
         // Regions the server syncs. MY only for now.
         'areas' => explode(',', env('POPMART_AREAS', 'MY')),
 
