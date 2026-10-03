@@ -67,10 +67,12 @@ export type ProductCardData = Pick<
     /** The most recent detected change (latest ProductEvent for this product), shown as "what changed". */
     last_change?: ProductChange | null;
     /**
-     * Estimated units sold per hour from recent stock drops. NOT IMPLEMENTED on
-     * the backend yet: see docs/tickets/fast-selling-products.md.
+     * Units sold per hour over the last 6 h of stock drops (products.sell_rate_per_hour,
+     * refreshed by popmart:sell-rates). Null for masked stock and pre-orders.
      */
     sell_rate_per_hour?: number | null;
+    /** Remaining stock ÷ sell rate (products.hours_to_sell_out); null when it isn't selling. */
+    hours_to_sell_out?: number | null;
     /** When the products row was created, i.e. first scraped. */
     first_seen_at?: string;
     /** Category name resolved from products.category_id (Figures, Plush, MEGA...). */

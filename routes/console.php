@@ -9,6 +9,7 @@ use App\Services\Locator\Country;
 use App\Services\PopMart\Sync\CatalogSweep;
 use App\Services\PopMart\Sync\CollectionDiscovery;
 use App\Services\PopMart\Sync\PopNowSync;
+use App\Services\PopMart\Sync\SellRateUpdater;
 use App\Services\PopMart\Sync\StockSync;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -73,6 +74,10 @@ Artisan::command('popmart:sync-stock {--batch=}', function (StockSync $stock) {
     }
 })->purpose('Check stock for products that are due, by tier');
 
+Artisan::command('popmart:sell-rates', function (SellRateUpdater $rates) {
+    $this->info("Updated the sell rate of {$rates->run()['updated']} product(s).");
+})->purpose('Recompute units sold per hour from recent stock drops');
+
 Artisan::command('popmart:poll-popnow', function (PopNowSync $popNow) {
     $report = $popNow->pollLive();
     $this->info("Polled {$report['sets']} set(s) across {$report['products']} live draw(s).");
@@ -112,4 +117,5 @@ Artisan::command('popmart:status', function (PopMartThrottle $throttle, HouseAcc
 Schedule::command('popmart:sweep')->everyThreeMinutes()->withoutOverlapping();
 Schedule::command('popmart:sync-stock')->everyMinute()->withoutOverlapping();
 Schedule::command('popmart:poll-popnow')->everyMinute()->withoutOverlapping();
+Schedule::command('popmart:sell-rates')->everyTenMinutes()->withoutOverlapping();
 Schedule::command('popmart:prune-calls')->daily();

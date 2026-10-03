@@ -48,6 +48,8 @@ return [
             'stock_batch' => 20,
             // POP NOW sets polled per live draw product per run.
             'sets_per_product' => 3,
+            // Hours of stock history the sell rate looks back over.
+            'sell_rate_window_hours' => 6,
             // Seconds a viewer must wait between refreshes of the same set.
             'viewer_refresh_cooldown' => 30,
         ],

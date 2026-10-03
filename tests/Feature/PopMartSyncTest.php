@@ -15,6 +15,7 @@ use App\Services\PopMart\Sync\Adapters\SpuAdapter;
 use App\Services\PopMart\Sync\PopMartIds;
 use App\Services\PopMart\Sync\ProductChangeDetector;
 use App\Services\PopMart\Sync\ProductEventType;
+use App\Services\PopMart\Sync\SellRate;
 use App\Services\PopMart\Sync\SyncTier;
 use App\Services\PopMart\Sync\UnexpectedPayload;
 use App\Services\PopMart\ThrottleLane;
@@ -90,6 +91,40 @@ describe('change detection', function () {
         expect(ProductChangeDetector::stockChanged(null, ['stock' => 1, 'has_stock' => true]))->toBeTrue()
             ->and(ProductChangeDetector::stockChanged(['stock' => 1, 'has_stock' => true], ['stock' => 1, 'has_stock' => true]))->toBeFalse()
             ->and(ProductChangeDetector::stockChanged(['stock' => 1, 'has_stock' => true], ['stock' => 0, 'has_stock' => true]))->toBeTrue();
+    });
+});
+
+describe('sell rate', function () {
+    $at = fn (int $hoursAgo, int $stock, bool $hasStock = true) => [
+        'checked_at' => Carbon::parse('2026-10-03 12:00:00')->subHours($hoursAgo), 'stock' => $stock, 'has_stock' => $hasStock,
+    ];
+    $now = Carbon::parse('2026-10-03 12:00:00');
+    $windowStart = $now->copy()->subHours(6);
+
+    it('counts drops over the window, starting from the stock before it', function () use ($at, $now, $windowStart) {
+        // 100 before the window, then 88, then 76: 24 sold over the 6 hour window.
+        expect(SellRate::perHour([$at(9, 100), $at(4, 88), $at(1, 76)], $windowStart, $now))->toBe(4.0);
+    });
+
+    it('ignores restocks instead of letting them cancel sales', function () use ($at, $now, $windowStart) {
+        // 50 → 20 (30 sold), restock to 80, → 74 (6 sold): 36 over 6 hours.
+        expect(SellRate::perHour([$at(7, 50), $at(5, 20), $at(3, 80), $at(1, 74)], $windowStart, $now))->toBe(6.0);
+    });
+
+    it('reports 0 when nothing moved, and nothing when history is too short', function () use ($at, $now, $windowStart) {
+        expect(SellRate::perHour([$at(10, 40)], $windowStart, $now))->toBe(0.0)
+            ->and(SellRate::perHour([['checked_at' => $now->copy()->subMinutes(10), 'stock' => 5, 'has_stock' => true]], $windowStart, $now))->toBeNull()
+            ->and(SellRate::perHour([], $windowStart, $now))->toBeNull();
+    });
+
+    it('has no rate for masked stock', function () use ($at, $now, $windowStart) {
+        expect(SellRate::perHour([$at(8, 0, true), $at(2, 0, false)], $windowStart, $now))->toBeNull();
+    });
+
+    it('estimates hours to sell out', function () {
+        expect(SellRate::hoursToSellOut(30, 6.0))->toBe(5.0)
+            ->and(SellRate::hoursToSellOut(30, 0.0))->toBeNull()
+            ->and(SellRate::hoursToSellOut(30, null))->toBeNull();
     });
 });
 

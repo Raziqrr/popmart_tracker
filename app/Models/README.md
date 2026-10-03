@@ -20,7 +20,6 @@ These are in the TypeScript types and UI but **nothing on the backend produces t
 
 | Field / type | Ticket |
 | --- | --- |
-| `ProductCardData.sell_rate_per_hour` | `docs/tickets/fast-selling-products.md` |
 | `LuckyPoints` (`resources/js/types/account.ts`) | `docs/tickets/lucky-points.md` |
 | `AutoLockRule`, `LockAttempt`, `LockFigure`, `PopNowLockLimits` (`resources/js/types/lock.ts`) | `docs/tickets/auto-lock.md` |
 
