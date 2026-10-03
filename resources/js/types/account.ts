@@ -13,3 +13,13 @@ export interface LuckyPoints {
     /** False when the linked Pop Mart session has expired (popmart_accounts.session_expires_at). */
     session_valid: boolean;
 }
+
+/** One daily task from POST /api/popmart-accounts/{id}/claim-tasks (App\Services\PopMartTaskClaimer). */
+export interface TaskClaimResult {
+    alias: string;
+    status: 'claimed' | 'failed' | 'not_eligible' | 'skipped_excluded';
+    /** Pop Mart's reward payload when claimed; shape not pinned down yet. */
+    reward?: unknown;
+    /** Why Pop Mart refused it, when status is 'failed'. */
+    message?: string;
+}

@@ -6,7 +6,18 @@ import { LuckyPointsTile } from '@/components/dashboard/LuckyPointsTile';
 import { NewListings } from '@/components/dashboard/NewListings';
 import { StatRow } from '@/components/dashboard/StatRow';
 import { UpcomingDrops } from '@/components/dashboard/UpcomingDrops';
-import { fakeRedeem, fakeRedeemFailure, sampleLuckyPoints, sampleLuckyPointsStates } from '../fixtures/account';
+import { ApiErrorNotice } from '@/components/feedback/ApiErrorNotice';
+import { AuthProvider } from '@/lib/capabilities';
+import {
+    fakeClaimFailure,
+    fakeClaimTasks,
+    fakeRedeem,
+    fakeRedeemFailure,
+    sampleApiErrors,
+    sampleAuthStates,
+    sampleLuckyPoints,
+    sampleLuckyPointsStates,
+} from '../fixtures/account';
 import { sampleCollections } from '../fixtures/collections';
 import { sampleEvents } from '../fixtures/events';
 import { samplePinnedIds, sampleProducts, sampleWatchedIds } from '../fixtures/products';
@@ -50,6 +61,47 @@ export function DashboardLab() {
                             <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeemFailure} />
                         </div>
                     </Specimen>
+                    <Specimen label="Claim daily tasks" note="Click Claim: 2 claimed, 1 refused by Pop Mart">
+                        <div className="border border-black/10">
+                            <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeem} onClaimTasks={fakeClaimTasks} />
+                        </div>
+                    </Specimen>
+                    {sampleApiErrors.map(({ label, note, error }) => (
+                        <Specimen key={label} label={`Claim fails: ${label}`} note={note}>
+                            <div className="border border-black/10">
+                                <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeem} onClaimTasks={fakeClaimFailure(error)} />
+                            </div>
+                        </Specimen>
+                    ))}
+                </SpecimenGrid>
+            </section>
+
+            <section className="flex flex-col gap-6">
+                <h2 className="text-lg font-bold">Access</h2>
+                <p className="text-xs text-black/60">
+                    Claim daily tasks needs a live Pop Mart session (claim_tasks in lib/capabilities.ts). Each tile gets a different /api/me through AuthProvider.
+                </p>
+                <SpecimenGrid>
+                    {sampleAuthStates.map(({ label, note, auth }) => (
+                        <Specimen key={label} label={label} note={note}>
+                            <AuthProvider value={auth}>
+                                <div className="border border-black/10">
+                                    <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeem} onClaimTasks={fakeClaimTasks} />
+                                </div>
+                            </AuthProvider>
+                        </Specimen>
+                    ))}
+                </SpecimenGrid>
+            </section>
+
+            <section className="flex flex-col gap-6">
+                <h2 className="text-lg font-bold">API errors</h2>
+                <SpecimenGrid>
+                    {sampleApiErrors.map(({ label, note, error }) => (
+                        <Specimen key={label} label={label} note={note}>
+                            <ApiErrorNotice error={error} onRetry={() => {}} />
+                        </Specimen>
+                    ))}
                 </SpecimenGrid>
             </section>
 
