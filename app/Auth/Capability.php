@@ -26,11 +26,12 @@ enum Capability: string
     case Checkout = 'checkout';
     case RefreshPopNow = 'refresh_popnow';
     case Alerts = 'alerts';
+    case LuckyPoints = 'lucky_points';
 
     public function requires(): Access
     {
         return match ($this) {
-            self::ConnectPopMart, self::Watchlist, self::ReportHints, self::Alerts => Access::Member,
+            self::ConnectPopMart, self::Watchlist, self::ReportHints, self::Alerts, self::LuckyPoints => Access::Member,
             self::ClaimTasks, self::RedeemPoints, self::LockBoxes, self::AutoLock, self::Checkout, self::RefreshPopNow => Access::PopMart,
         };
     }
@@ -49,6 +50,7 @@ enum Capability: string
             self::Checkout => 'check out',
             self::RefreshPopNow => 'refresh live box grids',
             self::Alerts => 'get alerts',
+            self::LuckyPoints => 'see your lucky points',
         };
     }
 

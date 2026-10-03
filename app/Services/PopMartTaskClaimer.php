@@ -30,6 +30,17 @@ class PopMartTaskClaimer
      *
      * @throws PopMartException
      */
+    /** The POP NOW daily-task list request (also where the lucky points gauge is read, see LuckyPointsAdapter). */
+    public static function tasksRequest(Country $country, string $userId): array
+    {
+        return [
+            'activityId' => self::ACTIVITY_ID,
+            'taskChannel' => 'web',
+            'userId' => $userId,
+            'area' => $country->value,
+        ];
+    }
+
     public function claimEligible(PopmartAccount $account): array
     {
         return $account->usingSession(function (string $cookie, Country $country) {
@@ -37,12 +48,7 @@ class PopMartTaskClaimer
 
             $tasks = (new GetTasksByActivityAndChannel($country))
                 ->withSession($cookie)
-                ->data([
-                    'activityId' => self::ACTIVITY_ID,
-                    'taskChannel' => 'web',
-                    'userId' => $userId,
-                    'area' => $country->value,
-                ]);
+                ->data(self::tasksRequest($country, $userId));
 
             $aliasByTaskId = collect($tasks['tasks'] ?? [])->pluck('alias', 'id');
             $results = [];

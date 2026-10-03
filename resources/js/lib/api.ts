@@ -1,5 +1,5 @@
 import type { AuthState } from '@/lib/capabilities';
-import type { TaskClaimResult } from '@/types/account';
+import type { LuckyPoints, TaskClaimResult } from '@/types/account';
 import type { AlertInbox, AlertSettings } from '@/types/alerts';
 
 /**
@@ -15,6 +15,9 @@ export type ApiErrorCode =
     | 'popmart_unreachable'
     | 'popmart_rejected'
     | 'popmart_unexpected_response'
+    | 'popmart_throttled'
+    | 'not_available'
+    | 'action_in_progress'
     | 'unauthenticated'
     | 'forbidden'
     | 'popmart_not_connected'
@@ -49,7 +52,7 @@ function xsrfToken(): string | null {
  * ApiError for every failure (offline, not logged in, Pop Mart errors,
  * validation), so callers only ever handle one error type.
  */
-export async function apiRequest<T>(path: string, init: { method?: 'GET' | 'POST' | 'PUT'; body?: unknown } = {}): Promise<T> {
+export async function apiRequest<T>(path: string, init: { method?: 'GET' | 'POST' | 'PUT'; body?: unknown; headers?: Record<string, string> } = {}): Promise<T> {
     const method = init.method ?? 'GET';
     const token = method === 'GET' ? null : xsrfToken();
     let response: Response;
@@ -62,6 +65,7 @@ export async function apiRequest<T>(path: string, init: { method?: 'GET' | 'POST
                 Accept: 'application/json',
                 ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
                 ...(token ? { 'X-XSRF-TOKEN': token } : {}),
+                ...init.headers,
             },
             body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
         });
@@ -120,6 +124,16 @@ export function describeApiError(error: unknown): ApiErrorDescription {
                 detail: error.retryAfter ? `Too many requests. Try again in ${error.retryAfter}s.` : 'Too many requests. Wait a moment and try again.',
                 action: 'wait',
             };
+        case 'popmart_throttled':
+            return {
+                title: 'Busy right now',
+                detail: error.retryAfter ? `Too many Pop Mart requests. Try again in ${error.retryAfter}s.` : error.message,
+                action: 'wait',
+            };
+        case 'not_available':
+            return { title: 'Not available yet', detail: error.message, action: null };
+        case 'action_in_progress':
+            return { title: 'Still working on it', detail: error.message, action: 'retry' };
         case 'popmart_unreachable':
         case 'network':
             return { title: "Couldn't connect", detail: error.message, action: 'retry' };
@@ -142,9 +156,27 @@ export function connectPopMart(session: { cookie: string; expires_at: string | n
     return apiRequest('/api/popmart-accounts/connect', { method: 'POST', body: session });
 }
 
-/** POST /api/popmart-accounts/{id}/claim-tasks */
-export function claimTasks(accountId: number): Promise<{ results: TaskClaimResult[] }> {
+/** POST /api/popmart-accounts/{id}/claim-tasks; also returns the refreshed lucky points when readable. */
+export function claimTasks(accountId: number): Promise<{ results: TaskClaimResult[]; points: LuckyPoints | null }> {
     return apiRequest(`/api/popmart-accounts/${accountId}/claim-tasks`, { method: 'POST' });
+}
+
+/** GET /api/lucky-points: the latest synced balance, or null before the first sync. */
+export function fetchLuckyPoints(): Promise<LuckyPoints | null> {
+    return apiRequest('/api/lucky-points');
+}
+
+/**
+ * POST /api/popmart-accounts/{id}/redeem-points. Pass the same key for a
+ * retry so it can never redeem twice (e.g. crypto.randomUUID() per confirm).
+ * Answers not_available until Pop Mart's redeem call is mapped.
+ */
+export function redeemLuckyPoints(accountId: number, idempotencyKey: string, points?: number): Promise<{ replayed: boolean }> {
+    return apiRequest(`/api/popmart-accounts/${accountId}/redeem-points`, {
+        method: 'POST',
+        body: points ? { points } : {},
+        headers: { 'Idempotency-Key': idempotencyKey },
+    });
 }
 
 /** GET /api/alerts: the newest alerts and how many are unread. */

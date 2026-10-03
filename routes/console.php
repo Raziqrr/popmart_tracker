@@ -4,6 +4,7 @@ use App\Models\Collection;
 use App\Models\Product;
 use App\Models\UserCheckout;
 use App\Services\PopMart\HouseAccount;
+use App\Services\PopMart\LuckyPoints;
 use App\Services\PopMart\PopMartThrottle;
 use App\Services\Alerts\AlertDispatcher;
 use App\Services\Locator\Country;
@@ -80,6 +81,14 @@ Artisan::command('popmart:dispatch-alerts', function (AlertDispatcher $alerts) {
     $this->info("Handled {$report['events']} event(s): {$report['alerts']} alert(s), {$report['digests']} digest(s), {$report['stale']} too old to alert.");
 })->purpose('Send alerts for new product events to watchers');
 
+Artisan::command('popmart:sync-points', function (LuckyPoints $luckyPoints) {
+    $report = $luckyPoints->syncAll();
+    $this->info("Synced lucky points for {$report['synced']} account(s), {$report['skipped']} skipped.");
+    if ($report['stopped']) {
+        $this->warn("Stopped early: {$report['stopped']}");
+    }
+})->purpose('Re-read lucky points for every account with a live session');
+
 Artisan::command('popmart:sell-rates', function (SellRateUpdater $rates) {
     $this->info("Updated the sell rate of {$rates->run()['updated']} product(s).");
 })->purpose('Recompute units sold per hour from recent stock drops');
@@ -125,4 +134,5 @@ Schedule::command('popmart:sync-stock')->everyMinute()->withoutOverlapping();
 Schedule::command('popmart:poll-popnow')->everyMinute()->withoutOverlapping();
 Schedule::command('popmart:dispatch-alerts')->everyMinute()->withoutOverlapping();
 Schedule::command('popmart:sell-rates')->everyTenMinutes()->withoutOverlapping();
+Schedule::command('popmart:sync-points')->everyThirtyMinutes()->withoutOverlapping();
 Schedule::command('popmart:prune-calls')->daily();

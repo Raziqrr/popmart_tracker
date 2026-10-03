@@ -20,6 +20,7 @@ export const CAPABILITIES = {
     checkout: { requires: 'popmart', label: 'check out' },
     refresh_popnow: { requires: 'popmart', label: 'refresh live box grids' },
     alerts: { requires: 'member', label: 'get alerts' },
+    lucky_points: { requires: 'member', label: 'see your lucky points' },
 } as const satisfies Record<string, { requires: Access; label: string }>;
 
 export type Capability = keyof typeof CAPABILITIES;

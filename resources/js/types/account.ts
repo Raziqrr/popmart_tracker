@@ -1,7 +1,7 @@
 /**
- * The user's Pop Mart lucky points, synced through their connected popmart_accounts row.
- * NOT IMPLEMENTED on the backend: there's no points column or sync/redeem job yet.
- * See docs/tickets/lucky-points.md. Field names are a proposal to settle in that ticket.
+ * The user's Pop Mart lucky points: GET /api/lucky-points (LuckyPointsController::present),
+ * from popmart_account_points. The sync is built but reads guessed Pop Mart fields, and
+ * redeeming answers not_available until the redeem call is mapped (docs/tickets/lucky-points.md).
  */
 export interface LuckyPoints {
     balance: number;

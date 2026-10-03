@@ -9,6 +9,7 @@ use App\Services\Locator\Country;
 use App\Services\PopMart\PayloadInspector;
 use App\Services\PopMart\PopMartThrottle;
 use App\Services\PopMart\Sync\Adapters\Adapter;
+use App\Services\PopMart\Sync\Adapters\LuckyPointsAdapter;
 use App\Services\PopMart\Sync\Adapters\PopNowSetAdapter;
 use App\Services\PopMart\Sync\Adapters\SkuStockAdapter;
 use App\Services\PopMart\Sync\Adapters\SpuAdapter;
@@ -204,6 +205,16 @@ describe('adapters', function () {
             's2' => ['stock' => 0, 'has_stock' => false],
         ]);
     });
+
+    it('reads the lucky points gauge (assumed field names)', function () {
+        expect(LuckyPointsAdapter::map(['tasks' => [], 'gauge' => ['current' => 2480, 'max' => 500]]))->toBe([
+            'balance' => 2480, 'redeem_minimum' => 500, 'expiring_points' => null, 'expiring_at' => null,
+        ]);
+    });
+
+    it('stores nothing when the tasks response has no points', function () {
+        LuckyPointsAdapter::map(['tasks' => [], 'userTasks' => []]);
+    })->throws(UnexpectedPayload::class, 'lucky points balance');
 
     it('maps an AssignSet grid (confirmed shape)', function () {
         $set = PopNowSetAdapter::mapSet(['setNo' => 'S-1042', 'boxes' => [
