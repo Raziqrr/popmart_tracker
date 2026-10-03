@@ -56,7 +56,13 @@ export function PopNowPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [linkedProductId]);
 
-    const chances = useMemo(() => (current ? boxChances(current.set, current.boxes) : new Map()), [current]);
+    // Odds per set, recomputed only when the sets themselves change (not on every
+    // selection or hover) — both the current set and "better elsewhere" read from it.
+    const chancesBySet = useMemo(
+        () => new Map(popNow.sets.filter((entry) => entry.set.product.id === productId).map((entry) => [entry.set.id, boxChances(entry.set, entry.boxes)])),
+        [popNow.sets, productId],
+    );
+    const chances = (current && chancesBySet.get(current.set.id)) || new Map();
     // Only boxes you can still get count as a bet: never a sold (already opened) or someone else's box.
     const betChances = useMemo(() => (current ? obtainableChances(chances, current.boxes) : new Map()), [chances, current]);
     const highlight = selectedSkuId ? bestBoxesForSku(betChances, selectedSkuId) : null;
@@ -66,7 +72,7 @@ export function PopNowPage() {
     const betterElsewhere = current
         ? betterInOtherSets(
               betChances,
-              productSets.filter((entry) => entry.set.id !== current.set.id).map((entry) => ({ ...entry, chances: boxChances(entry.set, entry.boxes) })),
+              productSets.filter((entry) => entry.set.id !== current.set.id).map((entry) => ({ ...entry, chances: chancesBySet.get(entry.set.id) ?? new Map() })),
               (current.set.product.skus ?? []).filter((s) => !s.is_secret).map((s) => s.id),
           )
         : undefined;
@@ -230,7 +236,7 @@ export function PopNowPage() {
                                     Select a box to see its hints and lock it.
                                 </p>
                             )}
-                            <SetOdds set={current.set} boxes={current.boxes} />
+                            <SetOdds set={current.set} boxes={current.boxes} chances={chances} selectedSkuId={selectedSkuId} onSelectSku={selectSku} />
                         </aside>
                     </div>
                 </>

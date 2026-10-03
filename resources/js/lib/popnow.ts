@@ -29,14 +29,12 @@ export interface FigureOdds {
      */
     trackable: boolean;
     /**
-     * Plain chance an unopened box holds this figure: 1 divided by however
-     * many unopened boxes haven't had it excluded by their own hints yet.
-     * This is a same-box-only estimate (matches the backend's single-box
-     * predict()); it does not do the full cross-box elimination the backend's
-     * predictSet() does, since that needs server-side computation to stay
-     * accurate as more hints arrive — see App\Services\Analytics\ExclusionBoxPredictor.
+     * Exact chance per unopened box (from boxChances), keyed by box id. The
+     * same numbers "Best bet per figure" uses, so the two panels always agree.
      */
-    chance: number;
+    chanceByBox: Map<number, number>;
+    /** Highest chance in a box you can still get (isObtainable); 0 when none. */
+    bestChance: number;
     /** Unopened boxes whose own hints have ruled this figure out. */
     excludedFromBoxes: number;
     /** Unopened boxes where this figure is still a possible candidate. */
@@ -44,13 +42,13 @@ export interface FigureOdds {
 }
 
 /**
- * What's still in the set, using each box's own excluded hints (never a
- * positive "this box is X" claim — Pop Mart's tip-card mechanic only ever
- * proves what a box ISN'T). Every set scraped so far is exactly one of each
- * non-secret figure, so "revealed" makes a figure fully gone; otherwise its
- * chance comes from how many unopened boxes still can't rule it out.
+ * What's still in the set: per figure, whether it's revealed, the exact chance
+ * in every unopened box, and how many boxes its tip-card hints rule out
+ * (hints only ever prove what a box ISN'T). Every set scraped so far is
+ * exactly one of each non-secret figure, so "revealed" makes a figure gone.
+ * Pass the set's boxChances when you already have them.
  */
-export function setOdds(set: PopNowSet, boxes: PopNowBox[]): { unopened: number; figures: FigureOdds[] } {
+export function setOdds(set: PopNowSet, boxes: PopNowBox[], chances: Map<number, BoxCandidate[]> = boxChances(set, boxes)): { unopened: number; figures: FigureOdds[] } {
     const unopenedBoxes = boxes.filter((b) => b.state !== 'sold');
     const unopened = unopenedBoxes.length;
     const skus = set.product.skus ?? [];
@@ -59,23 +57,25 @@ export function setOdds(set: PopNowSet, boxes: PopNowBox[]): { unopened: number;
         const revealed = boxes.some((b) => b.reveal?.sku.id === sku.id);
 
         if (sku.is_secret) {
-            return { sku, revealed, trackable: false, chance: 0, excludedFromBoxes: 0, possibleBoxes: 0 };
+            return { sku, revealed, trackable: false, chanceByBox: new Map(), bestChance: 0, excludedFromBoxes: 0, possibleBoxes: 0 };
         }
 
+        const chanceByBox = new Map(unopenedBoxes.map((b) => [b.id, chances.get(b.id)?.find((c) => c.sku.id === sku.id)?.probability ?? 0]));
         const possibleBoxes = revealed ? [] : unopenedBoxes.filter((b) => !isExcludedFromBox(b, sku.id));
 
         return {
             sku,
             revealed,
             trackable: true,
-            chance: revealed || possibleBoxes.length === 0 ? 0 : 1 / possibleBoxes.length,
+            chanceByBox,
+            bestChance: Math.max(0, ...unopenedBoxes.filter(isObtainable).map((b) => chanceByBox.get(b.id) ?? 0)),
             excludedFromBoxes: unopened - (revealed ? 0 : possibleBoxes.length),
             possibleBoxes: possibleBoxes.length,
         };
     });
 
     // Secrets first (what people hunt), then most likely.
-    figures.sort((a, b) => Number(b.sku.is_secret) - Number(a.sku.is_secret) || b.chance - a.chance);
+    figures.sort((a, b) => Number(b.sku.is_secret) - Number(a.sku.is_secret) || b.bestChance - a.bestChance);
     return { unopened, figures };
 }
 
@@ -112,29 +112,20 @@ export function boxChances(set: PopNowSet, boxes: PopNowBox[]): Map<number, BoxC
     const available = pool.filter((s) => !usedIds.has(s.id));
     const allowed = unresolved.map((box) => available.filter((s) => !isExcludedFromBox(box, s.id)));
 
-    const n = unresolved.length;
-    const counts: Record<string, number>[] = Array.from({ length: n }, () => ({}));
-    let total = 0;
-    const inUse = new Set<string>();
-    const assignment: string[] = [];
+    const completions = countCompletions(allowed.map((skus) => skus.map((s) => s.id)));
 
-    const dfs = (i: number) => {
-        if (i === n) {
-            total++;
-            assignment.forEach((skuId, idx) => {
-                counts[idx][skuId] = (counts[idx][skuId] ?? 0) + 1;
-            });
-            return;
-        }
-        for (const sku of allowed[i]) {
-            if (inUse.has(sku.id)) continue;
-            inUse.add(sku.id);
-            assignment[i] = sku.id;
-            dfs(i + 1);
-            inUse.delete(sku.id);
-        }
-    };
-    if (n > 0) dfs(0);
+    if (completions === null) {
+        // Too many distinct hint patterns to count exactly: fall back to each
+        // box's own hints (1/N across its remaining candidates), like the backend.
+        unresolved.forEach((box, i) => {
+            const p = allowed[i].length ? 1 / allowed[i].length : 0;
+            result.set(box.id, allowed[i].map((sku) => ({ sku, probability: p })));
+        });
+        return result;
+    }
+
+    const { counts, total } = completions;
+    const skuById = new Map(available.map((s) => [s.id, s]));
 
     unresolved.forEach((box, i) => {
         if (total === 0) {
@@ -142,7 +133,7 @@ export function boxChances(set: PopNowSet, boxes: PopNowBox[]): Map<number, BoxC
             return;
         }
         const entries = Object.entries(counts[i]).map(([skuId, count]) => ({
-            sku: available.find((s) => s.id === skuId)!,
+            sku: skuById.get(skuId)!,
             probability: count / total,
         }));
         entries.sort((a, b) => b.probability - a.probability);
@@ -150,6 +141,182 @@ export function boxChances(set: PopNowSet, boxes: PopNowBox[]): Map<number, BoxC
     });
 
     return result;
+}
+
+/**
+ * Limits for countCompletions before it gives up and boxChances falls back to
+ * per-box odds: distinct states, and table cells actually stored. A 16-box
+ * set with every box hinted differently is 65,536 states; a 48-box set stays
+ * exact with up to about 12 distinct hint patterns. Mirrors
+ * ExclusionBoxPredictor::MAX_DP_STATES / MAX_DP_CELLS.
+ */
+export const MAX_DP_STATES = 1 << 18;
+export const MAX_DP_CELLS = 1 << 20;
+
+/**
+ * Counts every way to give each box a different figure from its own allowed
+ * list, and how many of those ways put figure s in box i. Returns null when
+ * the set is too irregular to count within MAX_DP_CELLS. Mirrors
+ * ExclusionBoxPredictor::countValidCompletions().
+ *
+ * Boxes with the same allowed list are interchangeable, so they're grouped:
+ * a state is "how many boxes of each group are filled so far", not which
+ * boxes. A fresh 48-box set is one group (49 states); n boxes that all
+ * have different hints are the worst case (2^n states).
+ *
+ * Figures are processed one at a time. `after[j][s]` = ways figures j..m-1
+ * can fill everything still open in state s; a forward pass carries
+ * `before[s]` = ways figures 0..j-1 reached state s. Figure j going into
+ * one of the (size − filled) open boxes of group g then accounts for
+ * before[s] × open × after[j+1][s + g] completions, shared evenly by the
+ * group's boxes. Each step only visits states with a reachable number of
+ * filled boxes (see window), so with as many figures as boxes every state
+ * is visited about once per pass.
+ */
+export function countCompletions(allowed: string[][]): { counts: Record<string, number>[]; total: number } | null {
+    const n = allowed.length;
+    const counts: Record<string, number>[] = Array.from({ length: n }, () => ({}));
+    const skuIds = [...new Set(allowed.flat())];
+    const m = skuIds.length;
+
+    // More boxes than figures left means no valid way to fill them all.
+    if (n === 0 || n > m) return { counts, total: 0 };
+
+    // Group boxes by identical allowed list.
+    const groupIndex = new Map<string, number>();
+    const groups: { boxes: number[]; skus: Set<string> }[] = [];
+    allowed.forEach((list, box) => {
+        const key = [...list].sort().join('|');
+        let g = groupIndex.get(key);
+        if (g === undefined) {
+            g = groups.length;
+            groupIndex.set(key, g);
+            groups.push({ boxes: [], skus: new Set(list) });
+        }
+        groups[g].boxes.push(box);
+    });
+
+    // Mixed-radix state: digit g = boxes of group g filled, 0..size.
+    const sizes = groups.map((g) => g.boxes.length);
+    const strides: number[] = [];
+    let states = 1;
+    for (const size of sizes) {
+        strides.push(states);
+        states *= size + 1;
+        if (states > MAX_DP_STATES) return null;
+    }
+    const full = states - 1;
+    const groupCount = groups.length;
+
+    // Per state, how many boxes are still open in each group and in total.
+    // Precomputed once with an odometer so the hot loops below never divide.
+    const open = new Uint8Array(states * groupCount);
+    const openTotal = new Uint16Array(states);
+    {
+        const digits = new Array(groupCount).fill(0);
+        for (let s = 0; s < states; s++) {
+            let total = 0;
+            for (let g = 0; g < groupCount; g++) {
+                const left = sizes[g] - digits[g];
+                open[s * groupCount + g] = left;
+                total += left;
+            }
+            openTotal[s] = total;
+            for (let g = 0; g < groupCount && ++digits[g] > sizes[g]; g++) digits[g] = 0;
+        }
+    }
+
+    // States bucketed by boxes filled. After j figures at most j boxes are
+    // filled, and the n − filled open boxes must fit in the m − j figures
+    // left, so each step only ever touches the buckets in that window.
+    const byFilled: number[][] = Array.from({ length: n + 1 }, () => []);
+    for (let s = 0; s < states; s++) byFilled[n - openTotal[s]].push(s);
+    const window = (j: number) => [Math.max(0, n - (m - j)), Math.min(j, n)];
+
+    // groupsFor[j] = the groups figure j may go in.
+    const groupsFor = skuIds.map((id) => Int32Array.from(groups.flatMap((group, g) => (group.skus.has(id) ? [g] : []))));
+
+    // after[j] is only ever needed for the states in window(j), so each step
+    // stores just those buckets (indexed by a state's position in its bucket).
+    // Anything outside the window has too many open boxes left: 0 ways.
+    const position = new Int32Array(states);
+    for (const bucket of byFilled) bucket.forEach((s, i) => (position[s] = i));
+
+    let storedCells = 0;
+    for (let j = 0; j <= m; j++) {
+        const [lo, hi] = window(j);
+        for (let f = lo; f <= hi; f++) storedCells += byFilled[f].length;
+    }
+    if (storedCells > MAX_DP_CELLS) return null;
+
+    const after: { lo: number; buckets: Float64Array[] }[] = new Array(m + 1);
+    const read = (j: number, s: number) => {
+        const layer = after[j];
+        const bucket = layer.buckets[n - openTotal[s] - layer.lo];
+        return bucket ? bucket[position[s]] : 0;
+    };
+
+    {
+        const [lo, hi] = window(m);
+        after[m] = { lo, buckets: byFilled.slice(lo, hi + 1).map((bucket) => new Float64Array(bucket.length)) };
+        after[m].buckets[n - lo][position[full]] = 1;
+    }
+    for (let j = m - 1; j >= 0; j--) {
+        const fits = groupsFor[j];
+        const [lo, hi] = window(j);
+        const buckets: Float64Array[] = [];
+        for (let f = lo; f <= hi; f++) {
+            const bucket = new Float64Array(byFilled[f].length);
+            byFilled[f].forEach((s, i) => {
+                let ways = read(j + 1, s); // figure j left unused
+                const row = s * groupCount;
+                for (let k = 0; k < fits.length; k++) {
+                    const g = fits[k];
+                    const left = open[row + g];
+                    if (left > 0) ways += left * read(j + 1, s + strides[g]);
+                }
+                bucket[i] = ways;
+            });
+            buckets.push(bucket);
+        }
+        after[j] = { lo, buckets };
+    }
+
+    const total = read(0, 0);
+    if (total === 0) return { counts, total: 0 };
+
+    // One array updated in place: walking buckets from most filled down means
+    // a state is read before anything adds this figure's placements into it.
+    const before = new Float64Array(states);
+    before[0] = 1;
+    for (let j = 0; j < m; j++) {
+        const perGroup = new Float64Array(groupCount);
+        const fits = groupsFor[j];
+        const [lo, hi] = window(j);
+        for (let f = hi; f >= lo; f--) {
+            for (const s of byFilled[f]) {
+                const ways = before[s];
+                if (ways === 0) continue;
+                const row = s * groupCount;
+                for (let k = 0; k < fits.length; k++) {
+                    const g = fits[k];
+                    const left = open[row + g];
+                    if (left === 0) continue;
+                    const placed = s + strides[g];
+                    perGroup[g] += ways * left * read(j + 1, placed);
+                    before[placed] += ways * left;
+                }
+            }
+        }
+        for (const g of fits) {
+            if (perGroup[g] === 0) continue;
+            // Every box in a group is equally likely to be the one that got it.
+            const share = perGroup[g] / sizes[g];
+            for (const box of groups[g].boxes) counts[box][skuIds[j]] = share;
+        }
+    }
+
+    return { counts, total };
 }
 
 /** A box you can still get: free, or already held by you. Sold boxes are opened and locked ones are someone else's. */

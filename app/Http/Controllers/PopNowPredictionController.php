@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Sku;
 use App\Repositories\PopNowBoxRepository;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PopNowPredictionController extends Controller
 {
@@ -39,7 +40,7 @@ class PopNowPredictionController extends Controller
         })->values();
 
         return response()->json([
-            'set_predictability' => round($results->avg(fn ($p) => $p->predictability()), 4),
+            'set_predictability' => round($results->avg(fn ($p) => $p->predictability()) ?? 0.0, 4),
             'predictions' => $predictions,
         ]);
     }
@@ -50,7 +51,13 @@ class PopNowPredictionController extends Controller
     // (which box is the best bet if you specifically want that character).
     public function forProduct(Product $product, Request $request)
     {
-        $sku = $request->filled('sku_id') ? Sku::find($request->query('sku_id')) : null;
+        $validated = $request->validate([
+            'sku_id' => ['nullable', 'string', Rule::exists('skus', 'id')->where('product_id', $product->id)],
+        ], [
+            'sku_id.exists' => 'That figure is not part of this product.',
+        ]);
+
+        $sku = isset($validated['sku_id']) ? Sku::find($validated['sku_id']) : null;
 
         $sets = $this->boxes->setsForProduct($product->id);
 
