@@ -130,26 +130,34 @@ describe('sell rate', function () {
 });
 
 describe('polling tiers', function () {
+    // Plain data: times are minutes from now (negative = past), built into dates in the test.
     it('decides each product\'s tier', function (array $input, SyncTier $expected) {
         $now = Carbon::parse('2026-10-02 12:00:00');
+        $minutes = fn (?int $offset) => $offset === null ? null : $now->copy()->addMinutes($offset);
+
         $args = [
-            'watched' => false, 'preorder' => false, 'saleStartAt' => null, 'hotUntil' => null,
-            'soldOut' => false, 'lastStockChangeAt' => $now->copy()->subDay(), 'lastSeenAt' => $now, 'now' => $now,
-            ...$input($now),
+            'watched' => $input['watched'] ?? false,
+            'preorder' => $input['preorder'] ?? false,
+            'saleStartAt' => $minutes($input['saleStart'] ?? null),
+            'hotUntil' => $minutes($input['hotUntil'] ?? null),
+            'soldOut' => $input['soldOut'] ?? false,
+            'lastStockChangeAt' => $minutes($input['lastStockChange'] ?? -24 * 60),
+            'lastSeenAt' => $minutes($input['lastSeen'] ?? 0),
+            'now' => $now,
         ];
 
         expect(SyncTier::decide(...$args))->toBe($expected);
     })->with([
-        'plain product' => [fn ($now) => [], SyncTier::Normal],
-        'watched' => [fn ($now) => ['watched' => true], SyncTier::Hot],
-        'pre-order' => [fn ($now) => ['preorder' => true], SyncTier::Hot],
-        'sale in an hour' => [fn ($now) => ['saleStartAt' => $now->copy()->addHour()], SyncTier::Hot],
-        'sale started an hour ago' => [fn ($now) => ['saleStartAt' => $now->copy()->subHour()], SyncTier::Hot],
-        'sale next week' => [fn ($now) => ['saleStartAt' => $now->copy()->addWeek()], SyncTier::Normal],
-        'collection activity' => [fn ($now) => ['hotUntil' => $now->copy()->addMinutes(30)], SyncTier::Hot],
-        'sold out and quiet' => [fn ($now) => ['soldOut' => true, 'lastStockChangeAt' => $now->copy()->subDays(10)], SyncTier::Cold],
-        'sold out yesterday' => [fn ($now) => ['soldOut' => true], SyncTier::Normal],
-        'delisted' => [fn ($now) => ['lastSeenAt' => $now->copy()->subDays(8)], SyncTier::Cold],
+        'plain product' => [[], SyncTier::Normal],
+        'watched' => [['watched' => true], SyncTier::Hot],
+        'pre-order' => [['preorder' => true], SyncTier::Hot],
+        'sale in an hour' => [['saleStart' => 60], SyncTier::Hot],
+        'sale started an hour ago' => [['saleStart' => -60], SyncTier::Hot],
+        'sale next week' => [['saleStart' => 7 * 24 * 60], SyncTier::Normal],
+        'collection activity' => [['hotUntil' => 30], SyncTier::Hot],
+        'sold out and quiet' => [['soldOut' => true, 'lastStockChange' => -10 * 24 * 60], SyncTier::Cold],
+        'sold out yesterday' => [['soldOut' => true], SyncTier::Normal],
+        'delisted' => [['lastSeen' => -8 * 24 * 60], SyncTier::Cold],
     ]);
 });
 
@@ -186,6 +194,20 @@ describe('adapters', function () {
             ->and(SpuAdapter::collectionRef(['title' => 'No collection']))->toBeNull()
             ->and(SpuAdapter::mapProduct(['id' => 'x', 'title' => 'Y', 'collectionId' => 'c1'], Country::Malaysia)['collection']['collection_id'])->toBe('c1');
     });
+
+    it('skips an item it cannot read but keeps the rest', function () {
+        $products = SpuAdapter::mapList(['list' => [
+            ['id' => 'a1', 'title' => 'Readable'],
+            ['title' => 'No id'],
+            'not even an object',
+        ]], Country::Malaysia);
+
+        expect(array_column($products, 'id'))->toBe(['a1']);
+    });
+
+    it('fails loudly when no item can be read, since the field names are wrong', function () {
+        SpuAdapter::mapList(['list' => [['title' => 'No id'], ['name' => 'Also no id']]], Country::Malaysia);
+    })->throws(UnexpectedPayload::class, 'spu id');
 
     it('refuses to guess when an item has no id', function () {
         SpuAdapter::mapList([['title' => 'No id']], Country::Malaysia);

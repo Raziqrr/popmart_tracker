@@ -38,10 +38,14 @@ class RequireCapability
         }
 
         if ($capability->requires() === Access::PopMart) {
-            $account = $request->route('popmartAccount');
+            // This runs before route-model binding (see bootstrap/app.php), so the
+            // parameter may still be a raw id. Another user's account and one that
+            // doesn't exist answer the same 403: ids can't be probed.
+            $param = $request->route('popmartAccount');
+            $account = $param instanceof PopmartAccount ? $param : (is_scalar($param) ? PopmartAccount::find($param) : null);
 
-            if ($account instanceof PopmartAccount) {
-                if (Gate::forUser($user)->denies('use', $account)) {
+            if ($param !== null) {
+                if ($account === null || Gate::forUser($user)->denies('use', $account)) {
                     throw CapabilityException::notYourAccount();
                 }
 

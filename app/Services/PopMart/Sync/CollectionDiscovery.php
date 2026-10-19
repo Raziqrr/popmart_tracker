@@ -124,17 +124,25 @@ class CollectionDiscovery
             return Theme::create([
                 'id' => $themeId,
                 'name' => $name ?? self::placeholder('Theme', $themeId),
-                // Placeholder slugs carry the id so they stay unique (themes.slug is unique).
-                'slug' => $name ? Str::slug($name) : 'theme-'.substr($themeId, 0, 8),
+                'slug' => self::themeSlug($name, $themeId),
                 'name_confirmed' => $name !== null,
             ]);
         }
 
         if (! $theme->name_confirmed && $name !== null) {
-            $theme->update(['name' => $name, 'slug' => Str::slug($name), 'name_confirmed' => true]);
+            $theme->update(['name' => $name, 'slug' => self::themeSlug($name, $themeId, ignore: $themeId), 'name_confirmed' => true]);
         }
 
         return $theme;
+    }
+
+    /** themes.slug is unique: a taken slug (or no name at all) gets the id's first 8 characters. */
+    private static function themeSlug(?string $name, string $themeId, ?string $ignore = null): string
+    {
+        $slug = $name ? Str::slug($name) : '';
+        $taken = $slug === '' || Theme::where('slug', $slug)->when($ignore, fn ($q) => $q->whereKeyNot($ignore))->exists();
+
+        return $taken ? ($slug === '' ? 'theme' : $slug).'-'.substr($themeId, 0, 8) : $slug;
     }
 
     private static function placeholder(string $kind, string $id): string

@@ -6,6 +6,7 @@ use App\Services\Api\PopMart\Endpoints\Ec\FindByIds;
 use App\Services\Api\PopMart\Endpoints\Ec\FindDrawSpusByCollectionId;
 use App\Services\Api\PopMart\Endpoints\Ec\FindSummariesByCollectionId;
 use App\Services\Locator\Country;
+use App\Services\PopMart\Sync\UnexpectedPayload;
 
 /**
  * Products (SPUs) from Pop Mart's listing and detail endpoints:
@@ -56,14 +57,33 @@ class SpuAdapter extends Adapter
     }
 
     /**
+     * One item we can't read is skipped; if none of them can be read, the field
+     * names are wrong (not the data), so that throws instead of looking like an
+     * empty listing.
+     *
      * @return list<ProductData>
+     *
+     * @throws UnexpectedPayload
      */
     public static function mapList(mixed $json, Country $area, ?string $businessType = null): array
     {
-        return array_map(
-            fn ($item) => self::mapProduct($item, $area, $businessType),
-            self::items($json, ['list', 'items', 'records', 'data', 'spus', 'data.list']),
-        );
+        $items = self::items($json, ['list', 'items', 'records', 'data', 'spus', 'data.list']);
+        $products = [];
+        $firstError = null;
+
+        foreach ($items as $item) {
+            try {
+                $products[] = self::mapProduct(is_array($item) ? $item : [], $area, $businessType);
+            } catch (UnexpectedPayload $e) {
+                $firstError ??= $e;
+            }
+        }
+
+        if ($products === [] && $firstError !== null) {
+            throw $firstError;
+        }
+
+        return $products;
     }
 
     /** @return ProductData */

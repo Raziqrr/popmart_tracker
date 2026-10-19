@@ -43,6 +43,12 @@ class PopMartException extends RuntimeException
         return new self(PopMartError::Rejected, $reason ? "Pop Mart refused the request: {$reason}" : "Pop Mart refused the request (HTTP {$status}).", $status);
     }
 
+    /** Pop Mart's front door refused us (an HTML 403 from a CDN or bot protection), not the session. */
+    public static function blocked(): self
+    {
+        return new self(PopMartError::RateLimited, 'Pop Mart is blocking our requests right now. Try again later.', 403, (int) config('apis.popmart.pause_seconds', 120));
+    }
+
     public static function throttled(int $retryAfter): self
     {
         return new self(PopMartError::Throttled, 'Too many Pop Mart requests right now. Try again shortly.', retryAfter: $retryAfter);

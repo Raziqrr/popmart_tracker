@@ -62,18 +62,23 @@ function runCapability(string $capability, ?User $user, ?PopmartAccount $routeAc
     }
 }
 
-it('lets each user through only what their access level allows', function (string $capability, ?User $user, ?PopmartAccount $routeAccount, string $expected) {
-    expect(runCapability($capability, $user, $routeAccount))->toBe($expected);
+// Plain data, built into models inside the test:
+// $user = null (guest) or the user's own Pop Mart sessions as [live?, ...]; $route = [owner id, live?] or null.
+it('lets each user through only what their access level allows', function (string $capability, ?array $user, ?array $route, string $expected) {
+    $member = $user === null ? null : fakeMember(1, array_map(fn (bool $live) => fakeAccount(1, $live), $user));
+    $routeAccount = $route === null ? null : fakeAccount($route[0], $route[1]);
+
+    expect(runCapability($capability, $member, $routeAccount))->toBe($expected);
 })->with([
     'guest, member action' => ['watchlist', null, null, 'unauthenticated'],
     'guest, Pop Mart action' => ['claim_tasks', null, null, 'unauthenticated'],
-    'member, member action' => ['connect_popmart', fn () => fakeMember(), null, 'passed'],
-    'member without Pop Mart' => ['lock_boxes', fn () => fakeMember(), null, 'popmart_not_connected'],
-    'member with only an expired session' => ['lock_boxes', fn () => fakeMember(1, [fakeAccount(1, live: false)]), null, 'popmart_not_connected'],
-    'member with a live session' => ['lock_boxes', fn () => fakeMember(1, [fakeAccount(1, live: true)]), null, 'passed'],
-    'own account, live' => ['claim_tasks', fn () => fakeMember(1), fn () => fakeAccount(1, live: true), 'passed'],
-    'own account, expired' => ['claim_tasks', fn () => fakeMember(1), fn () => fakeAccount(1, live: false), PopMartError::SessionExpired->value],
-    'someone else\'s account' => ['claim_tasks', fn () => fakeMember(1), fn () => fakeAccount(2, live: true), 'forbidden'],
+    'member, member action' => ['connect_popmart', [], null, 'passed'],
+    'member without Pop Mart' => ['lock_boxes', [], null, 'popmart_not_connected'],
+    'member with only an expired session' => ['lock_boxes', [false], null, 'popmart_not_connected'],
+    'member with a live session' => ['lock_boxes', [true], null, 'passed'],
+    'own account, live' => ['claim_tasks', [], [1, true], 'passed'],
+    'own account, expired' => ['claim_tasks', [], [1, false], PopMartError::SessionExpired->value],
+    'someone else\'s account' => ['claim_tasks', [], [2, true], 'forbidden'],
 ]);
 
 it('reports what each user can do for /api/me', function () {

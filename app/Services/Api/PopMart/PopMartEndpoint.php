@@ -181,8 +181,17 @@ abstract class PopMartEndpoint extends Endpoint
 
         $status = $response->status();
 
-        if (in_array($status, [401, 403], true) || in_array($trpcCode, ['UNAUTHORIZED', 'FORBIDDEN'], true)) {
+        // A 403 with a JSON body is Pop Mart's own "not allowed". A 403 that isn't JSON is
+        // a CDN or bot-protection block: it says nothing about the session, and calling it
+        // "expired" would mark a good account dead (PopmartAccount::usingSession).
+        $isJson = is_array($response->json());
+
+        if ($status === 401 || ($status === 403 && $isJson) || in_array($trpcCode, ['UNAUTHORIZED', 'FORBIDDEN'], true)) {
             throw PopMartException::sessionExpired();
+        }
+
+        if ($status === 403) {
+            throw PopMartException::blocked();
         }
 
         if ($status === 429 || $trpcCode === 'TOO_MANY_REQUESTS') {

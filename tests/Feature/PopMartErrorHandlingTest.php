@@ -32,6 +32,9 @@ function popMartErrorOf(callable $call): PopMartException
 it('maps Pop Mart failures to one exception type', function (string $case, PopMartError $expected) {
     Http::fake(['*' => match ($case) {
         '401' => Http::response(null, 401),
+        // Pop Mart's own JSON "not allowed" means the session; an HTML 403 is a CDN or bot block.
+        '403_json' => Http::response(['message' => 'forbidden'], 403),
+        '403_html' => Http::response('<html>Access denied</html>', 403, ['Content-Type' => 'text/html']),
         'trpc_unauthorized' => Http::response(['error' => ['json' => ['message' => 'no', 'data' => ['code' => 'UNAUTHORIZED']]]], 200),
         '429' => Http::response(null, 429, ['Retry-After' => '30']),
         '500' => Http::response(['error' => ['json' => ['message' => 'Task already claimed']]], 500),
@@ -44,6 +47,8 @@ it('maps Pop Mart failures to one exception type', function (string $case, PopMa
     expect($error->error)->toBe($expected);
 })->with([
     ['401', PopMartError::SessionExpired],
+    ['403_json', PopMartError::SessionExpired],
+    ['403_html', PopMartError::RateLimited],
     ['trpc_unauthorized', PopMartError::SessionExpired],
     ['429', PopMartError::RateLimited],
     ['500', PopMartError::Rejected],
