@@ -114,6 +114,12 @@ There are three access levels: **guest** (browse, POP NOW odds), **member** (log
 - [ ] Confirm the sync adapters with `popmart:capture --check` (see "Data sync"), connect the house account and set `POPMART_HOUSE_ACCOUNT_ID`, and run the scheduler (`php artisan schedule:work` locally, a cron entry in production).
 - [ ] Rate limits: Pop Mart's limits are unknown, so nothing throttles calls yet and users need to be careful. A 429 from Pop Mart now surfaces as `popmart_rate_limited` (with `Retry-After` when sent); build throttling once we see real traffic after deploying.
 
+## Tests and CI
+
+- `php artisan test` runs everything that doesn't need a database: odds, change detection, adapters, throttle, capabilities, and the guest side of the HTTP stack (Pest).
+- `tests/Feature/Database` needs MySQL or MariaDB because the migrations use generated and spatial columns. They run when `DB_CONNECTION=mysql` is set (with the `DB_*` values) and skip otherwise.
+- `.github/workflows/ci.yml` runs both on every push and pull request: a MariaDB 10.11 service, the migrations forward, back and forward again, the whole Pest suite, then `npm run typecheck` and `npm run build`.
+
 ## Contributing
 
 Branch from the latest `main` on `Raziqrr/popmart_tracker`, keep `npm run typecheck` clean, and open a pull request.

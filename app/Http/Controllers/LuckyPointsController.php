@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PopmartAccount;
 use App\Models\PopmartAccountPoints;
+use App\Models\PopmartAction;
 use App\Services\PopMart\AccountActions;
 use App\Services\PopMart\LuckyPoints;
 use Illuminate\Http\JsonResponse;
@@ -40,7 +41,20 @@ class LuckyPointsController extends Controller
             fn () => $luckyPoints->redeem($popmartAccount, $validated['points'] ?? 0),
         );
 
-        return response()->json(['replayed' => $result['replayed'], ...($result['action']->response ?? [])]);
+        $action = $result['action'];
+
+        // A key that already failed replays the failure, never a success. Retry with a new key.
+        if ($action->status === PopmartAction::FAILED) {
+            return response()->json([
+                'replayed' => true,
+                'error' => [
+                    'code' => 'action_failed_earlier',
+                    'message' => ($action->response['message'] ?? 'That request failed earlier').'. Retry with a new Idempotency-Key.',
+                ],
+            ], 409);
+        }
+
+        return response()->json(['replayed' => $result['replayed'], ...($action->response ?? [])]);
     }
 
     /** @return array<string, mixed> LuckyPoints */

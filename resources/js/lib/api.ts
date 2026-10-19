@@ -19,6 +19,7 @@ export type ApiErrorCode =
     | 'popmart_throttled'
     | 'not_available'
     | 'action_in_progress'
+    | 'action_failed_earlier'
     | 'unauthenticated'
     | 'forbidden'
     | 'popmart_not_connected'
@@ -133,6 +134,8 @@ export function describeApiError(error: unknown): ApiErrorDescription {
             };
         case 'not_available':
             return { title: 'Not available yet', detail: error.message, action: null };
+        case 'action_failed_earlier':
+            return { title: 'That attempt failed', detail: error.message, action: null };
         case 'action_in_progress':
             return { title: 'Still working on it', detail: error.message, action: 'retry' };
         case 'popmart_unreachable':
