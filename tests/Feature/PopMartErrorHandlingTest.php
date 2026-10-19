@@ -132,7 +132,8 @@ it('sends the account\'s own area to Pop Mart', function () {
 
     Http::assertSent(fn ($request) => str_contains($request->url(), 'public_getTasksByActivityAndChannel')
         && $request->header('X-Area') === ['SG']
-        && $request['json']['area'] === 'SG');
+        // The body's "json" is an object (an empty payload must encode as {}), hence data_get.
+        && data_get($request->data(), 'json.area') === 'SG');
 });
 
 it('does not call Pop Mart for a session already known to be expired', function () {

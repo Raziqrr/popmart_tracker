@@ -21,7 +21,7 @@ final class SellRate
 
     /**
      * @param  list<array{checked_at: Carbon, stock: int, has_stock: bool}>  $snapshots  one SKU's rows from the
-     *                                                                                    last one before $windowStart onwards, oldest first
+     *                                                                                   last one before $windowStart onwards, oldest first
      */
     public static function perHour(array $snapshots, Carbon $windowStart, Carbon $now): ?float
     {

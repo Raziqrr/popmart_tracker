@@ -7,7 +7,6 @@ use App\Models\Theme;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-
 /**
  * @extends Factory<Collection>
  */

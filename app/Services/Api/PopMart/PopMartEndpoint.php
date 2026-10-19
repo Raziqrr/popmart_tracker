@@ -32,16 +32,14 @@ abstract class PopMartEndpoint extends Endpoint
 
     protected ?ThrottleLane $lane = null;
 
-    public function __construct(protected Country $area = Country::Malaysia)
-    {
-    }
+    public function __construct(protected Country $area = Country::Malaysia) {}
 
     protected function segments(): array
     {
         return [
-            $this->segment->value, 
-            $this->domain->value, 
-            $this->path
+            $this->segment->value,
+            $this->domain->value,
+            $this->path,
         ];
     }
 

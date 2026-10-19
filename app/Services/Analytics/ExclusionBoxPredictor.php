@@ -72,6 +72,7 @@ class ExclusionBoxPredictor implements BoxPredictorContract
                 $results[$box->id] = BoxPrediction::confirmed(
                     $box, $revealedSku, $box->hints->pluck('sku_id'), $poolSize, 'reveal'
                 );
+
                 continue;
             }
 
@@ -107,6 +108,7 @@ class ExclusionBoxPredictor implements BoxPredictorContract
                 // No valid completion satisfies every box's exclusions together —
                 // shouldn't happen with correct hint data, but don't fabricate one.
                 $results[$box->id] = BoxPrediction::narrowed($box, collect(), $excludedSkuIds, $poolSize);
+
                 continue;
             }
 
@@ -115,6 +117,7 @@ class ExclusionBoxPredictor implements BoxPredictorContract
             if ($skuCounts->count() === 1) {
                 $sku = $availableSkus->get($skuCounts->keys()->first());
                 $results[$box->id] = BoxPrediction::confirmed($box, $sku, $excludedSkuIds, $poolSize, 'elimination');
+
                 continue;
             }
 

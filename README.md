@@ -23,8 +23,6 @@ npm run typecheck
 ### Full app
 
 ```bash
-composer require laravel/fortify inertiajs/inertia-laravel   # not yet in composer.json
-php artisan fortify:install
 composer run setup    # composer install, .env, key, migrations, npm build
 composer run dev
 ```
@@ -110,7 +108,7 @@ There are three access levels: **guest** (browse, POP NOW odds), **member** (log
 
 ## Before deploying
 
-- [x] User login (Fortify) and capability checks on account routes. Still to do: login and register pages (Fortify runs headless for now, so `/login` and `/register` only take JSON or form posts).
+- [x] User login (Fortify: email and password, registration; no password reset, two-factor or passkeys yet) with login and register pages, and capability checks on account routes.
 - [x] `PopmartAccountRepository::connect()` upserts on `(user_id, popmart_member_id)` instead of always inserting. Connect now checks the cookie with Pop Mart's `get-session` first and rejects one Pop Mart doesn't accept (422).
 - [ ] Extension: set the real domain in `manifest.json` (`api_base_url`, `externally_connectable`, `host_permissions`).
 - [ ] Confirm the sync adapters with `popmart:capture --check` (see "Data sync"), connect the house account and set `POPMART_HOUSE_ACCOUNT_ID`, and run the scheduler (`php artisan schedule:work` locally, a cron entry in production).

@@ -5,6 +5,7 @@ namespace App\Services\PopMart\Sync;
 use App\Models\Product;
 use App\Models\Sku;
 use App\Models\StockSnapshot;
+use Illuminate\Support\Carbon;
 
 /**
  * Refreshes products.sell_rate_per_hour and hours_to_sell_out
@@ -61,7 +62,7 @@ class SellRateUpdater
         return ['updated' => $products->count()];
     }
 
-    /** @return list<array{checked_at: \Illuminate\Support\Carbon, stock: int, has_stock: bool}> */
+    /** @return list<array{checked_at: Carbon, stock: int, has_stock: bool}> */
     private function rows(Sku $sku, $windowStart): array
     {
         $before = $sku->stockSnapshots()->where('checked_at', '<', $windowStart)->latest('checked_at')->first();

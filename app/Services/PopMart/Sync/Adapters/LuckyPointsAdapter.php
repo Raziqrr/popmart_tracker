@@ -3,6 +3,7 @@
 namespace App\Services\PopMart\Sync\Adapters;
 
 use App\Services\Api\PopMart\Endpoints\Activity\GetTasksByActivityAndChannel;
+use Illuminate\Support\Carbon;
 
 /**
  * Lucky points balance. UNCONFIRMED: Pop Mart's balance endpoint isn't mapped
@@ -22,7 +23,7 @@ class LuckyPointsAdapter extends Adapter
     }
 
     /**
-     * @return array{balance: int, redeem_minimum: int|null, expiring_points: int|null, expiring_at: \Illuminate\Support\Carbon|null}
+     * @return array{balance: int, redeem_minimum: int|null, expiring_points: int|null, expiring_at: Carbon|null}
      */
     public static function map(array $json): array
     {
