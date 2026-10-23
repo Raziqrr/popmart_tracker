@@ -1,0 +1,13 @@
+{
+    "request": {
+        "skuId": "cf952aa2-6424-4957-ba65-1de9659dceb7",
+        "quantity": 1
+    },
+    "status": 200,
+    "response": {
+        "json": {
+            "availableQuantity": 2,
+            "hasStock": true
+        }
+    }
+}

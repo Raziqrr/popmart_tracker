@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -28,5 +30,30 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function popmartAccounts(): HasMany
+    {
+        return $this->hasMany(PopmartAccount::class);
+    }
+
+    public function setting(): HasOne
+    {
+        return $this->hasOne(UserSetting::class);
+    }
+
+    /** The most recently synced connected account whose Pop Mart session still works. */
+    public function livePopmartAccount(): ?PopmartAccount
+    {
+        return $this->popmartAccounts
+            ->filter(fn (PopmartAccount $account) => $account->sessionIsValid())
+            ->sortByDesc('last_synced_at')
+            ->first();
+    }
+
+    /** "Logged in on Pop Mart": what every Access::PopMart capability needs. */
+    public function hasLivePopMartSession(): bool
+    {
+        return $this->livePopmartAccount() !== null;
     }
 }

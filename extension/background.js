@@ -13,15 +13,32 @@ const SESSION_TOKEN_COOKIE = manifest.session_token_cookie;
 const SESSION_DATA_COOKIE = manifest.session_data_cookie;
 const POPMART_LOGIN_URL = manifest.popmart_login_url;
 
+// Our own site's origin. externally_connectable already limits who can message
+// us; this re-checks the sender so a loosened manifest can't expose clearCookies.
+const API_ORIGIN = new URL(API_BASE_URL).origin;
+const isOwnSite = (sender) => sender?.origin === API_ORIGIN || (!!sender?.url && new URL(sender.url).origin === API_ORIGIN);
+
 // --- Detection handshake: the website pings us to check we're installed ---
 chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
     if (message?.type === 'ping') {
         sendResponse({ installed: true, version: chrome.runtime.getManifest().version });
-    } else if (message?.type === 'clearCookies') {
-        clearPopmartCookies().then((count) => sendResponse({ cleared: count }));
+        return false; // answered synchronously
     }
 
-    return true; // keep the message channel open for the async sendResponse above
+    if (message?.type === 'clearCookies') {
+        if (!isOwnSite(sender)) {
+            sendResponse({ error: 'not_allowed' });
+            return false;
+        }
+
+        clearPopmartCookies()
+            .then((count) => sendResponse({ cleared: count }))
+            .catch((error) => sendResponse({ error: String(error) }));
+        return true; // keep the channel open for the async sendResponse above
+    }
+
+    // Unknown message: don't hold the channel open.
+    return false;
 });
 
 // Removes every cookie set for any *.popmart.com host — used to force a
@@ -42,6 +59,11 @@ async function clearPopmartCookies() {
 
 // --- Long-lived connection: the website opens a Port and waits for status events ---
 chrome.runtime.onConnectExternal.addListener((port) => {
+    if (!isOwnSite(port.sender)) {
+        port.disconnect();
+        return;
+    }
+
     port.onMessage.addListener((message) => {
         if (message?.type === 'connect') {
             startCapture(port);
@@ -69,14 +91,11 @@ async function startCapture(port) {
         return;
     }
 
-    port.postMessage({ status: 'sending_to_server' });
-
-    try {
-        await sendToServer(cookie);
-        port.postMessage({ status: 'connected' });
-    } catch (error) {
-        port.postMessage({ status: 'error', message: String(error) });
-    }
+    // Hand the session to our page (already checked to be our own site in
+    // onConnectExternal). The page posts it to /api/popmart-accounts/connect
+    // with the user's login session and CSRF token, which a background script
+    // can't do cleanly.
+    port.postMessage({ status: 'captured', ...toSession(cookie) });
 }
 
 // A single, immediate check — no waiting. Returns null if not logged in
@@ -113,31 +132,11 @@ function waitForSessionCookie(deadline) {
     });
 }
 
-async function sendToServer({ token, data }) {
-    const cookieHeader = `${token.name}=${token.value}; ${data.name}=${data.value}`;
-
-    // chrome.cookies gives expirationDate as seconds since epoch; convert to ISO for the API.
-    const expiresAt = token.expirationDate
-        ? new Date(token.expirationDate * 1000).toISOString()
-        : null;
-
-    let response;
-
-    try {
-        response = await fetch(`${API_BASE_URL}/api/popmart-accounts/connect`, {
-            method: 'POST',
-            credentials: 'include', // rides along with the user's existing login session on our own site
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cookie: cookieHeader, expires_at: expiresAt }),
-        });
-    } catch {
-        // fetch() itself throws (a generic "Failed to fetch") when the request never
-        // reaches a server at all — wrong URL, server not running, DNS failure, etc.
-        throw new Error(`Could not reach ${API_BASE_URL} — is the server running?`);
-    }
-
-    if (!response.ok) {
-        const body = await response.text().catch(() => '');
-        throw new Error(`Server rejected the captured session (HTTP ${response.status})${body ? `: ${body}` : ''}`);
-    }
+// The body for POST /api/popmart-accounts/connect: { cookie, expires_at }.
+function toSession({ token, data }) {
+    return {
+        cookie: `${token.name}=${token.value}; ${data.name}=${data.value}`,
+        // chrome.cookies gives expirationDate as seconds since epoch; convert to ISO for the API.
+        expires_at: token.expirationDate ? new Date(token.expirationDate * 1000).toISOString() : null,
+    };
 }

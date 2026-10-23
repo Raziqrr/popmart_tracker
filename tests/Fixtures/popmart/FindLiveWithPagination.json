@@ -1,0 +1,1942 @@
+{
+    "request": {
+        "pageNo": 1,
+        "pageSize": 10
+    },
+    "status": 200,
+    "response": {
+        "json": {
+            "items": [
+                {
+                    "id": "f3ffbfb8-1967-47f1-9104-01e24a1b17b2",
+                    "parentId": "2c70e836-dd4e-4dd2-b4a2-5ea88382fbda",
+                    "alias": null,
+                    "title_trans": {
+                        "en-us": ""
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "VN客服信息",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "VN"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "default",
+                    "data": {
+                        "email": "vn.service@popmart.com",
+                        "serviceTime_trans": {
+                            "id": "",
+                            "ja": "",
+                            "ko": "",
+                            "ms": "",
+                            "th": "",
+                            "vi": "Thứ Hai - Chủ Nhật, 08:00 - 23:00",
+                            "en-us": "Monday-Sunday 9:00 -24:00 ",
+                            "zh-hans": "周一 - 周日  08:00 - 23:00"
+                        }
+                    },
+                    "createdAt": "2026-07-02T08:30:29.886Z",
+                    "updatedAt": "2026-09-29T04:01:30.568Z",
+                    "seo_meta": {
+                        "areas": [
+                            "VN"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "c3d2c46a-adf2-42d8-a22b-93ac1634a0a4",
+                    "parentId": "6389d9ac-3ec1-4937-9510-cf6dd5a2a3e1",
+                    "alias": null,
+                    "title_trans": {
+                        "en-us": ""
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "泰国限定",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "TH"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": "2026-10-07T16:00:00.000Z",
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "default",
+                    "data": {
+                        "appIcon": "https://prod-apac-r2.popmart.com/uploads/tt5q4yyCG1TDOs17XfEIHgzTrcDv0QRB/Nez3yM8-wNdEu31d-1791423825-pop_mart.png",
+                        "appName": {
+                            "id": "",
+                            "ja": "",
+                            "ko": "",
+                            "ms": "",
+                            "th": "",
+                            "vi": "",
+                            "en-us": "POP MART",
+                            "zh-hans": ""
+                        },
+                        "buttonText": {
+                            "id": "",
+                            "ja": "",
+                            "ko": "",
+                            "ms": "",
+                            "th": "ดาวน์โหลดเลย",
+                            "vi": "",
+                            "en-us": "Join Now!",
+                            "zh-hans": ""
+                        },
+                        "benefitPoints": {
+                            "id": "",
+                            "ja": "",
+                            "ko": "",
+                            "ms": "",
+                            "th": "จับเลย สินค้าลิมิเต็ดเวอร์ชั่นไทย",
+                            "vi": "",
+                            "en-us": "GET YOUR THAILAND LIMITED",
+                            "zh-hans": ""
+                        }
+                    },
+                    "createdAt": "2026-10-08T01:47:21.438Z",
+                    "updatedAt": "2026-10-08T01:47:30.715Z",
+                    "seo_meta": {
+                        "areas": [
+                            "TH"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "4d1fa90d-0132-4e81-b9f4-0f5c077446a8",
+                    "parentId": "edc998dd-a763-413a-8287-93bcee0fc095",
+                    "alias": null,
+                    "title_trans": {
+                        "en-us": ""
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "VN-社媒",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "VN"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "default",
+                    "data": {
+                        "platforms": [
+                            {
+                                "url": "https://www.instagram.com/popmartvn/",
+                                "enabled": true,
+                                "platform": "Instagram"
+                            },
+                            {
+                                "url": "",
+                                "enabled": false,
+                                "platform": "Facebook"
+                            },
+                            {
+                                "url": "",
+                                "enabled": false,
+                                "platform": "X"
+                            },
+                            {
+                                "url": "",
+                                "enabled": false,
+                                "platform": "Youtube"
+                            },
+                            {
+                                "url": "",
+                                "enabled": false,
+                                "platform": "Tiktok"
+                            },
+                            {
+                                "url": "",
+                                "enabled": false,
+                                "platform": "Linkedin"
+                            },
+                            {
+                                "url": "",
+                                "enabled": false,
+                                "platform": "Pinterest"
+                            }
+                        ]
+                    },
+                    "createdAt": "2026-07-02T08:36:04.866Z",
+                    "updatedAt": "2026-07-02T08:36:04.866Z",
+                    "seo_meta": {
+                        "areas": [
+                            "VN"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "bef326ad-dd76-4ff0-b415-ef455afb5366",
+                    "parentId": "9f7c3f9f-92e9-4922-8f3a-ea4775a82a2f",
+                    "alias": "box-list-banner",
+                    "title_trans": {
+                        "en-us": "POP NOW list"
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "POP NOW list - th",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "TH"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "box-list-banner",
+                    "data": {
+                        "seo_meta": {
+                            "areas": [
+                                "TH",
+                                "JP",
+                                "AU",
+                                "ID",
+                                "KR",
+                                "MY",
+                                "NZ",
+                                "PH",
+                                "SG",
+                                "VN"
+                            ],
+                            "langs": [
+                                "ar",
+                                "de",
+                                "es",
+                                "fr",
+                                "id",
+                                "it",
+                                "ja",
+                                "ko",
+                                "ms",
+                                "th",
+                                "vi",
+                                "en-us",
+                                "zh-hans",
+                                "zh-hant",
+                                "en"
+                            ]
+                        },
+                        "bannerImage": {
+                            "pcUrl": "https://prod-apac-r2.popmart.com/uploads/J0yLi5ubZ1zzpbVL8S5Q0PDcDWcKEx1J/qcD_GQhspCbq_1k7-1783834410-PC.jpg",
+                            "mobUrl": "https://prod-apac-r2.popmart.com/uploads/J0yLi5ubZ1zzpbVL8S5Q0PDcDWcKEx1J/4jo4b1BIrWya_09b-1783834406-MOB.jpg"
+                        }
+                    },
+                    "createdAt": "2026-07-09T13:18:44.124Z",
+                    "updatedAt": "2026-07-12T05:33:31.932Z",
+                    "seo_meta": {
+                        "areas": [
+                            "TH",
+                            "JP",
+                            "AU",
+                            "ID",
+                            "KR",
+                            "MY",
+                            "NZ",
+                            "PH",
+                            "SG",
+                            "VN"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "ar",
+                            "de",
+                            "es",
+                            "fr",
+                            "id",
+                            "it",
+                            "ja",
+                            "ko",
+                            "ms",
+                            "th",
+                            "vi",
+                            "zh-hans",
+                            "zh-hant",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "650fa3af-29d0-43c4-872b-4e8c4f86de58",
+                    "parentId": "426c5997-2a23-43fd-aa5c-17e71f48792a",
+                    "alias": "lucky_field",
+                    "title_trans": {
+                        "en-us": ""
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "欧气磁场",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "AU",
+                        "JP",
+                        "KR",
+                        "MY",
+                        "NZ",
+                        "PH",
+                        "SG",
+                        "TH"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "default",
+                    "data": {
+                        "enabled": true
+                    },
+                    "createdAt": "2026-07-04T09:30:56.743Z",
+                    "updatedAt": "2026-07-09T12:20:36.611Z",
+                    "seo_meta": {
+                        "areas": [
+                            "AU",
+                            "JP",
+                            "KR",
+                            "MY",
+                            "NZ",
+                            "PH",
+                            "SG",
+                            "TH"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "a0459962-9923-48c5-b173-8a631f1b6a3c",
+                    "parentId": "b5f23ca0-7739-444b-9e8f-3f129092d0a3",
+                    "alias": null,
+                    "title_trans": {
+                        "en-us": ""
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "抽盒顶部按钮配置",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "AU",
+                        "ID",
+                        "JP",
+                        "KR",
+                        "MY",
+                        "NZ",
+                        "PH",
+                        "SG",
+                        "TH",
+                        "VN"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "default",
+                    "data": {
+                        "buttons": [
+                            {
+                                "link": {
+                                    "type": "internal",
+                                    "appUrl": "/user/lucky-points/earn",
+                                    "target": "_self",
+                                    "webUrl": "/account?tab=lucky-points-daily"
+                                },
+                                "buttonText": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "デイリータスク",
+                                    "ko": "데일리 미션",
+                                    "ms": "TUGAS HARIAN",
+                                    "th": "ภารกิจประจำวัน",
+                                    "vi": "Nhiệm vụ hàng ngày",
+                                    "en-us": "Daily Tasks",
+                                    "zh-hans": "每日任务",
+                                    "zh-hant": ""
+                                }
+                            },
+                            {
+                                "link": {
+                                    "type": "internal",
+                                    "appUrl": "/events/popnow-instructions",
+                                    "target": "_self",
+                                    "webUrl": "/events/popnow-instructions"
+                                },
+                                "buttonText": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "遊び方",
+                                    "ko": "이용 방법",
+                                    "ms": "",
+                                    "th": "วิธีการเล่น",
+                                    "vi": "",
+                                    "en-us": "How To Play",
+                                    "zh-hans": "玩法说明",
+                                    "zh-hant": ""
+                                }
+                            },
+                            {
+                                "link": {
+                                    "type": "internal",
+                                    "appUrl": "/pop-now/try-your-luck",
+                                    "target": "_self",
+                                    "webUrl": "/pop-now/try-your-luck"
+                                },
+                                "buttonText": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "運試し",
+                                    "ko": "도전하기",
+                                    "ms": "",
+                                    "th": "ลองดวงของคุณ",
+                                    "vi": "",
+                                    "en-us": "Try Your Luck",
+                                    "zh-hans": "试手气",
+                                    "zh-hant": ""
+                                }
+                            }
+                        ]
+                    },
+                    "createdAt": "2026-07-09T13:39:15.169Z",
+                    "updatedAt": "2026-10-08T07:12:07.129Z",
+                    "seo_meta": {
+                        "areas": [
+                            "AU",
+                            "ID",
+                            "JP",
+                            "KR",
+                            "MY",
+                            "NZ",
+                            "PH",
+                            "SG",
+                            "TH",
+                            "VN"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "50a9a7e4-adb9-4034-bb4c-93e093598e26",
+                    "parentId": null,
+                    "alias": "activity-assets",
+                    "title_trans": {
+                        "en-us": "活动素材管理"
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "活动素材管理",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "AU",
+                        "ID",
+                        "JP",
+                        "KR",
+                        "MY",
+                        "NZ",
+                        "PH",
+                        "SG",
+                        "TH",
+                        "VN"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "activity-assets",
+                    "data": [],
+                    "createdAt": "2026-07-31T07:36:14.668Z",
+                    "updatedAt": "2026-08-03T04:31:37.814Z",
+                    "seo_meta": {
+                        "areas": [
+                            "AU",
+                            "ID",
+                            "JP",
+                            "KR",
+                            "MY",
+                            "NZ",
+                            "PH",
+                            "SG",
+                            "TH",
+                            "VN"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "0264795b-905c-46c9-8f96-d3b109dab613",
+                    "parentId": "50a9a7e4-adb9-4034-bb4c-93e093598e26",
+                    "alias": null,
+                    "title_trans": {
+                        "en-us": "pick-pop"
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "pick-pop",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "AU",
+                        "ID",
+                        "JP",
+                        "KR",
+                        "MY",
+                        "NZ",
+                        "PH",
+                        "SG",
+                        "TH",
+                        "VN"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "activity-assets-pick-pop-mob",
+                    "data": {
+                        "scenes": [
+                            {
+                                "id": "page",
+                                "assets": [
+                                    {
+                                        "height": 1079,
+                                        "assetType": "background",
+                                        "resourceKey": "page__bg_0"
+                                    },
+                                    {
+                                        "height": 1266,
+                                        "assetType": "background",
+                                        "resourceKey": "page__bg_1"
+                                    },
+                                    {
+                                        "height": 1030,
+                                        "assetType": "background",
+                                        "resourceKey": "page__bg_2"
+                                    },
+                                    {
+                                        "height": 801,
+                                        "assetType": "background",
+                                        "resourceKey": "page__bg_3"
+                                    },
+                                    {
+                                        "key": "time",
+                                        "top": 61,
+                                        "left": 111,
+                                        "width": 529,
+                                        "height": 46,
+                                        "assetType": "fixed",
+                                        "resourceKey": "page__time"
+                                    },
+                                    {
+                                        "key": "rule",
+                                        "top": 126,
+                                        "right": 0,
+                                        "width": 120,
+                                        "height": 45,
+                                        "assetType": "button",
+                                        "resourceKey": "page__rule",
+                                        "stateResources": [],
+                                        "transformOrigin": "right center"
+                                    },
+                                    {
+                                        "key": "solo-btn",
+                                        "top": 1074,
+                                        "left": 15,
+                                        "width": 350,
+                                        "height": 123,
+                                        "assetType": "button",
+                                        "resourceKey": "page__solo-btn",
+                                        "stateResources": [
+                                            {
+                                                "state": "soldout",
+                                                "resourceKey": "page__btn__soldout"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "key": "triple-btn",
+                                        "top": 1074,
+                                        "right": 15,
+                                        "width": 350,
+                                        "height": 123,
+                                        "assetType": "button",
+                                        "resourceKey": "page__triple-btn",
+                                        "stateResources": [
+                                            {
+                                                "state": "soldout",
+                                                "resourceKey": "page__btn__soldout"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "designWidth": 750,
+                                "presentation": "page",
+                                "bottomSafeArea": true,
+                                "backgroundColor": "#F1E1D6"
+                            },
+                            {
+                                "id": "ip-pick",
+                                "assets": [
+                                    {
+                                        "height": 1000,
+                                        "assetType": "background",
+                                        "resourceKey": "ip-pick__bg_0"
+                                    },
+                                    {
+                                        "key": "lock-it-in",
+                                        "left": 131,
+                                        "width": 486,
+                                        "bottom": 56,
+                                        "height": 89,
+                                        "assetType": "button",
+                                        "resourceKey": "ip-pick__lock-it-in"
+                                    },
+                                    {
+                                        "key": "sold-out",
+                                        "width": 106,
+                                        "height": 32,
+                                        "assetType": "fixed",
+                                        "resourceKey": "ip-pick__sold-out"
+                                    }
+                                ],
+                                "showMask": true,
+                                "designWidth": 750,
+                                "maskClosable": true,
+                                "presentation": "bottom-sheet",
+                                "bottomSafeArea": true
+                            },
+                            {
+                                "id": "buy-solo",
+                                "assets": [
+                                    {
+                                        "height": 1000,
+                                        "assetType": "background",
+                                        "resourceKey": "buy-solo__bg_0"
+                                    },
+                                    {
+                                        "key": "countdown",
+                                        "top": 105,
+                                        "left": 172,
+                                        "width": 407,
+                                        "height": 59,
+                                        "assetType": "fixed",
+                                        "resourceKey": "buy-solo__countdown"
+                                    },
+                                    {
+                                        "key": "bg-product",
+                                        "width": 230,
+                                        "height": 341,
+                                        "assetType": "fixed",
+                                        "resourceKey": "buy-solo__bg-product"
+                                    },
+                                    {
+                                        "key": "unbox-now",
+                                        "left": 115,
+                                        "width": 520,
+                                        "bottom": 213,
+                                        "height": 121,
+                                        "assetType": "button",
+                                        "resourceKey": "unbox-now",
+                                        "stateResources": [
+                                            {
+                                                "state": "try-another",
+                                                "resourceKey": "unbox-now__try-another"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "showMask": true,
+                                "designWidth": 750,
+                                "maskClosable": false,
+                                "presentation": "center-modal",
+                                "bottomSafeArea": true
+                            },
+                            {
+                                "id": "buy-triple",
+                                "assets": [
+                                    {
+                                        "height": 1220,
+                                        "assetType": "background",
+                                        "resourceKey": "buy-triple__bg_0"
+                                    },
+                                    {
+                                        "key": "countdown",
+                                        "top": 80,
+                                        "left": 172,
+                                        "width": 407,
+                                        "height": 59,
+                                        "assetType": "fixed",
+                                        "resourceKey": "buy-solo__countdown"
+                                    },
+                                    {
+                                        "key": "bg-product",
+                                        "width": 230,
+                                        "height": 341,
+                                        "assetType": "fixed",
+                                        "resourceKey": "buy-solo__bg-product"
+                                    },
+                                    {
+                                        "key": "unbox-now",
+                                        "left": 115,
+                                        "width": 520,
+                                        "bottom": 86,
+                                        "height": 121,
+                                        "assetType": "button",
+                                        "resourceKey": "unbox-now",
+                                        "stateResources": [
+                                            {
+                                                "state": "try-another",
+                                                "resourceKey": "unbox-now__try-another"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "showMask": true,
+                                "designWidth": 750,
+                                "maskClosable": false,
+                                "presentation": "center-modal",
+                                "bottomSafeArea": true
+                            },
+                            {
+                                "id": "rules",
+                                "assets": [
+                                    {
+                                        "height": 1000,
+                                        "assetType": "background",
+                                        "resourceKey": "rules__bg_0"
+                                    },
+                                    {
+                                        "key": "rules-content",
+                                        "top": 185,
+                                        "left": 102,
+                                        "width": 546,
+                                        "height": 580,
+                                        "assetType": "scroll-view"
+                                    },
+                                    {
+                                        "key": "agree-btn",
+                                        "left": 132,
+                                        "width": 486,
+                                        "bottom": 104,
+                                        "height": 89,
+                                        "assetType": "button",
+                                        "resourceKey": "rules__agree-btn",
+                                        "stateResources": [
+                                            {
+                                                "state": "agreed",
+                                                "resourceKey": "rules__agree-btn__agreed"
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "showMask": true,
+                                "designWidth": 750,
+                                "maskClosable": false,
+                                "presentation": "center-modal",
+                                "bottomSafeArea": true
+                            }
+                        ],
+                        "styles": {
+                            "ipCard_card": {
+                                "width": 154,
+                                "height": 180,
+                                "overflow": "hidden",
+                                "alignItems": "center",
+                                "paddingTop": 8,
+                                "borderRadius": 16
+                            },
+                            "ipCard_name": {
+                                "color": "#2E2D33",
+                                "width": 140,
+                                "fontSize": 20,
+                                "marginTop": 40,
+                                "textAlign": "center",
+                                "fontWeight": "400",
+                                "lineHeight": 20
+                            },
+                            "ipCard_root": {
+                                "paddingTop": 16
+                            },
+                            "ipCard_image": {
+                                "width": 102,
+                                "height": 102
+                            },
+                            "ipList_content": {
+                                "rowGap": 29,
+                                "flexWrap": "wrap",
+                                "columnGap": 22,
+                                "flexDirection": "row",
+                                "paddingBottom": 214,
+                                "paddingHorizontal": 22
+                            },
+                            "productCard_gap": {
+                                "width": 11
+                            },
+                            "ipList_container": {
+                                "top": 179,
+                                "height": 806
+                            },
+                            "productCard_list": {
+                                "top": 224
+                            },
+                            "productCard_name": {
+                                "color": "#664B25",
+                                "width": 160,
+                                "fontSize": 16,
+                                "textAlign": "center",
+                                "lineHeight": 16
+                            },
+                            "productCard_image": {
+                                "width": 163,
+                                "height": 197,
+                                "marginTop": 52
+                            },
+                            "productCard_price": {
+                                "color": "#664B25",
+                                "width": 160,
+                                "fontSize": 22,
+                                "marginTop": 8,
+                                "textAlign": "center",
+                                "fontWeight": "700",
+                                "lineHeight": 22
+                            },
+                            "ipCard_soldOutMask": {
+                                "top": 0,
+                                "left": 0,
+                                "right": 0,
+                                "bottom": 0,
+                                "position": "absolute",
+                                "backgroundColor": "rgba(193,193,193,0.55)"
+                            },
+                            "pageCountdown_text": {
+                                "color": "#010101",
+                                "width": "100%",
+                                "fontSize": 22,
+                                "textAlign": "center",
+                                "lineHeight": 22
+                            },
+                            "countdown_container": {
+                                "top": 0,
+                                "left": 0,
+                                "right": 0,
+                                "bottom": 0,
+                                "position": "absolute",
+                                "alignItems": "center",
+                                "justifyContent": "center",
+                                "paddingHorizontal": 16
+                            },
+                            "ipCard_cardSelected": {
+                                "backgroundColor": "#FBD256"
+                            },
+                            "ipCard_nameSelected": {
+                                "color": "#000000"
+                            },
+                            "ipCard_soldOutBadge": {
+                                "top": 0,
+                                "left": 0,
+                                "zIndex": 2,
+                                "position": "absolute"
+                            },
+                            "productCard_content": {
+                                "flex": 1,
+                                "alignItems": "center",
+                                "flexDirection": "column"
+                            },
+                            "productCard_nameBox": {
+                                "width": 160,
+                                "height": 32,
+                                "marginTop": 6,
+                                "alignItems": "center",
+                                "justifyContent": "flex-end"
+                            },
+                            "selectCountdown_text": {
+                                "color": "#5A3501",
+                                "width": "100%",
+                                "fontSize": 24,
+                                "textAlign": "center",
+                                "lineHeight": 24
+                            },
+                            "productCard_buy3IpList": {
+                                "top": 656
+                            },
+                            "productCard_cardLocked": {
+                                "opacity": 0.9
+                            },
+                            "productCard_buySoloList": {
+                                "top": 280
+                            },
+                            "productCard_selectionRing": {
+                                "top": 0,
+                                "left": 0,
+                                "right": 0,
+                                "bottom": 0,
+                                "position": "absolute",
+                                "boxShadow": "0 0 0 1px rgba(251, 210, 86, 0.55), 0 6px 14px rgba(232, 168, 32, 0.28)",
+                                "borderColor": "#E8A820",
+                                "borderCurve": "continuous",
+                                "borderWidth": 2.5,
+                                "borderRadius": 6
+                            },
+                            "productCard_selectionRoot": {
+                                "top": 0,
+                                "left": 0,
+                                "right": 0,
+                                "bottom": 0,
+                                "position": "absolute"
+                            },
+                            "productCard_selectionWash": {
+                                "top": 0,
+                                "left": 0,
+                                "right": 0,
+                                "bottom": 0,
+                                "position": "absolute",
+                                "borderCurve": "continuous",
+                                "backgroundColor": "rgba(251, 210, 86, 0.16)"
+                            }
+                        },
+                        "seo_meta": {
+                            "areas": [
+                                "AU",
+                                "ID",
+                                "JP",
+                                "KR",
+                                "MY",
+                                "NZ",
+                                "PH",
+                                "SG",
+                                "TH",
+                                "VN"
+                            ],
+                            "langs": [
+                                "ar",
+                                "de",
+                                "es",
+                                "fr",
+                                "id",
+                                "it",
+                                "ja",
+                                "ko",
+                                "ms",
+                                "th",
+                                "vi",
+                                "en-us",
+                                "zh-hans",
+                                "zh-hant",
+                                "en"
+                            ]
+                        },
+                        "resources": {
+                            "unbox-now": {
+                                "image_trans": {
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/6b2GKo1FDwKKWssm-1785484251-BqX-QVqY6pE8yxBy-1784705228-unlock_bth_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/ITs006a8EGYwwx0r-1785484253-8JKk-IRr_PG2GRt3-1784706420-unlock_bth_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/Fft8EAnZ-s_rhswc-1785484254-zPdDaPLyPXReKi1E-1784703604-unlock_bth_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/YTRUmnBA9Hgt8UuX-1785484257-hJPv8gKu3lDKQUJr-1784201894-unlock_bth_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 50048,
+                                    "ko": 46466,
+                                    "th": 49666,
+                                    "en-us": 160355
+                                }
+                            },
+                            "page__bg_0": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/FsfIxaj2EVdGwYpW-1785484259-88_lRroUvBPbtLFW-1784704791-s1_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/yE4UJWRm3-OfLCQS-1785483493-GNcvGVQjjZnYf81T-1785201293-3uMdw_YzPeTRMC6Q-1784705574-s1_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/zUG4KmWs-wboxqWx-1785484266-QPdnu4njPN0p3R9D-1784702750-s1_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/dbkF_r-r45N_krGn-1785484273-1ljntSo9DhlfZ4BN-1784594872-s1_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 250206,
+                                    "ko": 250074,
+                                    "th": 151684,
+                                    "en-us": 114450
+                                }
+                            },
+                            "page__bg_1": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/wRThmg-RjMlE7XvV-1785484279-ZoPtrKVZENoAqWle-1784704801-s2_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/JoShGR0zMou-3o4_-1785483496-9ov4GPBnv9eq7bcF-1785201480-JywlKZMcClMDNwgm-1784705584-s2_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/zoI_UdfJEahP9JF7-1785484284-ZC0siNXBQGw3A8lg-1784702758-s2_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/Yhzqdgvst2R9vUA--1785484288-ALhvEZodCAoRpqrt-1784594879-s2_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 227342,
+                                    "ko": 276798,
+                                    "th": 238884,
+                                    "en-us": 191118
+                                }
+                            },
+                            "page__bg_2": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/YWvhG3LKs0ZfhqAl-1785484292-QLw5OGYHEJwp6mSC-1784704809-s3_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/3VLAsOleIAGDQ6pY-1785483499-53VLiYy9SkivMkM5-1785201467-KBQ_i9F_X4wL2O2o-1784705593-s3_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/34Ym7c9x9DTVK2oZ-1785484296-5SDwzpcovpiMn-01-1784702768-s3_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/ZzXjD37R9kuZbc4Q-1785484299-8mRi9EusB9yTWp8i-1784594886-s3_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 226216,
+                                    "ko": 267362,
+                                    "th": 234660,
+                                    "en-us": 188174
+                                }
+                            },
+                            "page__bg_3": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/FCv7Liquw9V98iMx-1785484302-15WFmUmeqqAmX7Yu-1784704817-s4_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/qGC_epQAM-dTQY1M-1785483501-mOmgLCHQ-8BHA4mw-1785201452-N3eAZxCrgzfUIcC5-1784705601-s4_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/wG6sKy9lxzni1brA-1785484305-eUGjZNkjy2_Yav78-1784702777-s4_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/fhxrkffVMe29H0lG-1785484307-NwPWscW6EUCrKIqS-1784594893-s4_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 160978,
+                                    "ko": 232584,
+                                    "th": 165254,
+                                    "en-us": 132830
+                                }
+                            },
+                            "page__rule": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/P7ryOcgArDAlher9-1785484308-5oLNdw6PeEn4jl0i-1784704868-rule_2x.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/r5Fl_z_Art5_rs_x-1785484310-h0TP6a9RQaSFulK-1784705613-rule_2x.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/UoYGj0SEO1xC8FPm-1785484311-M_eTuQj_4foS7S-H-1784702825-rule_2x.png",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/rfVMf1_pA_LiB8W--1785484312-wvmdzlDP7thNwRa5-1784186623-rule_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 6720,
+                                    "ko": 9986,
+                                    "th": 6126,
+                                    "en-us": 5875
+                                }
+                            },
+                            "page__time": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/z0nHbFCIBRBLU256-1785732334-8Khq-VukAz6ejUJn-1785484314-shjAghroQ2ZXuACy-1784186349-time_2x.png",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/fythWSv-ZLeJC0gq-1785732338-8Khq-VukAz6ejUJn-1785484314-shjAghroQ2ZXuACy-1784186349-time_2x.png",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/dUMdp8kNVKVhVaps-1785732341-8Khq-VukAz6ejUJn-1785484314-shjAghroQ2ZXuACy-1784186349-time_2x.png",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/8Khq-VukAz6ejUJn-1785484314-shjAghroQ2ZXuACy-1784186349-time_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 109000,
+                                    "ko": 109000,
+                                    "th": 109000,
+                                    "en-us": 109000
+                                }
+                            },
+                            "rules__bg_0": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/feOxZNTMvI-UZLsC-1785484316-fjwiwaQQ0nYNfVaN-1784705097-规则弹窗_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/O5VFqVYOJgvWI1y8-1785484318-VeFqdSCNWo31Oj-D-1784706175-规则弹窗_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/TzQ8bTr6A_LbUeZQ-1785484320-LrIHMvslboko6n5v-1784702978-规则弹窗_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/zZmj2sSIS0Cg47bs-1785483505--xdG9hxk3aUCJ9jh-1785201684-7jThADcDrGEH2b1C-1784202392-规则弹窗_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 97600,
+                                    "ko": 93562,
+                                    "th": 94196,
+                                    "en-us": 90876
+                                }
+                            },
+                            "ip-pick__bg_0": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/PV4ki00Je22DPMMS-1785483507-n0Y4iqKhnLgz1iiY-1784717805-IP_pick_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/J3ksQb9HANBvVbXf-1785484322-wkWl2jbstgNRY3fg-1784705796-IP_pick_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/s0FX_6MjpVNnF1g6-1785484324-Bo3pEdDvriuQtlUX-1784703043-IP_pick_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/sIRuK8pNK_LNMqKS-1785484326-R-7KsqbG7YCR0EzR-1784595684-IP_pick_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 73978,
+                                    "ko": 52182,
+                                    "th": 65674,
+                                    "en-us": 57754
+                                }
+                            },
+                            "buy-solo__bg_0": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/j1s24xfidhn4zJ6U-1785483509-q19Pdkl-F8ZnkQJC-1784717901-solo弹窗_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/z6JQRbsC0TDeZOoj-1785484328-eGquwAPcLz18OztW-1784706409-solo弹窗_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/w2LW8f6Vwj-UdrGX-1785484331-ljAQ0J23C8ANCSDx-1784703546-solo弹窗_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/1WdnQ-XQJfd7UiJF-1785484334-lpdPq9_B1gnQoIs6-1784596173-solo弹窗_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 125864,
+                                    "ko": 116332,
+                                    "th": 109208,
+                                    "en-us": 106472
+                                }
+                            },
+                            "page__solo-btn": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/WuKMA9NOcBCCSSxB-1785737909-solo_bth_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/_Xk6PE5oMrDDq-cO-1785483512-RfLw0cQcbVfHHrjN-1785310388-solo_bth_2x_3_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/Mr7P567ZsvkTmTrf-1785483514-dRaKxBIFUnCsoOfn-1785310399-solo_bth_2x_1_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/Ys3zluP3zPyC_WUQ-1785483516-dHOvuoqOuIPbK7_6-1785310350-solo_bth_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 41750,
+                                    "ko": 35358,
+                                    "th": 38738,
+                                    "en-us": 36930
+                                }
+                            },
+                            "buy-triple__bg_0": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/MHsF6Afga-0o_7ej-1785483518-S5lii_tKfMvf6FLy-1785310296-tripletan弹窗_2x_1_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/mgd3lqqTOIPrGOrM-1785483520-ZROoNBx6A3FAtgUM-1785310309-tripletan弹窗_2x_2_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/yVoXMNtpzkTHSkWh-1785483523-C7s27FBz-MvPI1ug-1785310317-tripletan弹窗_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/-3J4-DrXFuVX-hoK-1785483525-fl8G7O2TnFoncP-2-1785311620-tripletan弹窗_2x_compressed_1.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 147842,
+                                    "ko": 154216,
+                                    "th": 138870,
+                                    "en-us": 159596
+                                }
+                            },
+                            "page__triple-btn": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/W5qoougSPk-qhUEU-1785737920-triple_bth_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/B1qHPDT3BtpIBC-0-1785483529-7NCVj4n27448aHSw-1785310434-triple_bth_2x_3_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/gTtbp1jEKO48W5x4-1785483530-slw6Lh5j1y5DYrS-1785310443-triple_bth_2x_1_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/tBf110XE6AxyDbvk-1785483532-npvoKw19Kl_oICO-1785310412-triple_bth_2x_compressed.webp",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 45006,
+                                    "ko": 38362,
+                                    "th": 42488,
+                                    "en-us": 40190
+                                }
+                            },
+                            "rules__agree-btn": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/pamddDXxQ2BTNo_y-1785484336-zk3OsAr_kgC894gK-1784705122-i_agree_bth_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/-R66RZsIdG5ZUHhO-1785484338-8KfuDPLaU3fZQvk_-1784706181-i_agree_bth_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/biSAZMRAO0Fgbfl1-1785484339-NLYISPiSLKugcRQ-1784702999-i_agree_bth_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/ALTOmkknO7ewmEGQ-1785484342--Tzh5cvx8yriDeXW-1784202749-i_agree_bth_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 38518,
+                                    "ko": 37326,
+                                    "th": 37842,
+                                    "en-us": 145905
+                                }
+                            },
+                            "ip-pick__sold-out": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/uMiZhhLsfhRVWr8Y-1785484343-tygSc1mFBgthaSGj-1784705034-sold_out_icon_2x.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/-a1-Y2oCKHRdiWVj-1785484345-CK6iuNGSUFuFHG6T-1784705824-sold_out_icon_2x.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/yQ-7lkhTMd2QeKzy-1785484347-6Tn366ahGujLoK6v-1784703069-sold_out_icon_2x.png",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/E6o3vTzFVN-FqxIF-1785484349-DIf5UpmP6fyJlegv-1784199124-sold_out_icon_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 5526,
+                                    "ko": 5366,
+                                    "th": 12101,
+                                    "en-us": 10631
+                                }
+                            },
+                            "page__btn__soldout": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/-L6hC6J-5UblrTw4-1785484350-9DYfRcYcp1ixuD66-1784704896-soldout_bth_2x.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/rDHp8k6xs7jZ0lGF-1785484352-MfhrhLoDKDF1A1fD-1784705635-soldout_bth_2x.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/MhcwvrXFbyUf1XQt-1785484353-TcanTVh6Q6dH_64v-1784702882-soldout_bth_2x.png",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/vohaYFk7_U9emcpk-1785484355-2QSbyFQC_AU_JzNm-1784195223-soldout_bth_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 23756,
+                                    "ko": 22194,
+                                    "th": 41609,
+                                    "en-us": 40930
+                                }
+                            },
+                            "buy-solo__countdown": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/36xD4NTuzRa5Dtvu-1785732350-RamV6nCHO2IYQzSw-1785484357-1Pm5PKnnDfL2Y7ZY-1784201673-countdown_2x.png",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/HK6LSNcYdCqRMN6--1785732353-RamV6nCHO2IYQzSw-1785484357-1Pm5PKnnDfL2Y7ZY-1784201673-countdown_2x.png",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/0csjT2o45rAbgnEk-1785732356-RamV6nCHO2IYQzSw-1785484357-1Pm5PKnnDfL2Y7ZY-1784201673-countdown_2x.png",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/RamV6nCHO2IYQzSw-1785484357-1Pm5PKnnDfL2Y7ZY-1784201673-countdown_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 12900,
+                                    "ko": 12900,
+                                    "th": 12900,
+                                    "en-us": 12900
+                                }
+                            },
+                            "ip-pick__lock-it-in": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/jOZ8987-oUTYEyR8-1785483535-VM-Ifu7Nc9edO0p1-1784717851-lock_bth_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/WVRKZIHtKWnE1aBL-1785484359-g0nWFD_vzSqdQRsp-1784705806-lock_bth_2x.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/Ufjden_3MD9j7jAt-1785484361-ubP-10rfbsQPIv0u-1784703055-lock_bth_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/w4joUTqNpU3lVZBn-1785484365-xQt5wi_Ylx4HXyOq-1784199112-lock_bth_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 39366,
+                                    "ko": 112908,
+                                    "th": 39786,
+                                    "en-us": 141635
+                                }
+                            },
+                            "buy-solo__bg-product": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/ZM9AYr05-yoIlhkU-1785732359-6iVmDZLDVJuemVgQ-1785484368--EXITE4IcHvO1KZX-1784201778-商品框_2x.png",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/Z7hrPIoUcIxNeBLM-1785732362-6iVmDZLDVJuemVgQ-1785484368--EXITE4IcHvO1KZX-1784201778-商品框_2x.png",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/lCTQOzaBv9EGy_8j-1785732365-6iVmDZLDVJuemVgQ-1785484368--EXITE4IcHvO1KZX-1784201778-商品框_2x.png",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/6iVmDZLDVJuemVgQ-1785484368--EXITE4IcHvO1KZX-1784201778-商品框_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 25488,
+                                    "ko": 25488,
+                                    "th": 25488,
+                                    "en-us": 25488
+                                }
+                            },
+                            "unbox-now__try-another": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/Y6nk_Q0TO1A0xyt5-1785484370-jOwuD0s5LpNX2Vts-1784705235-try_bth_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/YbdEiOTeY1CAywf--1785484372-zCm5sNPWrRt4jPEY-1784706428-try_bth_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/CRLtEoVW_eVGK0Pr-1785484374-MOOXjiKGwVTdCqTT-1784703614-try_bth_2x_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/s4WC-fbdxL6FwAQg-1785484377-re5l2xXl2hKLfmmS-1784201909-try_bth_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 49010,
+                                    "ko": 45804,
+                                    "th": 50530,
+                                    "en-us": 158575
+                                }
+                            },
+                            "rules__agree-btn__agreed": {
+                                "image_trans": {
+                                    "ar": "",
+                                    "de": "",
+                                    "es": "",
+                                    "fr": "",
+                                    "id": "",
+                                    "it": "",
+                                    "ja": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/g1AoIqHraYb69Cdq-1785483537-ZbCyJnch4LB7mfy-1784717994-i_agree_bth_2x_compressed.webp",
+                                    "ko": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/sRQH0lJOHTYw0H-z-1785484379-g9dlzd3BYOk2wXkF-1784706199-OK_bth_2x_compressed.webp",
+                                    "ms": "",
+                                    "th": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/SvsU0dZNxqVh4FYm-1785483539-qEvkGUyxOut4s11B-1784718002-i_agree_bth_2x_1_compressed.webp",
+                                    "vi": "",
+                                    "en-us": "https://prod-apac-r2.popmart.com/uploads/ujdUasOV90r0rGbU5VjKV9R4hhJtWcUK/3yRdyx0CPB5qdPC7-1785484381-IdivIDD7JmdfY6XQ-1784202753-OK_bth_2x.png",
+                                    "zh-hans": "",
+                                    "zh-hant": ""
+                                },
+                                "imageSize_trans": {
+                                    "ja": 38518,
+                                    "ko": 33744,
+                                    "th": 38114,
+                                    "en-us": 124962
+                                }
+                            }
+                        }
+                    },
+                    "createdAt": "2026-07-31T07:37:34.201Z",
+                    "updatedAt": "2026-08-03T06:18:47.835Z",
+                    "seo_meta": {
+                        "areas": [
+                            "AU",
+                            "ID",
+                            "JP",
+                            "KR",
+                            "MY",
+                            "NZ",
+                            "PH",
+                            "SG",
+                            "TH",
+                            "VN"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "ar",
+                            "de",
+                            "es",
+                            "fr",
+                            "id",
+                            "it",
+                            "ja",
+                            "ko",
+                            "ms",
+                            "th",
+                            "vi",
+                            "zh-hans",
+                            "zh-hant",
+                            "en"
+                        ]
+                    }
+                },
+                {
+                    "id": "8f0cd099-5e5d-45e9-a5d1-1bf4dfe99d92",
+                    "parentId": "63c8cfa1-fcb0-4090-aea8-1d62b2e29286",
+                    "alias": "pay-enum",
+                    "title_trans": {
+                        "en-us": ""
+                    },
+                    "description_trans": {
+                        "en-us": ""
+                    },
+                    "icon": null,
+                    "note": "支付方式枚举配置",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "default",
+                    "data": {
+                        "methods": [
+                            {
+                                "id": "play-enum-1783512873000-22oy1g",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/czjM0-IwZsLG2ej4-1783513256-visa.png",
+                                "name": "VISA"
+                            },
+                            {
+                                "id": "play-enum-1783512899630-i8zts4",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/vmCD47gIf_Wdnpzm-1783513266-mastercard.png",
+                                "name": "MASTER"
+                            },
+                            {
+                                "id": "play-enum-1783512913976-csm3sf",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/s-87O1Ax1vlclmSk-1783513271-amex.png",
+                                "name": "AMEX"
+                            },
+                            {
+                                "id": "play-enum-1783512919138-zf4kpo",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/Z0mT0OZOH-NEcXyq-1783513276-discover.png",
+                                "name": "DISCOVERY"
+                            },
+                            {
+                                "id": "play-enum-1783512944567-7xt8m1",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/SwBxOa4peOUAbXZb-1783513280-jcb.png",
+                                "name": "JCB"
+                            },
+                            {
+                                "id": "play-enum-1783512951786-9xpkov",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/OC8iWst7LJ6zR6fs-1783513286-creditcard1.png",
+                                "name": "CREDITCARD"
+                            },
+                            {
+                                "id": "play-enum-1783512953481-fohjm8",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/7BFl9rBOX_D8Peyi-1783513423-wechatpay.png",
+                                "name": "微信"
+                            },
+                            {
+                                "id": "play-enum-1783512958606-uutlc3",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/o3JMjQ5RvLf8DSLm-1783513426-alipay.png",
+                                "name": "支付宝"
+                            },
+                            {
+                                "id": "play-enum-1783512963102-js27ph",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/lObz9DbU6dYOBUL3-1783513988-PayPay_2x.png",
+                                "name": "paypay"
+                            },
+                            {
+                                "id": "play-enum-1783512971197-b5bh55",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/raL9VwNcpCMpJkL2-1783513453-ture_money.png",
+                                "name": "TrueMoney Wallet"
+                            },
+                            {
+                                "id": "play-enum-1783512974143-ga9xfd",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/zXF_h6pSWSU9yVhd-1783513535-linepay.png",
+                                "name": "Rabbit LINE Pay"
+                            },
+                            {
+                                "id": "play-enum-1783512993276-i9nk1n",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/qRikmTu8KcaQr-CA-1783513701-GCash-huge.png",
+                                "name": "GCash"
+                            },
+                            {
+                                "id": "play-enum-1783512998005-impqyo",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/xbOy9k85DxDwcTGq-1783513732-BPI.png",
+                                "name": "BPI"
+                            },
+                            {
+                                "id": "play-enum-1783513003204-erqja7",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/rOhFQoO4kM30tAlW-1783513739-kakao.png",
+                                "name": "Kakao Pay"
+                            },
+                            {
+                                "id": "play-enum-1783513009155-kaki6a",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/oc1kk-vHdCVYZ-6Y-1783513746-toss.png",
+                                "name": "Toss Pay"
+                            },
+                            {
+                                "id": "play-enum-1783513110159-j0jbod",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/07AX-LpnE8CBfzgM-1783514076-Naver_pay.png",
+                                "name": "Naver Pay"
+                            },
+                            {
+                                "id": "play-enum-1783513117954-bpiet0",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/D7Okn9wWhhLuIM7r-1783514086-Touch_go.png",
+                                "name": "Touch 'n Go eWallet"
+                            },
+                            {
+                                "id": "play-enum-1783513124169-pcyb0a",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/tltO3ZaZy_Beayj7-1783514253-boostpay.png",
+                                "name": "Boost"
+                            },
+                            {
+                                "id": "play-enum-1783513125654-ycwrci",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/vhoqbDlYNZVekW-U-1783604458-ShinhanCard.png",
+                                "name": "신한(Shinhan Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513132779-0tyw10",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/5R4qObz_pr1pyZF6-1783604466-Samsung.png",
+                                "name": "삼성( Samsung Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513139020-drzsyb",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/Jn1PYvVZwYuWI1zk-1783604474-KB-Kookmin.png",
+                                "name": "KB국민(KB Kookmin Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513144096-iwn3au",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/gDZsj4bb1ZVixn6u-1783604521-BPI_2.png",
+                                "name": "비씨(BC Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513145471-pt4ow3",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/jIxL0My6RCj6dm4d-1783604532-Hana.png",
+                                "name": "하나(Hana Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513150059-sykhcz",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/qcltX-VUXoaA-miK-1783604545-Woori-Card.png",
+                                "name": "우리(Woori Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513155127-7tf8oi",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/tMuM3JnXrzTItxYP-1783604555-NH-Investment.png",
+                                "name": "NH농협(NH Nonghyup Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513161498-ioacgz",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/0D7_AaBcVJFLglAZ-1783604562-Lotte.png",
+                                "name": "롯데(Lotte Card)"
+                            },
+                            {
+                                "id": "play-enum-1783513165874-bwtugt",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/imnH2zkLGchlYW9B-1783513312-20250910-161221.png",
+                                "name": "MOMO"
+                            },
+                            {
+                                "id": "play-enum-1783513906705-b2kudv",
+                                "icon": "https://prod-apac-r2.popmart.com/uploads/LxUWMezCxGisO4PRo7MkdNwmGOocvlYI/IlKIRcepdBkyNRAO-1783513932-paypal.png",
+                                "name": "PAYPAL"
+                            },
+                            {
+                                "id": "play-enum-1783513175587-oe21hz",
+                                "icon": "",
+                                "name": "APPLEPAY"
+                            },
+                            {
+                                "id": "play-enum-1783513183270-w34n05",
+                                "icon": "",
+                                "name": "GOOGLEPAY"
+                            }
+                        ]
+                    },
+                    "createdAt": "2026-07-08T12:15:04.919Z",
+                    "updatedAt": "2026-07-09T13:43:47.760Z",
+                    "seo_meta": {
+                        "areas": [],
+                        "langs": [
+                            "en-us"
+                        ]
+                    }
+                },
+                {
+                    "id": "f932c629-ea00-4cd0-bb88-46c2e54da8e6",
+                    "parentId": "87cd5fb6-a02b-4e10-94dd-d0f4a0bad4cf",
+                    "alias": null,
+                    "title_trans": {
+                        "en-us": "POP MART Launches First Permanent POP BAKERY Store in Aranya"
+                    },
+                    "description_trans": {
+                        "en-us": "New shop by the sea brings beloved IP characters to life with artisanal desserts."
+                    },
+                    "icon": null,
+                    "note": "POP MART Launches First Permanent POP BAKERY Store",
+                    "url": null,
+                    "resources": [],
+                    "group": null,
+                    "enabled": true,
+                    "areas": [
+                        "AU",
+                        "ID",
+                        "JP",
+                        "KR",
+                        "MY",
+                        "NZ",
+                        "PH",
+                        "SG",
+                        "TH",
+                        "VN"
+                    ],
+                    "platform": "all",
+                    "order": 0,
+                    "startDate": null,
+                    "endDate": null,
+                    "publishedAt": null,
+                    "type": "default",
+                    "data": {
+                        "content": {
+                            "id": "",
+                            "ja": "",
+                            "ko": "",
+                            "ms": "",
+                            "th": "",
+                            "vi": "",
+                            "en-us": "<p>BEIJING, June 19, 2026 — POP MART (09992.HK) today opened its first permanent POP BAKERY store at Aranya, the popular vacation resort in Hebei province, northern China, marking a new chapter for the brand's dessert venture.</p><p><img src=\"https://popmart-oa.feishu.cn/space/api/box/stream/download/asynccode/?code=NmUwMWJkMWUxY2YwMWQ5MWZiMjliMGMyNGJmOWFjYjlfOGU1UnZUcEJBS0RYYnpxdEZTYmpIVzlnRDlXR1FvRnRfVG9rZW46RXhoTWJ2akpUb1JmS0h4bXEyRmNXaVVtbkpmXzE3OTI0NjA0Nzc6MTc5MjQ2NDA3N19WNA&add_watermark=true&scene_type=CCM\" alt=\"\" data-href=\"\" style=\"\"/></p><p>Founder and CEO of POP MART, Wang Ning, will unveil the seaside store with Ma Yin, founder and CEO of Aranya, in front of the mega TWINKLE TWINKLE statue on the beachfront. </p><p>POP BAKERY offers sweets and beverages inspired by POP MART's iconic characters. The signature bakery lineup includes CRYBABY, TWINKLE TWINKLE and SKULLPANDA ice cream, DIMOO and LABUBU butter cookies and cakes, and MOLLY chocolate—offering fans a delicious new way to experience their favorite IP characters. The soft opening on Wednesday had already welcomed hundreds of visitors before the Dragon Boat Festival holiday weekend. </p><p><img src=\"https://popmart-oa.feishu.cn/space/api/box/stream/download/asynccode/?code=YzI0YzE4NzQ2NmViMjk3ODY4Y2Q2NDk0NTc1NThhNTZfU1FRUlN3TWxjWUp6RnRHanVRMWlIQ085YXFybktYSWRfVG9rZW46VU1NU2JnaFd4b1RVbml4NTdTVGNVeGtlbmNmXzE3OTI0NjA0ODY6MTc5MjQ2NDA4Nl9WNA&add_watermark=true&scene_type=CCM\" alt=\"\" data-href=\"\" style=\"\"/></p><p>POP BAKERY first became popular as part of POP LAND's attractions in Beijing in 2024. Since then, &nbsp;POP BAKERY pop-up shops have served fans in 21 locations across China, including Qingdao, Chengdu, Nanjing, Xi'an, Shenzhen, Wuhan, Chongqing, and more. </p><p><strong>Aranya Store Highlights</strong></p><p>• Location: Phase 6 Cultural & Creative District, North Station East</p><p>• Hours: 10:00 AM – 10:00 PM</p><p>• Specials: TWINKLE TWINKLE Tea Party, an afternoon tea set (limited to 70 daily reservations) and limited-edition Dragon Boat Festival SKULLPANDA gift boxes.</p><p>POP BAKERY joins POP MART's growing lifestyle ecosystem alongside the POP LAND theme park, bringing joy to fans beyond the collectible shelf.</p>",
+                            "zh-hans": ""
+                        },
+                        "addToBanner": false,
+                        "bannerImage": {
+                            "pcUrl": "https://prod-apac-r2.popmart.com/uploads/S1fXPU1jQRwldHzOCgBqsVK9rtUGMXga/9xRgpDHhCe4hPsOz-1792460507-甜品店.JPEG",
+                            "mobUrl": "https://prod-apac-r2.popmart.com/uploads/S1fXPU1jQRwldHzOCgBqsVK9rtUGMXga/MVkK0WclI3VNsMXA-1792460513-甜品店.JPEG"
+                        }
+                    },
+                    "createdAt": "2026-10-20T01:42:21.074Z",
+                    "updatedAt": "2026-10-20T01:42:21.074Z",
+                    "seo_meta": {
+                        "areas": [
+                            "AU",
+                            "ID",
+                            "JP",
+                            "KR",
+                            "MY",
+                            "NZ",
+                            "PH",
+                            "SG",
+                            "TH",
+                            "VN"
+                        ],
+                        "langs": [
+                            "en-us",
+                            "en"
+                        ]
+                    }
+                }
+            ],
+            "total": 766,
+            "page": 1,
+            "pageSize": 10,
+            "totalPages": 77
+        },
+        "meta": [
+            [
+                1,
+                "items",
+                0,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                0,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                1,
+                "startDate"
+            ],
+            [
+                1,
+                "items",
+                1,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                1,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                2,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                2,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                3,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                3,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                4,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                4,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                5,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                5,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                6,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                6,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                7,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                7,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                8,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                8,
+                "updatedAt"
+            ],
+            [
+                1,
+                "items",
+                9,
+                "createdAt"
+            ],
+            [
+                1,
+                "items",
+                9,
+                "updatedAt"
+            ]
+        ]
+    }
+}

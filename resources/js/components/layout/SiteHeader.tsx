@@ -13,6 +13,8 @@ interface SiteHeaderProps {
     searchPlaceholder?: string;
     unreadAlerts?: number;
     pinnedCount?: number;
+    /** Replaces the plain account icon, e.g. AppLayout's log in / account menu. */
+    account?: ReactNode;
 }
 
 export function SiteHeader({
@@ -23,6 +25,7 @@ export function SiteHeader({
     searchPlaceholder = 'Search figures, themes…',
     unreadAlerts = 0,
     pinnedCount = 0,
+    account,
 }: SiteHeaderProps) {
     const [menuOpen, setMenuOpen] = useState(false);
     const autoLock = useAutoLockApi();
@@ -93,9 +96,11 @@ export function SiteHeader({
                     <HeaderIconLink href="/watchlist" label="Pinned" count={pinnedCount}>
                         <Pin aria-hidden="true" className="size-5" />
                     </HeaderIconLink>
-                    <a href="/account" aria-label="Account">
-                        <CircleUserRound aria-hidden="true" className="size-5" />
-                    </a>
+                    {account ?? (
+                        <a href="/account" aria-label="Account">
+                            <CircleUserRound aria-hidden="true" className="size-5" />
+                        </a>
+                    )}
                 </div>
             </div>
 

@@ -1,0 +1,393 @@
+{
+    "request": {
+        "ids": [
+            "85af6ee4-61b8-4ee8-8c36-791a9bef6ea6"
+        ]
+    },
+    "status": 200,
+    "response": {
+        "json": {
+            "spus": [
+                {
+                    "id": "85af6ee4-61b8-4ee8-8c36-791a9bef6ea6",
+                    "name_trans": {
+                        "id": "",
+                        "ja": "",
+                        "ko": "",
+                        "ms": "",
+                        "th": "",
+                        "vi": "",
+                        "en-us": " Bikini Bottom Buddies - Ghost Fish Series Plush Pendant",
+                        "zh-hans": "比奇堡的居民们-幽灵鱼系列毛绒挂件"
+                    },
+                    "subTitle_trans": [],
+                    "hotSubTitle_trans": [],
+                    "slugTitle": "-bikini-bottom-buddies-ghost-fish-series-plush-pendant",
+                    "categoryId": "291aaf1b-b7b6-4f73-8fc1-501c5a35d08e",
+                    "businessType": "shop",
+                    "type": "normal",
+                    "qualificationType": "none",
+                    "ipId": "1eebe075-9d65-4068-917c-7e10a690899a",
+                    "channel": "shop",
+                    "specProps": [],
+                    "userRoles": [],
+                    "price": 5580,
+                    "desc_trans": {
+                        "id": "",
+                        "ja": "",
+                        "ko": "",
+                        "ms": "",
+                        "th": "",
+                        "vi": "",
+                        "en-us": "Brand: POP MART\nAge: 15+\nProduct size: Height about 15cm\nMain material: Polyester / Acrylic / PP / Zinc Alloy;\nStuffing: Polyester Fibers / Rubber-coated Wire",
+                        "zh-hans": ""
+                    },
+                    "areaCodes": [
+                        "MY"
+                    ],
+                    "publish": true,
+                    "show": true,
+                    "showStartAt": null,
+                    "showEndAt": null,
+                    "saleStartAt": "2026-10-02T02:00:00.000Z",
+                    "saleEndAt": null,
+                    "expectedDeliveryTime": "",
+                    "tags": [
+                        "new"
+                    ],
+                    "customTags": [],
+                    "nonRefundable": false,
+                    "riskLevel": 0,
+                    "freightTemplateId": "8bbb1b1a-ab56-4eea-9ef4-bcf3ee2c22c0",
+                    "npcImages_trans": {
+                        "id": "",
+                        "ja": "",
+                        "ko": "",
+                        "ms": "",
+                        "th": "",
+                        "vi": "",
+                        "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/KiHjV5WyvXYdHyCx-1790234125-商城商品.jpg",
+                        "zh-hans": ""
+                    },
+                    "sceneImages_trans": [],
+                    "sort": 11691,
+                    "specType": "single",
+                    "spec": "",
+                    "sales": 85,
+                    "bannerImages": [
+                        {
+                            "type": "image",
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/16BgF6v563m87sr6-1790234142-1.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/StC66bJoeKGOgOw6-1790234142-2.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/dHffoz1czqChldID-1790234142-3.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/lEH4kx75qZ_JFIXh-1790234142-4.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        }
+                    ],
+                    "imageTexts": [
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/5-TKJMBf7TFYwU21-1790579050-官网-EN_01.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/jQeKkmypo7pSGlNY-1790579050-官网-EN_02.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/eM858r648M8na5pt-1790579050-官网-EN_03.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/ev2KML6faUCIhHLS-1790579050-官网-EN_04.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/M-R8j20BPMqFRHCS-1790579050-官网-EN_05.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/VPoLmABorPDEF48B-1790579050-官网-EN_06.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/CigtV2FUyfBNA8h_-1790579050-官网-EN_07.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/EWx8krlz1TnpKrsO-1790579050-官网-EN_08.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/WkUQXzpUMNrLKeV2-1790579050-官网-EN_09.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        },
+                        {
+                            "type": "image",
+                            "title_trans": [],
+                            "link_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/nDCB8hdAaUmJ7IXq-1790579050-官网-EN_10.jpg",
+                                "zh-hans": ""
+                            },
+                            "coverImage_trans": []
+                        }
+                    ],
+                    "url": [],
+                    "indexData": [],
+                    "areaSkuPrices": {
+                        "MY": [
+                            {
+                                "price": 5580,
+                                "skuId": "cf952aa2-6424-4957-ba65-1de9659dceb7",
+                                "currency": "MYR"
+                            }
+                        ]
+                    },
+                    "areaSkuPoints": [],
+                    "warehouse": "local",
+                    "seoTitle_trans": [],
+                    "seoDesc_trans": [],
+                    "seoOgTitle_trans": [],
+                    "seoOgDesc_trans": [],
+                    "drawSpuId": "",
+                    "extra": {
+                        "isBNPL": false
+                    },
+                    "createdAt": "2026-09-29T01:09:16.820Z",
+                    "updatedAt": "2026-10-23T05:35:55.538Z",
+                    "deletedAt": null,
+                    "npcImages": "",
+                    "skus": [
+                        {
+                            "id": "cf952aa2-6424-4957-ba65-1de9659dceb7",
+                            "spuId": "85af6ee4-61b8-4ee8-8c36-791a9bef6ea6",
+                            "name_trans": {
+                                "id": "",
+                                "ja": "",
+                                "ko": "",
+                                "ms": "",
+                                "th": "",
+                                "vi": "",
+                                "en-us": "1 Set",
+                                "zh-hans": ""
+                            },
+                            "skuCode": "P022606002001",
+                            "barCode": "6923886107059",
+                            "platform": "all",
+                            "weight": 100,
+                            "specCount": 1,
+                            "boxSpecCount": 1,
+                            "areaPrices": {
+                                "MY": {
+                                    "price": 5580,
+                                    "currency": "MYR"
+                                }
+                            },
+                            "areaPoints": [],
+                            "specParams": [],
+                            "mainImage": "https://prod-apac-r2.popmart.com/uploads/gBij0lOxdCxb8PK1A4UByZUdWvt0f2Vd/Qf_sqZO6cmnc2XxM-1790234187-1.jpg",
+                            "sort": 0,
+                            "boxType": "",
+                            "excludePromptCount": -1,
+                            "tmpStock": 0,
+                            "extra": [],
+                            "createdAt": "2026-09-29T01:09:16.820Z",
+                            "updatedAt": "2026-09-29T08:03:29.758Z",
+                            "deletedAt": null,
+                            "stock": 2
+                        }
+                    ]
+                }
+            ],
+            "buyRules": []
+        },
+        "meta": [
+            [
+                1,
+                "spus",
+                0,
+                "saleStartAt"
+            ],
+            [
+                1,
+                "spus",
+                0,
+                "createdAt"
+            ],
+            [
+                1,
+                "spus",
+                0,
+                "updatedAt"
+            ],
+            [
+                1,
+                "spus",
+                0,
+                "skus",
+                0,
+                "createdAt"
+            ],
+            [
+                1,
+                "spus",
+                0,
+                "skus",
+                0,
+                "updatedAt"
+            ]
+        ]
+    }
+}

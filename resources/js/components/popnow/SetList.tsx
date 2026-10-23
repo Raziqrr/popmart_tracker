@@ -1,6 +1,6 @@
 import { Crown, Lock } from 'lucide-react';
 import { formatTimeAgo } from '@/lib/format';
-import { boxCounts, setOdds } from '@/lib/popnow';
+import { boxCounts } from '@/lib/popnow';
 import type { PopNowBox, PopNowSet } from '@/types/popnow';
 
 interface SetListProps {
@@ -20,7 +20,7 @@ export function SetList({ sets, selectedId, onSelect, onLockSet }: SetListProps)
         <ul className="flex gap-2 overflow-x-auto pt-3 pb-1" aria-label="Sets">
             {sets.map(({ set, boxes }) => {
                 const counts = boxCounts(boxes);
-                const secretLeft = setOdds(set, boxes).figures.some((f) => f.sku.is_secret && !f.revealed);
+                const secretLeft = (set.product.skus ?? []).some((s) => s.is_secret && !boxes.some((b) => b.reveal?.sku.id === s.id));
                 const selected = set.id === selectedId;
 
                 return (
