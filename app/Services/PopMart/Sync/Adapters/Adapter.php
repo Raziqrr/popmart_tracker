@@ -118,10 +118,18 @@ abstract class Adapter
         if (is_numeric($value)) {
             $number = (int) $value;
 
-            return $number > 100_000_000_000 ? Carbon::createFromTimestampMs($number) : Carbon::createFromTimestamp($number);
+            $time = $number > 100_000_000_000 ? Carbon::createFromTimestampMs($number) : Carbon::createFromTimestamp($number);
+        } else {
+            $time = Carbon::parse($value);
         }
 
-        return Carbon::parse($value);
+        // MySQL TIMESTAMP columns overflow after 2038-01-19. Pop Mart uses '9998-12-31'
+        // or distant-future placeholders to denote indefinite/ongoing sales.
+        if ($time->year > 2037 || $time->year < 1970) {
+            return null;
+        }
+
+        return $time;
     }
 
     /** @return list<string> */
