@@ -19,9 +19,12 @@ export function SaleTypeBadge({
 }) {
     if (product.business_type !== 'draw') return null;
 
+    const isLab = typeof window !== 'undefined' && (window.location.pathname.includes('ui-lab') || window.location.hash.startsWith('#/'));
+    const href = isLab ? `#/page-pop-now?product=${product.id}` : `/pop-now?product=${product.id}`;
+
     return (
         <a
-            href={`#/page-pop-now?product=${product.id}`}
+            href={href}
             title="POP NOW: online blind-box draw — go to this draw"
             aria-label={iconOnly ? 'POP NOW: go to this draw' : undefined}
             className={`inline-flex shrink-0 items-center gap-1 bg-brand px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wider whitespace-nowrap text-white uppercase hover:bg-brand/85 ${className}`}

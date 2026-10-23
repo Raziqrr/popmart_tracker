@@ -148,7 +148,7 @@ class AutoLockController extends Controller
     }
 
     /** @return list<array<string, mixed>> AutoLockRule */
-    private function presentRules(EloquentCollection $rules): array
+    public function presentRules(EloquentCollection $rules): array
     {
         $cards = collect($this->cards->present(new EloquentCollection($rules->pluck('product')->filter()->unique('id')->values()->all())))->keyBy('id');
 
@@ -183,7 +183,7 @@ class AutoLockController extends Controller
     }
 
     /** @return list<array<string, mixed>> LockAttempt */
-    private function presentAttempts(EloquentCollection $attempts): array
+    public function presentAttempts(EloquentCollection $attempts): array
     {
         $products = Product::whereIn('id', $attempts->map(fn ($a) => $a->box?->set?->product_id)->filter()->unique())->get();
         $cards = collect($this->cards->present($products))->keyBy('id');

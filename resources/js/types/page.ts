@@ -2,6 +2,8 @@ import type { AuthState } from '@/lib/capabilities';
 import type { LuckyPoints } from './account';
 import type { AlertSettings } from './alerts';
 import type { AreaCode, CollectionSummary, ProductCardData, ProductEvent } from './catalog';
+import type { AutoLockRule, LockAccount, LockAttempt, PopNowLockLimits } from './lock';
+import type { PopNowBox, PopNowSet } from './popnow';
 
 /**
  * Inertia props. SYNC: App\Http\Middleware\HandleInertiaRequests (shared) and
@@ -39,4 +41,19 @@ export interface ProductListProps extends SharedProps {
 
 export interface AlertsPageProps extends SharedProps {
     settings: AlertSettings;
+}
+
+export interface PopNowPageProps extends SharedProps {
+    products: ProductCardData[];
+    selected_product_id: string;
+    sets: { set: PopNowSet; boxes: PopNowBox[] }[];
+}
+
+export interface AutoLockPageProps extends SharedProps {
+    products: ProductCardData[];
+    rules: AutoLockRule[];
+    attempts: LockAttempt[];
+    limits: PopNowLockLimits;
+    enabled_on_server: boolean;
+    account: LockAccount | null;
 }
