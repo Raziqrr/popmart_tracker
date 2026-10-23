@@ -23,6 +23,20 @@ enum JulesTier: string
         };
     }
 
+    public function monthlyLimit(?int $override = null): int
+    {
+        if ($override !== null && $override > 0) {
+            return $override;
+        }
+
+        return match ($this) {
+            self::Free => 450,
+            self::Pro => 3000,
+            self::Ultra => 9000,
+            self::Custom => 450,
+        };
+    }
+
     public function concurrencyLimit(?int $override = null): int
     {
         if ($override !== null && $override > 0) {

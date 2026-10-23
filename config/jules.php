@@ -27,6 +27,8 @@ return [
 
     'daily_limit' => env('JULES_DAILY_LIMIT') ? (int) env('JULES_DAILY_LIMIT') : null,
 
+    'monthly_limit' => env('JULES_MONTHLY_LIMIT') ? (int) env('JULES_MONTHLY_LIMIT') : null,
+
     'concurrency_limit' => env('JULES_CONCURRENCY_LIMIT') ? (int) env('JULES_CONCURRENCY_LIMIT') : null,
 
     /*
