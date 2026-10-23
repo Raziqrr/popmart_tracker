@@ -30,7 +30,7 @@ class JulesQueueManager
     /**
      * @return array<string, JulesTask>
      */
-    public function loadTasks(): array
+    public function loadTasks(bool $autoCleanup = true): array
     {
         if (! file_exists($this->storagePath)) {
             return [];
@@ -52,6 +52,10 @@ class JulesQueueManager
                 $task = JulesTask::fromArray($item);
                 $tasks[$task->id] = $task;
             }
+        }
+
+        if ($autoCleanup && $this->cleanupStaleTasksInternal($tasks) > 0) {
+            $this->saveTasks($tasks);
         }
 
         return $tasks;
@@ -313,7 +317,7 @@ class JulesQueueManager
 
     public function cleanupStaleTasks(?int $timeoutMinutes = null): int
     {
-        $tasks = $this->loadTasks();
+        $tasks = $this->loadTasks(autoCleanup: false);
         $cleaned = $this->cleanupStaleTasksInternal($tasks, $timeoutMinutes);
 
         if ($cleaned > 0) {
