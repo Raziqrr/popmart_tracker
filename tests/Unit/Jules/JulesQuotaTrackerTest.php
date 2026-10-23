@@ -105,3 +105,45 @@ test('quota tracker generates actionable maximization recommendations', function
     expect($recommendations)->not()->toBeEmpty()
         ->and($recommendations[0])->toContain('Available capacity');
 });
+
+test('quota tracker tracks rolling 30-day monthly usage and blocks dispatch when saturated', function () {
+    $now = Carbon::parse('2026-10-23 12:00:00');
+    $tracker = new JulesQuotaTracker(JulesTier::Free, monthlyLimitOverride: 5);
+
+    $tasks = [];
+    for ($i = 0; $i < 5; $i++) {
+        $tasks[] = new JulesTask(
+            id: "m{$i}",
+            prompt: 'monthly task',
+            status: JulesTask::STATUS_COMPLETED,
+            dispatchedAt: $now->copy()->subDays($i + 1)
+        );
+    }
+    // Task older than 30 days
+    $tasks[] = new JulesTask(
+        id: 'old_month',
+        prompt: 'expired month task',
+        status: JulesTask::STATUS_COMPLETED,
+        dispatchedAt: $now->copy()->subDays(35)
+    );
+
+    expect($tracker->getRolling30dUsage($tasks, $now))->toBe(5)
+        ->and($tracker->getRemainingMonthlyCapacity($tasks, $now))->toBe(0)
+        ->and($tracker->canDispatch($tasks, $now))->toBeFalse();
+});
+
+test('quota tracker ensures next available slot estimate is never in the past when concurrency is full', function () {
+    $now = Carbon::parse('2026-10-23 12:00:00');
+    $tracker = new JulesQuotaTracker(JulesTier::Free); // Concurrency = 3
+
+    // 3 active tasks running for 30 minutes (past typical 15 min estimate)
+    $tasks = [
+        new JulesTask(id: 'a1', prompt: 't1', status: JulesTask::STATUS_DISPATCHED, dispatchedAt: $now->copy()->subMinutes(30)),
+        new JulesTask(id: 'a2', prompt: 't2', status: JulesTask::STATUS_RUNNING, dispatchedAt: $now->copy()->subMinutes(25)),
+        new JulesTask(id: 'a3', prompt: 't3', status: JulesTask::STATUS_DISPATCHED, dispatchedAt: $now->copy()->subMinutes(20)),
+    ];
+
+    $estimate = $tracker->getNextSlotAvailableEstimate($tasks, $now);
+    expect($estimate)->not()->toBeNull()
+        ->and($estimate->gt($now))->toBeTrue();
+});

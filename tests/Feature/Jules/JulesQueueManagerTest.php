@@ -169,3 +169,69 @@ test('cleanupStaleTasks marks timed out tasks as timed_out to free slots', funct
     expect($updated->status)->toBe(JulesTask::STATUS_TIMED_OUT)
         ->and($manager->activeTasks())->toHaveCount(0);
 });
+
+test('evaluateAndDispatch with autoDispatch false leaves task queued until markDispatched', function () {
+    $manager = new JulesQueueManager(
+        quotaTracker: new JulesQuotaTracker(JulesTier::Free),
+        storagePath: julesTestStoragePath()
+    );
+
+    $result = $manager->evaluateAndDispatch('Test reserve only', autoDispatch: false);
+
+    expect($result['can_dispatch'])->toBeTrue()
+        ->and($result['task_id'])->not()->toBeNull()
+        ->and($manager->activeTasks())->toHaveCount(0)
+        ->and($manager->queuedTasks())->toHaveCount(1);
+
+    $manager->markDispatched($result['task_id']);
+    expect($manager->activeTasks())->toHaveCount(1)
+        ->and($manager->queuedTasks())->toHaveCount(0);
+});
+
+test('loadTasks automatically reconciles stale tasks on load', function () {
+    $manager = new JulesQueueManager(
+        quotaTracker: new JulesQuotaTracker(JulesTier::Free),
+        storagePath: julesTestStoragePath(),
+        taskTimeoutMinutes: 30
+    );
+
+    $t = $manager->enqueue('Task to stall');
+    $manager->markDispatched($t->id);
+
+    // Manipulate file directly to set dispatched_at to 60 minutes ago
+    $tasks = $manager->loadTasks();
+    $tasks[$t->id]->dispatchedAt = Carbon::now()->subMinutes(60);
+    $manager->saveTasks($tasks);
+
+    // Instantiate a fresh manager to test loadTasks auto-reconciliation
+    $freshManager = new JulesQueueManager(
+        quotaTracker: new JulesQuotaTracker(JulesTier::Free),
+        storagePath: julesTestStoragePath(),
+        taskTimeoutMinutes: 30
+    );
+
+    $loaded = $freshManager->loadTasks();
+    expect($loaded[$t->id]->status)->toBe(JulesTask::STATUS_TIMED_OUT)
+        ->and($freshManager->activeTasks())->toHaveCount(0);
+});
+
+test('clear retains queued tasks by default and clears all when includeQueued is true', function () {
+    $manager = new JulesQueueManager(
+        quotaTracker: new JulesQuotaTracker(JulesTier::Free),
+        storagePath: julesTestStoragePath()
+    );
+
+    $q = $manager->enqueue('Queued task');
+    $d = $manager->enqueue('Completed task');
+    $manager->markDispatched($d->id);
+    $manager->markCompleted($d->id);
+
+    // Default clear: keeps queued
+    $manager->clear(includeQueued: false);
+    expect($manager->loadTasks())->toHaveKey($q->id)
+        ->and($manager->loadTasks())->not()->toHaveKey($d->id);
+
+    // Clear all: wipes everything
+    $manager->clear(includeQueued: true);
+    expect($manager->loadTasks())->toBeEmpty();
+});
