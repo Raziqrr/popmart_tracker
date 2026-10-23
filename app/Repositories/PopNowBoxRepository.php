@@ -31,7 +31,7 @@ class PopNowBoxRepository
     // cross-box (set-wide) prediction, not just a single box in isolation.
     public function boxesForSet(PopNowSet $set): EloquentCollection
     {
-        return $set->boxes()->with('hints', 'reveals')->get();
+        return $set->boxes()->with('hints', 'reveals.sku')->get();
     }
 
     // Every set recorded for a product — the unit a product-wide ranking
@@ -52,6 +52,11 @@ class PopNowBoxRepository
     // (via a real purchase/unbox) — null if still unrevealed.
     public function confirmedSku(PopNowBox $box): ?Sku
     {
+        // Reuse eager-loaded reveals (see boxesForSet) instead of two queries per box.
+        if ($box->relationLoaded('reveals')) {
+            return $box->reveals->first()?->sku;
+        }
+
         $skuId = $box->reveals()->value('sku_id');
 
         return $skuId ? Sku::find($skuId) : null;

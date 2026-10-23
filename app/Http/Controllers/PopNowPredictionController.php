@@ -7,7 +7,9 @@ use App\Models\PopNowSet;
 use App\Models\Product;
 use App\Models\Sku;
 use App\Repositories\PopNowBoxRepository;
+use App\Services\PopMart\Sync\PopNowSync;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PopNowPredictionController extends Controller
 {
@@ -18,6 +20,7 @@ class PopNowPredictionController extends Controller
 
     public function forSet(PopNowSet $popNowSet)
     {
+        PopNowSync::markViewed($popNowSet->product_id);
         $results = $this->predictor->predictSet($popNowSet);
 
         $predictions = $results->map(function ($prediction) {
@@ -39,7 +42,7 @@ class PopNowPredictionController extends Controller
         })->values();
 
         return response()->json([
-            'set_predictability' => round($results->avg(fn ($p) => $p->predictability()), 4),
+            'set_predictability' => round($results->avg(fn ($p) => $p->predictability()) ?? 0.0, 4),
             'predictions' => $predictions,
         ]);
     }
@@ -50,7 +53,14 @@ class PopNowPredictionController extends Controller
     // (which box is the best bet if you specifically want that character).
     public function forProduct(Product $product, Request $request)
     {
-        $sku = $request->filled('sku_id') ? Sku::find($request->query('sku_id')) : null;
+        $validated = $request->validate([
+            'sku_id' => ['nullable', 'string', Rule::exists('skus', 'id')->where('product_id', $product->id)],
+        ], [
+            'sku_id.exists' => 'That figure is not part of this product.',
+        ]);
+
+        $sku = isset($validated['sku_id']) ? Sku::find($validated['sku_id']) : null;
+        PopNowSync::markViewed($product->id);
 
         $sets = $this->boxes->setsForProduct($product->id);
 

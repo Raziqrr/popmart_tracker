@@ -1,4 +1,7 @@
 import { CalendarClock, Flame, PackageCheck } from 'lucide-react';
+import { useState } from 'react';
+import { AlertSettingsForm } from '@/components/alerts/AlertSettingsForm';
+import { AlertsInbox } from '@/components/alerts/AlertsInbox';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { CollectionStatus } from '@/components/dashboard/CollectionStatus';
 import { FastSellers } from '@/components/dashboard/FastSellers';
@@ -6,7 +9,19 @@ import { LuckyPointsTile } from '@/components/dashboard/LuckyPointsTile';
 import { NewListings } from '@/components/dashboard/NewListings';
 import { StatRow } from '@/components/dashboard/StatRow';
 import { UpcomingDrops } from '@/components/dashboard/UpcomingDrops';
-import { fakeRedeem, fakeRedeemFailure, sampleLuckyPoints, sampleLuckyPointsStates } from '../fixtures/account';
+import { ApiErrorNotice } from '@/components/feedback/ApiErrorNotice';
+import { AuthProvider } from '@/lib/capabilities';
+import {
+    fakeClaimFailure,
+    fakeClaimTasks,
+    fakeRedeem,
+    fakeRedeemFailure,
+    sampleApiErrors,
+    sampleAuthStates,
+    sampleLuckyPoints,
+    sampleLuckyPointsStates,
+} from '../fixtures/account';
+import { fakeSaveAlertSettings, sampleAlerts, sampleAlertSettings } from '../fixtures/alerts';
 import { sampleCollections } from '../fixtures/collections';
 import { sampleEvents } from '../fixtures/events';
 import { samplePinnedIds, sampleProducts, sampleWatchedIds } from '../fixtures/products';
@@ -15,6 +30,9 @@ import { LabHeader, Specimen, SpecimenGrid } from '../Specimen';
 
 export function DashboardLab() {
     const actions = useProductActions(samplePinnedIds, sampleWatchedIds);
+    const [alerts, setAlerts] = useState(sampleAlerts);
+    const markRead = (ids?: string[]) =>
+        setAlerts((all) => all.map((a) => (!ids || ids.includes(a.id) ? { ...a, read_at: a.read_at ?? new Date().toISOString() } : a)));
 
     return (
         <div className="flex flex-col gap-12">
@@ -50,6 +68,62 @@ export function DashboardLab() {
                             <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeemFailure} />
                         </div>
                     </Specimen>
+                    <Specimen label="Claim daily tasks" note="Click Claim: 2 claimed, 1 refused by Pop Mart">
+                        <div className="border border-black/10">
+                            <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeem} onClaimTasks={fakeClaimTasks} />
+                        </div>
+                    </Specimen>
+                    {sampleApiErrors.map(({ label, note, error }) => (
+                        <Specimen key={label} label={`Claim fails: ${label}`} note={note}>
+                            <div className="border border-black/10">
+                                <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeem} onClaimTasks={fakeClaimFailure(error)} />
+                            </div>
+                        </Specimen>
+                    ))}
+                </SpecimenGrid>
+            </section>
+
+            <section className="flex flex-col gap-6">
+                <h2 className="text-lg font-bold">Access</h2>
+                <p className="text-xs text-black/60">
+                    Claim daily tasks needs a live Pop Mart session (claim_tasks in lib/capabilities.ts). Each tile gets a different /api/me through AuthProvider.
+                </p>
+                <SpecimenGrid>
+                    {sampleAuthStates.map(({ label, note, auth }) => (
+                        <Specimen key={label} label={label} note={note}>
+                            <AuthProvider value={auth}>
+                                <div className="border border-black/10">
+                                    <LuckyPointsTile points={sampleLuckyPoints} onRedeem={fakeRedeem} onClaimTasks={fakeClaimTasks} />
+                                </div>
+                            </AuthProvider>
+                        </Specimen>
+                    ))}
+                </SpecimenGrid>
+            </section>
+
+            <section className="flex flex-col gap-6">
+                <h2 className="text-lg font-bold">Alerts</h2>
+                <div className="grid gap-8 lg:grid-cols-2">
+                    <Specimen label="AlertsInbox" note="GET /api/alerts: single alerts and a digest (open it); click to mark read">
+                        <AlertsInbox alerts={alerts} unread={alerts.filter((a) => !a.read_at).length} onMarkRead={markRead} />
+                    </Specimen>
+                    <Specimen label="AlertsInbox: empty" note="No alerts yet">
+                        <AlertsInbox alerts={[]} unread={0} />
+                    </Specimen>
+                    <Specimen label="AlertSettingsForm" note="PUT /api/alert-settings; inbox always on, email / Telegram opt-in">
+                        <AlertSettingsForm value={sampleAlertSettings} onSave={fakeSaveAlertSettings} />
+                    </Specimen>
+                </div>
+            </section>
+
+            <section className="flex flex-col gap-6">
+                <h2 className="text-lg font-bold">API errors</h2>
+                <SpecimenGrid>
+                    {sampleApiErrors.map(({ label, note, error }) => (
+                        <Specimen key={label} label={label} note={note}>
+                            <ApiErrorNotice error={error} onRetry={() => {}} />
+                        </Specimen>
+                    ))}
                 </SpecimenGrid>
             </section>
 

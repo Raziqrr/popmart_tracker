@@ -8,7 +8,9 @@ class EndpointBuilder
 {
     public function __construct(protected string $client)
     {
-        if (! is_string(config("apis.{$client}.base_url"))) {
+        $baseUrl = app(ConfigBuilder::class)->get("apis.{$client}.base_url");
+
+        if (! is_string($baseUrl) || $baseUrl === '') {
             throw new InvalidArgumentException("No base_url configured for API client [{$client}].");
         }
     }
@@ -18,12 +20,14 @@ class EndpointBuilder
      */
     public function build(array $segments, array $query = []): string
     {
+        $baseUrl = (string) app(ConfigBuilder::class)->get("apis.{$this->client}.base_url");
+
         $path = collect($segments)
             ->filter(fn ($segment) => $segment !== '')
             ->map(fn ($segment) => trim($segment, '/'))
             ->implode('/');
 
-        $url = rtrim(config("apis.{$this->client}.base_url"), '/').'/'.$path;
+        $url = rtrim($baseUrl, '/').'/'.$path;
 
         return $query === [] ? $url : $url.'?'.http_build_query($query);
     }

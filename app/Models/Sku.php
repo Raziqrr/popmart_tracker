@@ -16,8 +16,15 @@ class Sku extends Model
 
     protected $fillable = [
         'id', 'product_id', 'name', 'sku_code', 'bar_code',
-        'box_type', 'price', 'currency', 'main_image',
+        'box_type', 'price', 'currency', 'main_image', 'last_checked_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'last_checked_at' => 'datetime',
+        ];
+    }
 
     public function product(): BelongsTo
     {

@@ -36,29 +36,32 @@ function isExtensionInstalled() {
 }
 ```
 
-**2. Trigger the connect flow and watch live status:**
+**2. Trigger the connect flow, then save the session:**
 
 ```js
-function connectPopmartAccount(onStatus) {
-  const port = chrome.runtime.connect(EXTENSION_ID);
-  port.onMessage.addListener((msg) => onStatus(msg.status, msg));
-  port.postMessage({ type: 'connect' });
+function capturePopmartSession(onStatus) {
+  return new Promise((resolve, reject) => {
+    const port = chrome.runtime.connect(EXTENSION_ID);
+    port.onMessage.addListener((msg) => {
+      onStatus(msg.status);
+      // 'checking_existing_session' -> 'opening_login' -> 'waiting_for_login' -> 'captured'
+      if (msg.status === 'captured') resolve({ cookie: msg.cookie, expires_at: msg.expires_at });
+      if (msg.status === 'timed_out') reject(new Error('Timed out waiting for the Pop Mart login.'));
+    });
+    port.postMessage({ type: 'connect' });
+  });
 }
 
-// Usage:
-connectPopmartAccount((status) => {
-  // 'opening_login' -> 'waiting_for_login' -> 'sending_to_server' -> 'connected'
-  // or 'timed_out' / 'error'
-  console.log(status);
-});
+// Usage, from a page where the user is logged in to Popmart Tracker:
+const session = await capturePopmartSession(console.log);
+await connectPopMart(session); // resources/js/lib/api.ts: POST /api/popmart-accounts/connect
 ```
 
-The extension itself POSTs the captured cookie straight to
-`POST /api/popmart-accounts/connect` (see `background.js`) — the website
-just watches the status stream to update its UI while waiting. That route
-is built (`PopmartAccountController::connect`) but currently stubs "current
-user" to the seeded Test User, since there's no real auth system yet — see
-the TODO in `PopmartAccountRepository::connect()`.
+The extension hands the captured cookie back to the page instead of posting
+it itself. The page's request carries the user's login session and CSRF
+token (`capability:connect_popmart`, see `app/Auth/Capability.php`), which a
+background script can't do cleanly. The extension only talks to pages on
+`api_base_url`'s origin, so no other site can ask it for the cookie.
 
 **3. Force a fresh login (clear Pop Mart's cookies):**
 
@@ -77,13 +80,5 @@ first, then log in, to guarantee a genuinely fresh session.
 
 ## Still to build (Laravel side)
 
-- Real user auth — `PopmartAccountController::connect` currently attaches
-  every captured session to the same stubbed Test User.
-- `PopmartAccountRepository::connect()` currently always inserts a new row
-  (rather than upserting) since we don't capture `popmart_member_id` yet —
-  fine for testing multiple accounts, but means nothing dedupes.
-- Since this endpoint is called from an extension background script (not a
-  page load), it'll need either a Sanctum token or a CSRF-exempt route
-  guarded some other way — plain session+CSRF auth won't work cleanly here.
 - Update `api_base_url`, `externally_connectable`, and `host_permissions`
   in `manifest.json` once there's a real deployed domain.

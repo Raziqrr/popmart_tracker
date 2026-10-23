@@ -1,6 +1,6 @@
 # Ticket: Fast-selling products (sell-rate logic)
 
-**Status:** open · **Area:** backend (scraper/snapshots) + dashboard · **Blocks:** "Selling fast" panel and "Fastest seller" stat
+**Status:** backend done (frontend wiring pending) · **Area:** backend (scraper/snapshots) + dashboard · **Blocks:** "Selling fast" panel and "Fastest seller" stat
 
 ## Why
 
@@ -30,8 +30,15 @@ Also expose `hours_to_sell_out = remain_stock / rate` (the UI currently computes
 
 ## Done when
 
-- [ ] Rate computed and stored/refreshed on a schedule
+- [x] Rate computed and stored/refreshed on a schedule (`popmart:sell-rates`, `App\Services\PopMart\Sync\SellRate`)
 - [ ] `sell_rate_per_hour` included in the dashboard/catalog payloads
-- [ ] Feature test with a snapshot sequence including a restock in the middle
+- [x] Test with a snapshot sequence including a restock in the middle (`tests/Feature/PopMartSyncTest.php`)
 - [ ] "estimate" badge and the info note removed from `FastSellers.tsx` / the stat tile
-- [ ] `types/catalog.ts` doc comment and `app/Models/README.md` sync table updated
+- [x] `types/catalog.ts` doc comment and `app/Models/README.md` sync table updated
+
+## Decisions taken
+
+- **Masked stock:** no rate (null). Only `has_stock` flips are known, so there's nothing to divide.
+- **Polling gaps:** stock snapshots are written only when stock changes, so the stock between two rows is exact; the window starts from the last row before it. Histories shorter than 30 minutes get no rate.
+- **Store vs online:** online stock only (`stock_snapshots` is per SKU).
+- **Where:** `popmart:sell-rates` every 10 minutes writes `products.sell_rate_per_hour`, `hours_to_sell_out` and `sell_rate_computed_at`. Pre-orders are skipped (their stock is a quota).

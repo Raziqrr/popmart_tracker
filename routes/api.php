@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\PopmartAccountController;
-use App\Http\Controllers\PopMartTaskController;
 use App\Http\Controllers\PopNowPredictionController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/popmart-accounts/connect', [PopmartAccountController::class, 'connect']);
-Route::post('/popmart-accounts/{popmartAccount}/claim-tasks', [PopMartTaskController::class, 'claim']);
+// Public, stateless reads: no login, no session. Anything tied to a user or a
+// Pop Mart account lives in routes/web.php under /api, where the login session
+// and CSRF protection apply.
 Route::get('/pop-now-sets/{popNowSet}/predictions', [PopNowPredictionController::class, 'forSet']);
 Route::get('/products/{product}/box-ranking', [PopNowPredictionController::class, 'forProduct']);

@@ -1,7 +1,7 @@
 /**
- * The user's Pop Mart lucky points, synced through their connected popmart_accounts row.
- * NOT IMPLEMENTED on the backend: there's no points column or sync/redeem job yet.
- * See docs/tickets/lucky-points.md. Field names are a proposal to settle in that ticket.
+ * The user's Pop Mart lucky points: GET /api/lucky-points (LuckyPointsController::present),
+ * from popmart_account_points. The sync is built but reads guessed Pop Mart fields, and
+ * redeeming answers not_available until the redeem call is mapped (docs/tickets/lucky-points.md).
  */
 export interface LuckyPoints {
     balance: number;
@@ -12,4 +12,14 @@ export interface LuckyPoints {
     synced_at: string;
     /** False when the linked Pop Mart session has expired (popmart_accounts.session_expires_at). */
     session_valid: boolean;
+}
+
+/** One daily task from POST /api/popmart-accounts/{id}/claim-tasks (App\Services\PopMartTaskClaimer). */
+export interface TaskClaimResult {
+    alias: string;
+    status: 'claimed' | 'failed' | 'not_eligible' | 'skipped_excluded';
+    /** Pop Mart's reward payload when claimed; shape not pinned down yet. */
+    reward?: unknown;
+    /** Why Pop Mart refused it, when status is 'failed'. */
+    message?: string;
 }

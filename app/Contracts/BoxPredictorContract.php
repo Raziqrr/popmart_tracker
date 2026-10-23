@@ -17,4 +17,8 @@ interface BoxPredictorContract
     // cross-box elimination narrows further than any box could alone.
     // Returns a Collection<int, BoxPrediction> keyed by box id.
     public function predictSet(PopNowSet $set): Collection;
+
+    // predictSet() over boxes already loaded by the caller (hints and
+    // reveals.sku), e.g. with untrusted hints filtered out.
+    public function predictBoxes(PopNowSet $set, Collection $boxes): Collection;
 }

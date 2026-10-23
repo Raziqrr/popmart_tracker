@@ -1,6 +1,6 @@
 # Ticket: POP NOW auto-lock
 
-**Status:** open · **Area:** backend (rules, queue worker, Pop Mart client) + UI (built in the lab) · **Needs a decision first:** see Risks
+**Status:** backend built, switched off by default (ToS undecided) · **Area:** backend (rules, queue worker, Pop Mart client) + UI (built in the lab) · **Needs a decision first:** see Risks
 
 ## Why
 
@@ -222,11 +222,23 @@ API calls that act on a Pop Mart account (locking, renewing, claiming tasks, any
 
 - [ ] Decision recorded on the ToS and fairness risks
 - [x] Which draw call locks confirmed against real traffic (`EnterBox`, 2026-09-29)
-- [ ] Decision on auto-renew (drop, or re-lock after lapse)
-- [ ] Migrations and models for the three tables, plus policies (users only see their own rules)
+- [x] Decision on auto-renew: **dropped** (2026-10-03). A held box's timer can't be reset, and re-locking after a lapse hands the box to whoever is faster. No renew columns; the API rejects `renew`. The lab's renew controls can go
+- [x] Migrations and models for the three tables; the API only ever returns or changes the user's own rules
 - [ ] Trigger → queued lock job → attempt row → alert, with feature tests for:
   - each trigger;
   - each target kind (including Ranked fallback order);
   - failure paths: box taken, session expired, Pop Mart error, throttled.
-- [ ] Expiry / purchase reconciliation job
+- [ ] Expiry / purchase reconciliation job (expiry built in `popnow:auto-lock`; purchase needs the order sync)
 - [ ] `types/lock.ts` confirmed (drop the "proposal" note) and added to the `app/Models/README.md` sync table
+
+## What's built (2026-10-03)
+
+**Kill switch.** `POPMART_AUTOLOCK_ENABLED` (config `apis.popmart.auto_lock_enabled`) is **off by default**. Rules can be saved and evaluated, but no job touches Pop Mart until it's on. The ToS and fairness decision above is still open; switch it on only after that.
+
+- **Tables:** `auto_lock_rules`, `auto_lock_rule_picks`, `auto_lock_attempts` (attempts double as the audit log), plus the `user_checkouts.auto_lock_rule_id` foreign key.
+- **API** (capability `auto_lock`, so a live Pop Mart session): `GET/POST /api/auto-lock`, `PATCH/DELETE /api/auto-lock/{rule}`. Validation: draws only, picks must be the draw's figures, chance triggers need picks and can't target a secret, `min_chance` for `chance_reached`, hold time up to 300 s, the risk acknowledgement ticked.
+- **Triggers** (`popnow:auto-lock`, every minute, `AutoLockTriggers`): `sale_opens` from `sale_started` events or `sale_start_at` passing, `restock` from `restocked` events, `chance_reached` / `narrowed` re-checked every run. Each due rule is queued as `RunAutoLockRule`.
+- **A run** (`AutoLockRunner`): plans from our database (freshest set seen in the last 10 minutes, chances with only the exclusions the rule trusts, `LockPlanner` picks the boxes), writes one attempt per box keyed `(rule, box, event)` so retries never double-lock, sends one `EnterBox`, confirms each box with `CheckSetBoxLock` (`isLockedByMe` when present), optionally `CheckoutValidate` into a `user_checkouts` row, counts progress, switches the rule off when done, and notifies the user (`AutoLockResult`). It never calls `AssignSet` with the user's session.
+- **Expiry:** held attempts past `lock_expires_at` become `expired` every minute.
+
+**Still to do:** wire the lab's auto-lock pages to the API (`fetchAutoLock`, `createAutoLockRule`… in `lib/api.ts`), purchase reconciliation once orders are synced, and confirm `CheckSetBoxLock`'s `isLockedByMe` against a real response.
