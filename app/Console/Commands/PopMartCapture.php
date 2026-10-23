@@ -9,6 +9,7 @@ use App\Services\Api\PopMart\PopMartException;
 use App\Services\Api\RequiresAuthentication;
 use App\Services\Locator\Country;
 use App\Services\PopMart\PayloadInspector;
+use App\Services\PopMart\Sync\Adapters\LuckyPointsAdapter;
 use App\Services\PopMart\Sync\Adapters\PopNowSetAdapter;
 use App\Services\PopMart\Sync\Adapters\SkuStockAdapter;
 use App\Services\PopMart\Sync\Adapters\SpuAdapter;
@@ -105,6 +106,7 @@ class PopMartCapture extends Command
             'CheckSkuStock' => fn () => SkuStockAdapter::map($json),
             'AssignSet' => fn () => PopNowSetAdapter::mapSet($json ?? []),
             'CheckSetBoxLock' => fn () => PopNowSetAdapter::mapLock($json ?? []),
+            'GetTasksByActivityAndChannel' => fn () => LuckyPointsAdapter::map($json ?? []),
             default => null,
         };
 
