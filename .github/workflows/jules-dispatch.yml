@@ -1,0 +1,178 @@
+name: Google Jules Task Orchestrator
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Task instructions for Google Jules'
+        required: true
+        type: string
+      issue_number:
+        description: 'Linked GitHub Issue Number'
+        required: false
+        type: string
+      branch:
+        description: 'Target starting branch'
+        required: false
+        default: 'main'
+        type: string
+      priority:
+        description: 'Task priority'
+        required: false
+        default: 'normal'
+        type: choice
+        options:
+          - urgent
+          - high
+          - normal
+          - low
+  schedule:
+    # Process queued tasks every 15 minutes to maximize quota usage
+    - cron: '*/15 * * * *'
+
+concurrency:
+  group: jules-orchestrator
+  cancel-in-progress: false
+
+jobs:
+  orchestrate:
+    name: Orchestrate & Dispatch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    # Run if:
+    # 1. workflow_dispatch
+    # 2. schedule
+    # 3. issue labeled with 'jules'
+    # 4. issue opened with 'jules' label or '[Jules]' in title
+    # 5. comment on issue starting with '/jules run'
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'issues' && (contains(github.event.issue.labels.*.name, 'jules') || startsWith(github.event.issue.title, '[Jules]'))) ||
+      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/jules run'))
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_mysql, pdo_sqlite, curl, zip, fileinfo
+          coverage: none
+
+      - name: Prepare Environment
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+          fi
+          composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Determine Task Parameters
+        id: task_params
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "PROMPT<<EOF" >> $GITHUB_OUTPUT
+            echo "${{ github.event.inputs.prompt }}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "ISSUE_NUM=${{ github.event.inputs.issue_number }}" >> $GITHUB_OUTPUT
+            echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+            echo "PRIORITY=${{ github.event.inputs.priority }}" >> $GITHUB_OUTPUT
+            echo "IS_SCHEDULE=false" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "IS_SCHEDULE=true" >> $GITHUB_OUTPUT
+            echo "BRANCH=main" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "issues" ]; then
+            echo "PROMPT<<EOF" >> $GITHUB_OUTPUT
+            echo "Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+            echo ""
+            echo "${{ github.event.issue.body }}"
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "ISSUE_NUM=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+            echo "BRANCH=main" >> $GITHUB_OUTPUT
+            echo "PRIORITY=normal" >> $GITHUB_OUTPUT
+            echo "IS_SCHEDULE=false" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "issue_comment" ]; then
+            echo "PROMPT<<EOF" >> $GITHUB_OUTPUT
+            echo "Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+            echo ""
+            echo "${{ github.event.issue.body }}"
+            echo ""
+            echo "Additional Comment Context: ${{ github.event.comment.body }}"
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "ISSUE_NUM=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+            echo "BRANCH=main" >> $GITHUB_OUTPUT
+            echo "PRIORITY=high" >> $GITHUB_OUTPUT
+            echo "IS_SCHEDULE=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check Quota & Evaluate Queue
+        id: queue_check
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+          TASK_PROMPT: ${{ steps.task_params.outputs.PROMPT }}
+          ISSUE_NUM: ${{ steps.task_params.outputs.ISSUE_NUM }}
+          BRANCH: ${{ steps.task_params.outputs.BRANCH }}
+          PRIORITY: ${{ steps.task_params.outputs.PRIORITY }}
+          IS_SCHEDULE: ${{ steps.task_params.outputs.IS_SCHEDULE }}
+        shell: bash
+        run: |
+          php scripts/jules-queue.php evaluate \
+            --prompt="$TASK_PROMPT" \
+            --issue="$ISSUE_NUM" \
+            --branch="$BRANCH" \
+            --priority="$PRIORITY" \
+            --is-schedule="$IS_SCHEDULE" > queue_output.json
+          
+          cat queue_output.json
+          CAN_DISPATCH=$(php -r '$data = json_decode(file_get_contents("queue_output.json"), true); echo ($data["can_dispatch"] ?? false) ? "true" : "false";')
+          DISPATCH_PROMPT=$(php -r '$data = json_decode(file_get_contents("queue_output.json"), true); echo $data["dispatch_prompt"] ?? "";')
+          TASK_ID=$(php -r '$data = json_decode(file_get_contents("queue_output.json"), true); echo $data["task_id"] ?? "";')
+          
+          echo "can_dispatch=$CAN_DISPATCH" >> $GITHUB_OUTPUT
+          echo "task_id=$TASK_ID" >> $GITHUB_OUTPUT
+          echo "dispatch_prompt<<EOF" >> $GITHUB_OUTPUT
+          echo "$DISPATCH_PROMPT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Dispatch to Google Jules
+        if: steps.queue_check.outputs.can_dispatch == 'true' && env.JULES_API_KEY != ''
+        uses: google-labs-code/jules-invoke@v1
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+        with:
+          prompt: ${{ steps.queue_check.outputs.dispatch_prompt }}
+          jules_api_key: ${{ secrets.JULES_API_KEY }}
+          starting_branch: ${{ steps.task_params.outputs.BRANCH || 'main' }}
+          include_last_commit: true
+
+      - name: Record Dispatch / Queue Status
+        env:
+          TASK_ID: ${{ steps.queue_check.outputs.task_id }}
+          CAN_DISPATCH: ${{ steps.queue_check.outputs.can_dispatch }}
+          ISSUE_NUM: ${{ steps.task_params.outputs.ISSUE_NUM }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          if [ "$CAN_DISPATCH" == "true" ]; then
+            php scripts/jules-queue.php mark-dispatched --task-id="$TASK_ID"
+            if [ -n "$ISSUE_NUM" ]; then
+              gh issue comment "$ISSUE_NUM" --body "🤖 **Google Jules** task has been dispatched (Task ID: \`$TASK_ID\`). Jules is now analyzing the issue in an isolated container and will open a pull request upon test verification." || true
+            fi
+          else
+            if [ -n "$ISSUE_NUM" ]; then
+              gh issue comment "$ISSUE_NUM" --body "⏳ **Google Jules Queue Notice**: Concurrency or daily quota limit reached. Task \`$TASK_ID\` has been queued. The automated queue processor will dispatch it as soon as a slot opens." || true
+            fi
+          fi

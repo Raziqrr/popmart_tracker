@@ -1,0 +1,101 @@
+name: "Google Jules Autonomous Task"
+description: "Dispatch an automated feature, bug fix, or refactoring task to Google Jules AI agent"
+title: "[Jules]: "
+labels: ["jules", "automated-task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Google Jules Task Dispatch Form
+        This issue is structured for autonomous pickup by **Google Jules** via repository dispatch workflows.
+        Please provide clear, structured specifications so Jules can autonomously plan, implement, verify, and submit a clean PR.
+  - type: textarea
+    id: task-summary
+    attributes:
+      label: Task Objective & Description
+      description: What should Google Jules accomplish? Be specific about the desired behavior.
+      placeholder: "e.g. Implement LuckyPoints balance mapping and verify against live sample responses."
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Target Component / Subsystem
+      description: Select the primary subsystem affected by this change.
+      options:
+        - "Pop Mart API & Sync Adapters"
+        - "POP NOW AutoLock & Grids"
+        - "Database & Migrations (MariaDB)"
+        - "Alerts & Notifications"
+        - "Jules Queue & Quota Tooling"
+        - "Frontend (Inertia + React)"
+        - "General Bug Fix / Refactoring"
+    validations:
+      required: true
+  - type: textarea
+    id: affected-files
+    attributes:
+      label: Affected Files & Directories
+      description: List target files or directories that Jules should inspect or modify.
+      placeholder: |
+        - app/Services/PopMart/Sync/Adapters/
+        - tests/Feature/PopMartSyncTest.php
+    validations:
+      required: false
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Implementation Requirements
+      description: Detailed step-by-step instructions or architectural guidelines for Jules.
+      placeholder: |
+        1. Inspect sibling adapters in app/Services/PopMart/Sync/Adapters/
+        2. Implement map() method handling missing keys gracefully with need() or pick()
+        3. Add Pest test coverage
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Specific conditions that must be satisfied for the task to be considered complete.
+      placeholder: |
+        - [ ] All new logic is covered with Pest tests.
+        - [ ] Existing tests continue to pass without modification.
+        - [ ] Code passes `vendor/bin/pint --format agent`.
+        - [ ] Pull request is opened with conventional commit title.
+    validations:
+      required: true
+  - type: textarea
+    id: test-commands
+    attributes:
+      label: Verification Commands
+      description: Specific Pest test commands Jules must execute before opening a PR.
+      value: |
+        php artisan test --compact
+        vendor/bin/pint --format agent
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Queue Priority
+      description: Priority level for the task in the Jules queue (urgent, high, normal, low).
+      options:
+        - "normal"
+        - "high"
+        - "urgent"
+        - "low"
+    validations:
+      required: true
+  - type: checkboxes
+    id: guardrails
+    attributes:
+      label: Guardrails & Constraints
+      description: Mandatory checks Jules must acknowledge.
+      options:
+        - label: "Do not weaken, delete, or skip existing tests"
+          required: true
+        - label: "Adhere to PHP 8.5 strict typing and Pint formatting"
+          required: true
+        - label: "Ensure MariaDB 10.11 compatibility (no SQLite-only assumptions)"
+          required: true

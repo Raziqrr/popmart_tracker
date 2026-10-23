@@ -151,3 +151,4 @@ Schedule::command('popmart:dispatch-alerts')->everyMinute()->withoutOverlapping(
 Schedule::command('popmart:sell-rates')->everyTenMinutes()->withoutOverlapping();
 Schedule::command('popmart:sync-points')->everyThirtyMinutes()->withoutOverlapping();
 Schedule::command('popmart:prune-calls')->daily();
+Schedule::command('jules:queue dispatch')->everyFiveMinutes()->withoutOverlapping();

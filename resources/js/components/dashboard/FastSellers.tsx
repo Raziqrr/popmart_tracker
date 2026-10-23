@@ -1,4 +1,4 @@
-import { Flame, Info } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { LockToggle } from '@/components/lock/LockToggle';
 import { SaleTypeBadge } from '@/components/product/SaleTypeBadge';
 import { PinToggle } from '@/components/product/WatchToggle';
@@ -11,8 +11,7 @@ interface FastSellersProps extends Pick<ProductActions, 'pinnedIds' | 'onToggleP
 }
 
 /**
- * Products ranked by estimated sell rate (units/hour). The rate is a
- * placeholder until the velocity logic exists: docs/tickets/fast-selling-products.md.
+ * Products ranked by sell rate (units/hour), computed from stock snapshot drops.
  */
 export function FastSellers({ products, limit = 5, ...actions }: FastSellersProps) {
     const ranked = products
@@ -23,11 +22,6 @@ export function FastSellers({ products, limit = 5, ...actions }: FastSellersProp
 
     return (
         <div className="flex flex-col gap-3">
-            <p className="flex items-start gap-1.5 bg-tile px-2 py-1.5 text-[11px] text-black/60">
-                <Info aria-hidden="true" className="mt-px size-3.5 shrink-0" />
-                Estimated from stock drops between checks. Needs backend logic before it's accurate.
-            </p>
-
             {ranked.length === 0 ? (
                 <p className="py-6 text-center text-sm text-black/50">Nothing selling fast right now.</p>
             ) : (
