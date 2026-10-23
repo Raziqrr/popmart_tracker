@@ -5,7 +5,9 @@ name: CI
 # then the frontend typecheck and build.
 on:
   push:
+    branches: [ main, audit-fixes ]
   pull_request:
+    branches: [ main ]
 
 concurrency:
   group: ci-${{ github.ref }}
