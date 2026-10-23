@@ -10,6 +10,7 @@ class JulesQueueCommand extends Command
 {
     protected $signature = 'jules:queue
         {action=list : Action to perform: list, add, dispatch, complete, fail, cleanup, clear}
+        {task? : Target Task ID (optional argument for complete, fail)}
         {--prompt= : Task instructions for Jules (for action=add)}
         {--issue= : GitHub issue number}
         {--branch=main : Target git branch}
@@ -17,6 +18,7 @@ class JulesQueueCommand extends Command
         {--task-id= : Target Task ID (for complete, fail)}
         {--error= : Failure error reason (for fail)}
         {--batch=0 : Max batch size to dispatch (0 = dispatch up to available slots)}
+        {--all : Clear all tasks including active and queued (for clear)}
         {--json : Format output as JSON}';
 
     protected $description = 'Manage Google Jules task queue, dispatch queued jobs, and track task state';
@@ -169,9 +171,9 @@ class JulesQueueCommand extends Command
 
     private function handleComplete(JulesQueueManager $queueManager): int
     {
-        $taskId = $this->option('task-id');
+        $taskId = $this->option('task-id') ?: $this->argument('task');
         if (empty($taskId)) {
-            $this->error('Please specify --task-id to mark as complete.');
+            $this->error('Please specify a task ID (e.g. jules:queue complete jules-task-123 or --task-id=...) to mark as complete.');
 
             return self::FAILURE;
         }
@@ -189,9 +191,9 @@ class JulesQueueCommand extends Command
 
     private function handleFail(JulesQueueManager $queueManager): int
     {
-        $taskId = $this->option('task-id');
+        $taskId = $this->option('task-id') ?: $this->argument('task');
         if (empty($taskId)) {
-            $this->error('Please specify --task-id to mark as failed.');
+            $this->error('Please specify a task ID (e.g. jules:queue fail jules-task-123 or --task-id=...) to mark as failed.');
 
             return self::FAILURE;
         }
@@ -218,8 +220,9 @@ class JulesQueueCommand extends Command
 
     private function handleClear(JulesQueueManager $queueManager): int
     {
-        $queueManager->clear(includeQueued: false);
-        $this->info('Cleared completed and failed tasks from state history.');
+        $all = (bool) $this->option('all');
+        $queueManager->clear(includeQueued: $all);
+        $this->info($all ? 'Cleared all tasks from queue state.' : 'Cleared completed and failed tasks from state history.');
 
         return self::SUCCESS;
     }

@@ -18,9 +18,10 @@ class JulesQueueManager
     ) {
         $tier = JulesTier::fromString(function_exists('config') ? config('jules.tier', 'free') : 'free');
         $dailyLimit = function_exists('config') ? config('jules.daily_limit') : null;
+        $monthlyLimit = function_exists('config') ? config('jules.monthly_limit') : null;
         $concurrencyLimit = function_exists('config') ? config('jules.concurrency_limit') : null;
 
-        $this->quotaTracker = $quotaTracker ?? new JulesQuotaTracker($tier, $dailyLimit, $concurrencyLimit);
+        $this->quotaTracker = $quotaTracker ?? new JulesQuotaTracker($tier, $dailyLimit, $concurrencyLimit, $monthlyLimit);
         $defaultStorage = function_exists('storage_path') ? storage_path('app/jules/queue.json') : dirname(__DIR__, 2).'/storage/app/jules/queue.json';
         $this->storagePath = $storagePath ?? (function_exists('config') ? config('jules.storage_path') : null) ?? $defaultStorage;
         $this->taskTimeoutMinutes = $taskTimeoutMinutes ?: (int) (function_exists('config') ? config('jules.task_timeout_minutes', 60) : 60);
@@ -81,8 +82,16 @@ class JulesQueueManager
         }
 
         if (! @rename($tmpFile, $this->storagePath)) {
-            @unlink($tmpFile);
-            throw new RuntimeException("Failed to atomically replace queue file: {$this->storagePath}");
+            if (PHP_OS_FAMILY === 'Windows' && file_exists($this->storagePath)) {
+                @unlink($this->storagePath);
+                if (! @rename($tmpFile, $this->storagePath)) {
+                    @unlink($tmpFile);
+                    throw new RuntimeException("Failed to atomically replace queue file: {$this->storagePath}");
+                }
+            } else {
+                @unlink($tmpFile);
+                throw new RuntimeException("Failed to atomically replace queue file: {$this->storagePath}");
+            }
         }
     }
 
@@ -118,16 +127,18 @@ class JulesQueueManager
      *     can_dispatch: bool,
      *     task_id: ?string,
      *     dispatch_prompt: ?string,
+     *     branch: ?string,
+     *     issue_number: ?int,
+     *     priority: ?string,
      *     reason: string,
      *     metrics: array
      * }
      */
-    public function evaluateAndDispatch(?string $newPrompt = null, array $options = []): array
+    public function evaluateAndDispatch(?string $newPrompt = null, array $options = [], bool $autoDispatch = true): array
     {
         $tasks = $this->loadTasks();
         $this->cleanupStaleTasksInternal($tasks);
 
-        $isSchedule = ! empty($options['is_schedule']) && $options['is_schedule'] !== 'false';
         $now = Carbon::now();
 
         // If a new task was submitted
@@ -143,14 +154,21 @@ class JulesQueueManager
         $metrics = $this->quotaTracker->getMetrics(array_values($tasks), $now);
 
         if (! $canDispatch) {
-            $reason = $metrics['daily_remaining'] <= 0
-                ? "Daily quota exhausted ({$metrics['daily_used']}/{$metrics['daily_limit']} used in rolling 24h). Next slot opens at {$metrics['next_slot_available_at']}."
-                : "Concurrency limit reached ({$metrics['concurrency_active']}/{$metrics['concurrency_limit']} tasks active).";
+            if ($metrics['daily_remaining'] <= 0) {
+                $reason = "Daily quota exhausted ({$metrics['daily_used']}/{$metrics['daily_limit']} used in rolling 24h). Next slot opens at {$metrics['next_slot_available_at']}.";
+            } elseif ($metrics['monthly_remaining'] <= 0) {
+                $reason = "Monthly quota exhausted ({$metrics['monthly_used']}/{$metrics['monthly_limit']} used in rolling 30d). Next slot opens at {$metrics['next_slot_available_at']}.";
+            } else {
+                $reason = "Concurrency limit reached ({$metrics['concurrency_active']}/{$metrics['concurrency_limit']} tasks active).";
+            }
 
             return [
                 'can_dispatch' => false,
                 'task_id' => $task?->id,
                 'dispatch_prompt' => null,
+                'branch' => $task?->branch ?? ($options['branch'] ?? 'main'),
+                'issue_number' => $task?->issueNumber ?? (isset($options['issue_number']) && $options['issue_number'] !== '' ? (int) $options['issue_number'] : null),
+                'priority' => $task?->priority ?? ($options['priority'] ?? JulesTask::PRIORITY_NORMAL),
                 'reason' => $reason,
                 'metrics' => $metrics,
             ];
@@ -172,16 +190,20 @@ class JulesQueueManager
                 'can_dispatch' => false,
                 'task_id' => null,
                 'dispatch_prompt' => null,
+                'branch' => null,
+                'issue_number' => null,
+                'priority' => null,
                 'reason' => 'No pending tasks queued.',
                 'metrics' => $metrics,
             ];
         }
 
-        // Mark target task as dispatched
-        $targetTask->status = JulesTask::STATUS_DISPATCHED;
-        $targetTask->dispatchedAt = $now;
-        $tasks[$targetTask->id] = $targetTask;
-        $this->saveTasks($tasks);
+        if ($autoDispatch) {
+            $targetTask->status = JulesTask::STATUS_DISPATCHED;
+            $targetTask->dispatchedAt = $now;
+            $tasks[$targetTask->id] = $targetTask;
+            $this->saveTasks($tasks);
+        }
 
         $updatedMetrics = $this->quotaTracker->getMetrics(array_values($tasks), $now);
 
@@ -189,6 +211,9 @@ class JulesQueueManager
             'can_dispatch' => true,
             'task_id' => $targetTask->id,
             'dispatch_prompt' => $targetTask->prompt,
+            'branch' => $targetTask->branch,
+            'issue_number' => $targetTask->issueNumber,
+            'priority' => $targetTask->priority,
             'reason' => "Task dispatched under {$metrics['tier_label']}.",
             'metrics' => $updatedMetrics,
         ];
