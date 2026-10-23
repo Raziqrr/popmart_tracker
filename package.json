@@ -24,7 +24,7 @@
         "@laravel/multiplex": "^0.4.5"
     },
     "dependencies": {
-        "@inertiajs/react": "^3.7.1",
+        "@inertiajs/react": "^3.9.1",
         "lucide-react": "^1.60.0",
         "react": "^19.3.0",
         "react-dom": "^19.3.1"
