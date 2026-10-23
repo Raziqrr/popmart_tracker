@@ -58,6 +58,13 @@ class JulesQuotaCommand extends Command
                     $this->formatBar($metrics['daily_used'], $metrics['daily_limit']),
                 ],
                 [
+                    'Rolling 30d Tasks (Monthly)',
+                    (string) $metrics['monthly_used'],
+                    (string) $metrics['monthly_limit'],
+                    $metrics['monthly_utilization_pct'].'%',
+                    $this->formatBar($metrics['monthly_used'], $metrics['monthly_limit']),
+                ],
+                [
                     'Queued Pending Tasks',
                     (string) $metrics['queued_count'],
                     '-',

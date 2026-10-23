@@ -90,11 +90,18 @@ Follow Laravel conventions and existing codebase architecture:
 * **Sync Adapters:** Located under `app/Services/PopMart/Sync/Adapters/`.
   * Adapters map raw vendor JSON payloads to strongly typed internal schemas.
   * Adapters expose `public const CONFIRMED = true|false;`. Set to `true` only when field keys are verified against live responses.
-* **Probing Endpoints:**
-  * Use the capture tool to inspect and verify payloads:
+* **Probing Endpoints & Adapter Confirmation:**
+  * Adapters begin as `CONFIRMED = false` with guessed field structures until verified against actual responses.
+  * Remaining unconfirmed adapter: `LuckyPointsAdapter` (`app/Services/PopMart/Sync/Adapters/LuckyPointsAdapter.php`) which maps the member points task payload (`GetTasksByActivityAndChannel`).
+  * Use the capture tool to inspect, verify, and confirm payloads:
     ```bash
-    php artisan popmart:capture <EndpointName> '{"param":"value"}' --check
+    # Probe and verify adapter against live endpoint response:
+    php artisan popmart:capture GetTasksByActivityAndChannel '{"activityId":"..."}' --check --account=1
+
+    # Probe SPU catalog endpoint:
+    php artisan popmart:capture FindSummariesByCollectionId '{"collectionId":"..."}' --check
     ```
+  * Once verified, flip `public const CONFIRMED = true;` on the adapter.
 * **Exception Handling:** Always throw or catch `PopMartException` backed by the `PopMartError` enum.
 
 ---

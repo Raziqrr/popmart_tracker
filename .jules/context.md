@@ -81,10 +81,15 @@ app/
 ---
 
 ## 5. Google Jules Tooling
-
+ 
 * **Quota Monitor:**
-  Run `php artisan jules:quota` to check daily usage against Google Jules tiers (Free: 15/day, 3 concurrent; Pro: 100/day, 15 concurrent; Ultra: 300/day, 60 concurrent).
+  Run `php artisan jules:quota` to check daily and monthly usage against Google Jules tiers:
+  * **Free:** 15 daily tasks (rolling 24h), 450 monthly, 3 concurrent slots.
+  * **Pro:** 100 daily tasks (rolling 24h), 3,000 monthly, 15 concurrent slots.
+  * **Ultra:** 300 daily tasks (rolling 24h), 9,000 monthly, 60 concurrent slots.
 * **Queue Management:**
-  Run `php artisan jules:queue list` to inspect active tasks, or `php artisan jules:queue dispatch` to process queued tasks when slots open.
+  Run `php artisan jules:queue list` to inspect active and queued tasks, or `php artisan jules:queue dispatch` to process queued tasks when slots open.
 * **Standalone Runner:**
-  `scripts/jules-queue.php` can be invoked in CI or cron environments without full application boot overhead.
+  `scripts/jules-queue.php` can be invoked in CI workflows, git hooks, or containers without Laravel boot overhead.
+* **Remaining Adapter Confirmation:**
+  `LuckyPointsAdapter` remains unconfirmed (`CONFIRMED = false`). Use `php artisan popmart:capture GetTasksByActivityAndChannel '{"activityId":"..."}' --check --account=<id>` to confirm live field keys.
