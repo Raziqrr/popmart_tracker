@@ -89,7 +89,8 @@ class CollectionDiscovery
         }
 
         if ($collection === null) {
-            $label = $name ?? $theme?->name;
+            $hasRealName = $name !== null || ($theme !== null && $theme->name_confirmed);
+            $label = $name ?? ($theme?->name_confirmed ? $theme->name : null);
 
             return Collection::create([
                 'id' => $collectionId,
@@ -97,14 +98,15 @@ class CollectionDiscovery
                 'area' => $area->value,
                 'name' => $label ?? self::placeholder('Collection', $collectionId),
                 'slug' => Str::slug($label ?? 'collection-'.substr($collectionId, 0, 8)),
-                'name_confirmed' => $label !== null,
+                'name_confirmed' => $hasRealName,
                 'source' => $source,
             ]);
         }
 
         $updates = [];
-        if (! $collection->name_confirmed && $name !== null) {
-            $updates += ['name' => $name, 'slug' => Str::slug($name), 'name_confirmed' => true];
+        if (! $collection->name_confirmed && ($name !== null || ($theme !== null && $theme->name_confirmed))) {
+            $newName = $name ?? $theme->name;
+            $updates += ['name' => $newName, 'slug' => Str::slug($newName), 'name_confirmed' => true];
         }
         if ($collection->theme_id === null && $theme !== null) {
             $updates['theme_id'] = $theme->id;

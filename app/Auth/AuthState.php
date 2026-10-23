@@ -14,7 +14,7 @@ final class AuthState
     /** @return array{user: array|null, popmart: array|null, capabilities: list<string>} */
     public static function for(?User $user): array
     {
-        $user?->loadMissing('popmartAccounts');
+        $user?->load('popmartAccounts');
         $account = $user?->livePopmartAccount() ?? $user?->popmartAccounts->sortByDesc('last_synced_at')->first();
 
         return [

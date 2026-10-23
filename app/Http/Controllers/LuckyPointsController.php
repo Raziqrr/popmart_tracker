@@ -19,7 +19,7 @@ class LuckyPointsController extends Controller
     /** GET /api/lucky-points (capability:lucky_points): the latest synced balance, even if the session has since expired. */
     public function show(Request $request): JsonResponse
     {
-        $user = $request->user()->loadMissing('popmartAccounts');
+        $user = $request->user()->load('popmartAccounts');
         $account = $user->livePopmartAccount() ?? $user->popmartAccounts->sortByDesc('last_synced_at')->first();
         $points = $account ? PopmartAccountPoints::where('popmart_account_id', $account->id)->first() : null;
 

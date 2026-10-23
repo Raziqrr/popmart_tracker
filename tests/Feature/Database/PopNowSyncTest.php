@@ -36,7 +36,8 @@ it('polls a hot draw with the house account and stores the grid', function () {
         // The house account never holds boxes, so any lock it sees belongs to someone else.
         ->and($boxes[1]->is_locked)->toBeTrue()
         ->and($boxes[1]->locked_by_other)->toBeTrue()
-        ->and(DB::table('popmart_calls')->where('endpoint', 'AssignSet')->where('house', true)->where('lane', 'background')->count())->toBe(1);
+        // 1 initial set + 1 probe that returned duplicate S-9 and stopped
+        ->and(DB::table('popmart_calls')->where('endpoint', 'AssignSet')->where('house', true)->where('lane', 'background')->count())->toBe(2);
 });
 
 it('leaves draws nobody is looking at alone', function () {

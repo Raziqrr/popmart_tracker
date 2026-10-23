@@ -6,18 +6,22 @@ use App\Services\PopMart\LuckyPoints;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\Make;
 
-function tasksResponse(array $extra = [])
+function tasksResponse(array $extra = []): array
 {
-    return Http::response(['json' => [
+    return ['json' => [
         'tasks' => [['id' => 't1', 'alias' => 'login'], ['id' => 't2', 'alias' => 'buy']],
         'userTasks' => [['taskId' => 't1', 'done' => true, 'draw' => false], ['taskId' => 't2', 'done' => true, 'draw' => false]],
         ...$extra,
-    ]]);
+    ]];
 }
 
 it('syncs the balance from the daily-task response (assumed field names)', function () {
     $account = Make::account(Make::user());
-    Http::fake(['*public_getTasksByActivityAndChannel*' => tasksResponse(['gauge' => ['current' => 2480, 'max' => 500]])]);
+    Http::fake([
+        '*public_getTasksByActivityAndChannel*' => Http::sequence()
+            ->push(tasksResponse(['gauge' => ['current' => 2480, 'max' => 500]]))
+            ->push(tasksResponse(['gauge' => ['current' => 2600, 'max' => 500]])),
+    ]);
 
     $points = app(LuckyPoints::class)->sync($account);
 
@@ -26,7 +30,6 @@ it('syncs the balance from the daily-task response (assumed field names)', funct
         ->and(PopmartAccountPoints::count())->toBe(1);
 
     // A second sync updates the same row.
-    Http::fake(['*public_getTasksByActivityAndChannel*' => tasksResponse(['gauge' => ['current' => 2600, 'max' => 500]])]);
     app(LuckyPoints::class)->sync($account);
 
     expect(PopmartAccountPoints::count())->toBe(1)
@@ -54,8 +57,8 @@ it('serves the latest balance to its owner, with the session state', function ()
     $account->update(['session_expires_at' => now()->subMinute()]);
     $this->actingAs($user)->getJson('/api/lucky-points')->assertJsonPath('session_valid', false);
 
-    // Someone else sees nothing of it: the endpoint answers null.
-    expect($this->actingAs(Make::user())->getJson('/api/lucky-points')->assertOk()->json())->toBeNull();
+    // Someone else sees nothing of it: the endpoint answers null / empty.
+    expect($this->actingAs(Make::user())->getJson('/api/lucky-points')->assertOk()->json())->toBeEmpty();
 });
 
 it('claims finished tasks, skips the purchase one, and returns the refreshed balance', function () {

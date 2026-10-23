@@ -18,7 +18,7 @@ function stockResponse(string $skuId, int $stock)
 /** Make the product due again, as if its next check time had arrived. */
 function dueAgain(Product $product): void
 {
-    $product->update(['next_stock_check_at' => now()->subMinute()]);
+    Product::whereKey($product->id)->update(['next_stock_check_at' => now()->subMinute()]);
 }
 
 it('writes a snapshot only when stock changes, and an event when it matters', function () {
