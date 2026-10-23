@@ -32,3 +32,6 @@ Thumbs.db
 
 # Local POP NOW API test call log
 /scripts/popnow-calls.log
+
+# Local Claude settings
+/.claude/settings.local.json
