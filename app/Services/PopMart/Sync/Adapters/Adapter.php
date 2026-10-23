@@ -37,6 +37,36 @@ abstract class Adapter
         return self::pick($data, $keys) ?? throw UnexpectedPayload::missing(static::class, $field, $keys);
     }
 
+    /** Extract a localized string from text or translations map. Prefers en-us, then en, then any translation. */
+    protected static function localized(array $data, array $keys, ?string $default = null): ?string
+    {
+        foreach ($keys as $key) {
+            $val = data_get($data, $key);
+            if (is_string($val) && trim($val) !== '') {
+                return trim($val);
+            }
+            if (is_array($val)) {
+                $en = $val['en-us'] ?? $val['en'] ?? null;
+                if (is_string($en) && trim($en) !== '') {
+                    return trim($en);
+                }
+                foreach ($val as $trans) {
+                    if (is_string($trans) && trim($trans) !== '') {
+                        return trim($trans);
+                    }
+                }
+            }
+        }
+
+        return $default;
+    }
+
+    /** Like localized(), but throws UnexpectedPayload if no string could be resolved. */
+    protected static function needLocalized(array $data, array $keys, string $field): string
+    {
+        return self::localized($data, $keys) ?? throw UnexpectedPayload::missing(static::class, $field, $keys);
+    }
+
     /**
      * The list of items in a response: the payload itself if it's a list,
      * else the first list found under one of $paths.

@@ -31,7 +31,7 @@ use App\Services\PopMart\Sync\UnexpectedPayload;
  */
 class SpuAdapter extends Adapter
 {
-    public const CONFIRMED = false;
+    public const CONFIRMED = true;
 
     private const CURRENCY = ['MY' => 'MYR', 'SG' => 'SGD', 'TH' => 'THB'];
 
@@ -72,8 +72,31 @@ class SpuAdapter extends Adapter
         $firstError = null;
 
         foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            // Collection listing grouping products under a collection section (e.g. FindSummariesByCollectionId)
+            if (isset($item['items']) && is_array($item['items']) && ! isset($item['id']) && ! isset($item['spuId'])) {
+                $collectionRef = self::collectionRef($item);
+                foreach ($item['items'] as $subItem) {
+                    if (! is_array($subItem)) {
+                        continue;
+                    }
+                    if ($collectionRef && ! isset($subItem['collection'])) {
+                        $subItem['collection'] = $collectionRef;
+                    }
+                    try {
+                        $products[] = self::mapProduct($subItem, $area, $businessType);
+                    } catch (UnexpectedPayload $e) {
+                        $firstError ??= $e;
+                    }
+                }
+                continue;
+            }
+
             try {
-                $products[] = self::mapProduct(is_array($item) ? $item : [], $area, $businessType);
+                $products[] = self::mapProduct($item, $area, $businessType);
             } catch (UnexpectedPayload $e) {
                 $firstError ??= $e;
             }
@@ -95,8 +118,8 @@ class SpuAdapter extends Adapter
 
         return [
             'id' => (string) self::need($item, ['spuId', 'id'], 'spu id'),
-            'name' => (string) self::need($item, ['title', 'name', 'spuName'], 'name'),
-            'price' => self::toMinorUnits(self::pick($item, ['price', 'minPrice', 'salePrice'])),
+            'name' => self::needLocalized($item, ['title', 'name', 'spuName', 'name_trans', 'slugTitle'], 'name'),
+            'price' => self::toMinorUnits(self::pick($item, ['price', 'minPrice', 'salePrice', 'areaSkuPrices.'.$area->value.'.0.price'])),
             'currency' => (string) $currency,
             // Null when neither the endpoint nor the item says: the writer then keeps what it had.
             'business_type' => $businessType ?? match (true) {
@@ -124,7 +147,7 @@ class SpuAdapter extends Adapter
     {
         return [
             'id' => (string) self::need($sku, ['skuId', 'id'], 'sku id'),
-            'name' => (string) self::need($sku, ['title', 'name', 'skuName'], 'sku name'),
+            'name' => self::needLocalized($sku, ['title', 'name', 'skuName', 'name_trans'], 'sku name'),
             'sku_code' => self::pick($sku, ['skuCode']),
             'bar_code' => self::pick($sku, ['barCode']),
             'box_type' => self::pick($sku, ['boxType']),
@@ -142,19 +165,23 @@ class SpuAdapter extends Adapter
      */
     public static function collectionRef(array $item): ?array
     {
+        if (isset($item['collection']) && is_array($item['collection']) && isset($item['collection']['collection_id'])) {
+            return $item['collection'];
+        }
+
         $collectionId = self::pick($item, ['collectionId', 'collection.id']);
 
         if (! is_string($collectionId) || $collectionId === '') {
             return null;
         }
 
-        $themeId = self::pick($item, ['ipId', 'themeId', 'ip.id']);
+        $themeId = self::pick($item, ['ipId', 'themeId', 'ip.id', 'ips.0.id']);
 
         return [
             'collection_id' => strtolower($collectionId),
-            'collection_name' => self::pick($item, ['collectionName', 'collection.name', 'collectionTitle']),
+            'collection_name' => self::localized($item, ['collectionName', 'collection.name_trans', 'collection.name', 'collectionTitle', 'collection.slugTitle']),
             'theme_id' => is_string($themeId) && $themeId !== '' ? strtolower($themeId) : null,
-            'theme_name' => self::pick($item, ['ipName', 'themeName', 'ip.name']),
+            'theme_name' => self::localized($item, ['ipName', 'themeName', 'ip.name_trans', 'ip.name', 'ips.0.name_trans', 'ips.0.name']),
         ];
     }
 
