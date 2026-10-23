@@ -158,48 +158,14 @@ class ExclusionBoxPredictor implements BoxPredictorContract
             return [$counts, 0];
         }
 
-        // Group boxes by identical allowed list.
-        $groupOf = [];
-        $groupBoxes = [];
-        $groupSkus = [];
-        foreach ($allowedArrays as $box => $ids) {
-            $sorted = $ids;
-            sort($sorted);
-            $key = implode('|', $sorted);
-            if (! isset($groupOf[$key])) {
-                $groupOf[$key] = count($groupBoxes);
-                $groupBoxes[] = [];
-                $groupSkus[] = array_flip($ids);
-            }
-            $groupBoxes[$groupOf[$key]][] = $box;
+        [$groupBoxes, $groupSkus, $groupCount, $sizes] = $this->groupBoxesByAllowedList($allowedArrays);
+
+        $layout = $this->buildStateLayout($groupCount, $sizes, $n);
+        if ($layout === null) {
+            return null;
         }
 
-        $groupCount = count($groupBoxes);
-        $sizes = array_map('count', $groupBoxes);
-
-        // Mixed-radix state: digit g = boxes of group g filled, 0..size.
-        $strides = [];
-        $states = 1;
-        foreach ($sizes as $size) {
-            $strides[] = $states;
-            $states *= $size + 1;
-            if ($states > self::MAX_DP_STATES) {
-                return null;
-            }
-        }
-
-        // Open boxes per state, bucketed by how many boxes are filled.
-        $openTotal = [];
-        $byFilled = array_fill(0, $n + 1, []);
-        $digits = array_fill(0, $groupCount, 0);
-        for ($s = 0; $s < $states; $s++) {
-            $open = $n - array_sum($digits);
-            $openTotal[$s] = $open;
-            $byFilled[$n - $open][] = $s;
-            for ($g = 0; $g < $groupCount && ++$digits[$g] > $sizes[$g]; $g++) {
-                $digits[$g] = 0;
-            }
-        }
+        [$strides, $states, $byFilled] = $layout;
 
         // After j SKUs at most j boxes are filled, and the open boxes must fit in the m - j SKUs left.
         $window = fn (int $j) => [max(0, $n - ($m - $j)), min($j, $n)];
@@ -221,6 +187,112 @@ class ExclusionBoxPredictor implements BoxPredictorContract
             $groupsFor[$j] = array_keys(array_filter($groupSkus, fn ($skus) => isset($skus[$skuId])));
         }
 
+        $after = $this->computeForwardPass(
+            $m,
+            $states,
+            $window,
+            $byFilled,
+            $groupsFor,
+            $sizes,
+            $strides
+        );
+
+        $total = $after[0][0] ?? 0;
+        if ($total == 0) {
+            return [$counts, 0];
+        }
+
+        $this->computeBackwardPass(
+            $counts,
+            $m,
+            $after,
+            $window,
+            $byFilled,
+            $groupsFor,
+            $sizes,
+            $strides,
+            $groupBoxes,
+            $skuIds
+        );
+
+        return [$counts, $total];
+    }
+
+    /**
+     * @return array{0: array<int, array<int, int>>, 1: array<int, array<string, int>>, 2: int, 3: array<int, int>}
+     */
+    private function groupBoxesByAllowedList(array $allowedArrays): array
+    {
+        $groupOf = [];
+        $groupBoxes = [];
+        $groupSkus = [];
+
+        foreach ($allowedArrays as $box => $ids) {
+            $sorted = $ids;
+            sort($sorted);
+            $key = implode('|', $sorted);
+            if (! isset($groupOf[$key])) {
+                $groupOf[$key] = count($groupBoxes);
+                $groupBoxes[] = [];
+                $groupSkus[] = array_flip($ids);
+            }
+            $groupBoxes[$groupOf[$key]][] = $box;
+        }
+
+        return [
+            $groupBoxes,
+            $groupSkus,
+            count($groupBoxes),
+            array_map('count', $groupBoxes),
+        ];
+    }
+
+    /**
+     * @return array{0: array<int, int>, 1: int, 2: array<int, array<int, int>>}|null
+     */
+    private function buildStateLayout(int $groupCount, array $sizes, int $n): ?array
+    {
+        // Mixed-radix state: digit g = boxes of group g filled, 0..size.
+        $strides = [];
+        $states = 1;
+        foreach ($sizes as $size) {
+            $strides[] = $states;
+            $states *= $size + 1;
+            if ($states > self::MAX_DP_STATES) {
+                return null;
+            }
+        }
+
+        // Open boxes per state, bucketed by how many boxes are filled.
+        $byFilled = array_fill(0, $n + 1, []);
+        $digits = array_fill(0, $groupCount, 0);
+        for ($s = 0; $s < $states; $s++) {
+            $filled = array_sum($digits);
+            $byFilled[$filled][] = $s;
+            for ($g = 0; $g < $groupCount && ++$digits[$g] > $sizes[$g]; $g++) {
+                $digits[$g] = 0;
+            }
+        }
+
+        return [$strides, $states, $byFilled];
+    }
+
+    /**
+     * @param array<int, array<int, int>> $byFilled
+     * @param array<int, array<int, int>> $groupsFor
+     * @param array<int, int> $sizes
+     * @param array<int, int> $strides
+     * @return array<int, array<int, int|float>>
+     */
+    private function computeForwardPass(
+        int $m,
+        int $states,
+        \Closure $window,
+        array $byFilled,
+        array $groupsFor,
+        array $sizes,
+        array $strides
+    ): array {
         // Sparse layers: only window states, only non-zero ways. A missing state has 0 ways.
         $after = array_fill(0, $m + 1, []);
         $after[$m][$states - 1] = 1;
@@ -246,11 +318,31 @@ class ExclusionBoxPredictor implements BoxPredictorContract
             $after[$j] = $current;
         }
 
-        $total = $after[0][0] ?? 0;
-        if ($total == 0) {
-            return [$counts, 0];
-        }
+        return $after;
+    }
 
+    /**
+     * @param array<int, array<string, int|float>> $counts
+     * @param array<int, array<int, int|float>> $after
+     * @param array<int, array<int, int>> $byFilled
+     * @param array<int, array<int, int>> $groupsFor
+     * @param array<int, int> $sizes
+     * @param array<int, int> $strides
+     * @param array<int, array<int, int>> $groupBoxes
+     * @param array<int, string> $skuIds
+     */
+    private function computeBackwardPass(
+        array &$counts,
+        int $m,
+        array $after,
+        \Closure $window,
+        array $byFilled,
+        array $groupsFor,
+        array $sizes,
+        array $strides,
+        array $groupBoxes,
+        array $skuIds
+    ): void {
         // Updated in place: walking buckets from most filled down means a
         // state is read before this SKU's placements are added into it.
         $before = [0 => 1];
@@ -288,7 +380,5 @@ class ExclusionBoxPredictor implements BoxPredictorContract
                 }
             }
         }
-
-        return [$counts, $total];
     }
 }
