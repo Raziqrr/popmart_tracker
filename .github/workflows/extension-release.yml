@@ -1,0 +1,25 @@
+name: Package Browser Extension
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Zip extension
+        run: |
+          cd extension
+          zip -r ../popmart-tracker-extension.zip . -x "*.git*" "*README.md*"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: popmart-tracker-extension
+          path: popmart-tracker-extension.zip
