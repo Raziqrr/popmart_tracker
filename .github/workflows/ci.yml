@@ -42,11 +42,7 @@ jobs:
       DB_PASSWORD: password
 
     steps:
-<<<<<<< HEAD
       - uses: actions/checkout@v4
-=======
-    - uses: actions/checkout@v4
->>>>>>> e12cd29 (Add Dependabot, extension packaging, and code analysis)
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -54,15 +50,8 @@ jobs:
           extensions: mbstring, intl, pdo_mysql, pdo_sqlite, curl, zip, fileinfo
           coverage: none
 
-<<<<<<< HEAD
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
-=======
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
->>>>>>> e12cd29 (Add Dependabot, extension packaging, and code analysis)
 
       - name: Prepare the app
         run: |
@@ -75,19 +64,8 @@ jobs:
           php artisan migrate:rollback --force
           php artisan migrate --force
 
-<<<<<<< HEAD
       - name: Tests
         run: php artisan test --compact
-=======
-    - name: Run Larastan (PHP static analysis)
-      run: ./vendor/bin/phpstan analyse --no-progress || true
-
-    - name: Run Laravel Pint (PHP formatting)
-      run: ./vendor/bin/pint --test || true
-
-    - name: Typecheck
-      run: npm run typecheck
->>>>>>> e12cd29 (Add Dependabot, extension packaging, and code analysis)
 
   frontend:
     name: Frontend (typecheck and build)

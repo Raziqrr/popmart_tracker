@@ -1,6 +1,7 @@
 import { Head, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { AuthProvider } from '@/lib/capabilities';
+import { AutoLockProvider } from '@/components/lock/AutoLockProvider';
 import type { SharedProps } from '@/types/page';
 import { AccountMenu } from './AccountMenu';
 import { SiteFooter } from './SiteFooter';
@@ -17,18 +18,20 @@ export function AppLayout({ title, children }: { title?: string; children: React
 
     return (
         <AuthProvider value={props.auth}>
-            <Head title={title} />
-            <div className="bg-white">
-                <SiteHeader
-                    area={props.area}
-                    currentHref={url.split('?')[0]}
-                    unreadAlerts={props.unread_alerts}
-                    pinnedCount={pinnedCount}
-                    account={<AccountMenu auth={props.auth} />}
-                />
-                <main className="mx-auto flex max-w-7xl flex-col gap-10 px-4 pt-6 pb-16 sm:px-8">{children}</main>
-                <SiteFooter />
-            </div>
+            <AutoLockProvider>
+                <Head title={title} />
+                <div className="bg-white">
+                    <SiteHeader
+                        area={props.area}
+                        currentHref={url.split('?')[0]}
+                        unreadAlerts={props.unread_alerts}
+                        pinnedCount={pinnedCount}
+                        account={<AccountMenu auth={props.auth} />}
+                    />
+                    <main className="mx-auto flex max-w-7xl flex-col gap-10 px-4 pt-6 pb-16 sm:px-8">{children}</main>
+                    <SiteFooter />
+                </div>
+            </AutoLockProvider>
         </AuthProvider>
     );
 }

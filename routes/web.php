@@ -16,9 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [PageController::class, 'dashboard'])->name('dashboard');
 Route::get('/catalog', [PageController::class, 'catalog'])->name('catalog');
 Route::get('/drops', [PageController::class, 'drops'])->name('drops');
+Route::get('/pop-now', [PageController::class, 'popNow'])->name('pop-now');
 Route::middleware('auth')->group(function () {
     Route::get('/watchlist', [PageController::class, 'watchlist'])->name('watchlist');
     Route::get('/alerts', [PageController::class, 'alerts'])->name('alerts');
+    Route::get('/auto-lock', [PageController::class, 'autoLock'])->name('auto-lock');
 });
 
 // Throwaway page for manually testing the browser extension handshake.

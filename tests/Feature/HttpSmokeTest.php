@@ -67,4 +67,14 @@ it('keeps the public odds endpoints stateless', function () {
 
 it('sends the guest to log in for pages that need an account', function (string $url) {
     $this->get($url)->assertRedirect('/login');
-})->with(['/watchlist', '/alerts']);
+})->with(['/watchlist', '/alerts', '/auto-lock']);
+
+it('allows guests to view the POP NOW page with expected props', function () {
+    $this->get('/pop-now')
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('PopNow')
+            ->has('products')
+            ->has('selected_product_id')
+            ->has('sets'));
+});
