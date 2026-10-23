@@ -216,3 +216,49 @@ it('falls back to per-box odds when the hints are too irregular to count', funct
     expect($prediction->probabilityFor($skus[0]))->toBe(0.0)
         ->and($prediction->probabilityFor($skus[1]))->toEqualWithDelta(1 / 19, 1e-9);
 });
+
+it('predicts a single box when it has a confirmed sku', function () {
+    $repository = Mockery::mock(PopNowBoxRepository::class);
+    $predictor = new ExclusionBoxPredictor($repository);
+
+    $box = new PopNowBox(['id' => 1]);
+    $sku = new Sku(['id' => 'sku-0']);
+    $excluded = collect(['sku-1']);
+    $pool = new EloquentCollection([$sku, new Sku(['id' => 'sku-1']), new Sku(['id' => 'sku-2'])]);
+
+    $repository->shouldReceive('excludedSkuIds')->with($box)->andReturn($excluded);
+    $repository->shouldReceive('allPossibleSkus')->with($box)->andReturn($pool);
+    $repository->shouldReceive('confirmedSku')->with($box)->andReturn($sku);
+
+    $prediction = $predictor->predict($box);
+
+    expect($prediction->confirmed)->toBeTrue()
+        ->and($prediction->confirmedSku)->toBe($sku)
+        ->and($prediction->candidateCount())->toBe(1)
+        ->and($prediction->probabilityFor($sku))->toBe(1.0);
+});
+
+it('predicts a single box narrowing down candidates', function () {
+    $repository = Mockery::mock(PopNowBoxRepository::class);
+    $predictor = new ExclusionBoxPredictor($repository);
+
+    $box = new PopNowBox(['id' => 1]);
+    $sku0 = new Sku(['id' => 'sku-0']);
+    $sku1 = new Sku(['id' => 'sku-1']);
+    $sku2 = new Sku(['id' => 'sku-2']);
+
+    $excluded = collect(['sku-1']);
+    $pool = new EloquentCollection([$sku0, $sku1, $sku2]);
+
+    $repository->shouldReceive('excludedSkuIds')->with($box)->andReturn($excluded);
+    $repository->shouldReceive('allPossibleSkus')->with($box)->andReturn($pool);
+    $repository->shouldReceive('confirmedSku')->with($box)->andReturn(null);
+
+    $prediction = $predictor->predict($box);
+
+    expect($prediction->confirmed)->toBeFalse()
+        ->and($prediction->candidateCount())->toBe(2)
+        ->and($prediction->probabilityFor($sku0))->toBe(0.5)
+        ->and($prediction->probabilityFor($sku1))->toBe(0.0)
+        ->and($prediction->probabilityFor($sku2))->toBe(0.5);
+});
