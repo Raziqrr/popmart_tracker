@@ -19,7 +19,7 @@ jobs:
           zip -r ../popmart-tracker-extension.zip . -x "*.git*" "*README.md*"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: popmart-tracker-extension
           path: popmart-tracker-extension.zip
