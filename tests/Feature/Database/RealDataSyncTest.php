@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Collection;
 use App\Models\Product;
 use App\Models\Sku;
 use App\Services\Locator\Country;
 use App\Services\PopMart\Sync\Adapters\SpuAdapter;
 use App\Services\PopMart\Sync\CollectionDiscovery;
+use App\Services\PopMart\Sync\ProductEventType;
 use App\Services\PopMart\Sync\ProductWriter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -31,7 +31,7 @@ it('persists real Pop Mart product and collection snapshots to the database', fu
 
     $events = $writer->write($detailed, $collection);
 
-    expect($events)->toContain(\App\Services\PopMart\Sync\ProductEventType::Listed);
+    expect($events)->toContain(ProductEventType::Listed);
 
     $product = Product::find($detailed['id']);
     expect($product)->not->toBeNull()
