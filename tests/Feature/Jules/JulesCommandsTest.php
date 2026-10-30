@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Jules\JulesQueueManager;
 use Illuminate\Support\Facades\Artisan;
 
 beforeEach(function () {
@@ -73,7 +74,7 @@ test('jules:queue complete, fail, and clear work with positional arguments', fun
     Artisan::call('jules:queue', ['action' => 'add', '--prompt' => 'Task B']);
     Artisan::call('jules:queue', ['action' => 'dispatch']);
 
-    $manager = new \App\Services\Jules\JulesQueueManager(storagePath: $this->testStoragePath);
+    $manager = new JulesQueueManager(storagePath: $this->testStoragePath);
     $active = $manager->activeTasks();
     expect($active)->toHaveCount(2);
 
@@ -95,6 +96,6 @@ test('jules:queue complete, fail, and clear work with positional arguments', fun
         ->expectsOutputToContain('Cleared all tasks from queue state.')
         ->assertSuccessful();
 
-    $reloaded = new \App\Services\Jules\JulesQueueManager(storagePath: $this->testStoragePath);
+    $reloaded = new JulesQueueManager(storagePath: $this->testStoragePath);
     expect($reloaded->loadTasks())->toBeEmpty();
 });

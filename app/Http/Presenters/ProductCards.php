@@ -35,11 +35,15 @@ class ProductCards
         $products->loadMissing(['theme', 'skus']);
         $ids = $products->modelKeys();
 
-        $lastChange = ProductEvent::whereIn('product_id', $ids)
+        // Fetch only the latest event per product using a MAX(id) subquery
+        // to prevent excessive memory usage and database hydration.
+        $latestEventIds = ProductEvent::whereIn('product_id', $ids)
             ->whereNotIn('type', ['tag_added', 'tag_removed'])
-            ->orderByDesc('occurred_at')
+            ->groupBy('product_id')
+            ->selectRaw('MAX(id)');
+
+        $lastChange = ProductEvent::whereIn('id', $latestEventIds)
             ->get()
-            ->unique('product_id')
             ->keyBy('product_id');
 
         $snapshots = ProductSnapshot::whereIn('product_id', $ids)->orderByDesc('checked_at')->get(['product_id', 'price', 'checked_at'])->groupBy('product_id');

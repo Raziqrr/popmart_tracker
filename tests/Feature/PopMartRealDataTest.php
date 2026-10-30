@@ -1,15 +1,9 @@
 <?php
 
-use App\Models\Collection;
-use App\Models\Product;
-use App\Models\Sku;
 use App\Services\Locator\Country;
 use App\Services\PopMart\Sync\Adapters\SkuStockAdapter;
 use App\Services\PopMart\Sync\Adapters\SpuAdapter;
-use App\Services\PopMart\Sync\CollectionDiscovery;
 use App\Services\PopMart\Sync\PopMartIds;
-use App\Services\PopMart\Sync\ProductWriter;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 describe('real data snapshot sync', function () {
     it('maps real FindSummariesByCollectionId snapshot payload', function () {
