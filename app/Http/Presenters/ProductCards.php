@@ -35,11 +35,13 @@ class ProductCards
         $products->loadMissing(['theme', 'skus']);
         $ids = $products->modelKeys();
 
-        $lastChange = ProductEvent::whereIn('product_id', $ids)
+        $latestEventIds = ProductEvent::selectRaw('MAX(id) as id')
+            ->whereIn('product_id', $ids)
             ->whereNotIn('type', ['tag_added', 'tag_removed'])
-            ->orderByDesc('occurred_at')
+            ->groupBy('product_id');
+
+        $lastChange = ProductEvent::whereIn('id', $latestEventIds)
             ->get()
-            ->unique('product_id')
             ->keyBy('product_id');
 
         $snapshots = ProductSnapshot::whereIn('product_id', $ids)->orderByDesc('checked_at')->get(['product_id', 'price', 'checked_at'])->groupBy('product_id');
@@ -109,8 +111,13 @@ class ProductCards
 
         // Each SKU's stock as of the start of the window.
         $current = [];
-        foreach (StockSnapshot::whereIn('sku_id', array_keys($skuProduct))->where('checked_at', '<', $since)
-            ->orderBy('checked_at')->get(['sku_id', 'stock']) as $row) {
+
+        $latestSnapshotIds = StockSnapshot::selectRaw('MAX(id) as id')
+            ->whereIn('sku_id', array_keys($skuProduct))
+            ->where('checked_at', '<', $since)
+            ->groupBy('sku_id');
+
+        foreach (StockSnapshot::whereIn('id', $latestSnapshotIds)->get(['sku_id', 'stock']) as $row) {
             $current[$row->sku_id] = $row->stock;
         }
 
