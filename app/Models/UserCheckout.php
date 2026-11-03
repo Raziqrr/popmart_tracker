@@ -18,11 +18,15 @@ use Illuminate\Support\Carbon;
 class UserCheckout extends Model
 {
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_READY = 'ready';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_FAILED = 'failed';
 
     public const FAILED_EXPIRED = 'expired';
+
     public const FAILED_INVALID = 'invalid';
 
     protected $fillable = [

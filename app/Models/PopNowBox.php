@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 class PopNowBox extends Model
 {
@@ -40,7 +41,7 @@ class PopNowBox extends Model
         return $this->hasMany(PopNowBoxReveal::class);
     }
 
-    public function lockExpiresAt(): ?\Illuminate\Support\Carbon
+    public function lockExpiresAt(): ?Carbon
     {
         if (! $this->is_locked || ! $this->lock_started_at || ! $this->lock_duration_seconds) {
             return null;
