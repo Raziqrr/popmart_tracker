@@ -35,11 +35,16 @@ class ProductCards
         $products->loadMissing(['theme', 'skus']);
         $ids = $products->modelKeys();
 
-        $lastChange = ProductEvent::whereIn('product_id', $ids)
-            ->whereNotIn('type', ['tag_added', 'tag_removed'])
-            ->orderByDesc('occurred_at')
+        // Optimization: Use a subquery with MAX(id) to fetch only the latest events directly from the database,
+        // preventing massive memory consumption and slow hydration caused by PHP-side filtering (`->get()->unique(...)`).
+        $lastChange = ProductEvent::whereIn('id', function ($query) use ($ids) {
+            $query->selectRaw('MAX(id)')
+                ->from('product_events')
+                ->whereIn('product_id', $ids)
+                ->whereNotIn('type', ['tag_added', 'tag_removed'])
+                ->groupBy('product_id');
+        })
             ->get()
-            ->unique('product_id')
             ->keyBy('product_id');
 
         $snapshots = ProductSnapshot::whereIn('product_id', $ids)->orderByDesc('checked_at')->get(['product_id', 'price', 'checked_at'])->groupBy('product_id');
@@ -107,10 +112,17 @@ class ProductCards
             ->orderBy('checked_at')
             ->get(['sku_id', 'stock', 'checked_at']);
 
-        // Each SKU's stock as of the start of the window.
+        // Optimization: Prevent massive memory leak by using MAX(id) subquery
+        // to fetch only the single latest snapshot before the window starts
+        // instead of loading and iterating through the entire history of snapshots.
         $current = [];
-        foreach (StockSnapshot::whereIn('sku_id', array_keys($skuProduct))->where('checked_at', '<', $since)
-            ->orderBy('checked_at')->get(['sku_id', 'stock']) as $row) {
+        $latestSnapshotIdsBeforeWindow = StockSnapshot::whereIn('sku_id', array_keys($skuProduct))
+            ->where('checked_at', '<', $since)
+            ->groupBy('sku_id')
+            ->selectRaw('MAX(id) as id')
+            ->pluck('id');
+
+        foreach (StockSnapshot::whereIn('id', $latestSnapshotIdsBeforeWindow)->get(['sku_id', 'stock']) as $row) {
             $current[$row->sku_id] = $row->stock;
         }
 
