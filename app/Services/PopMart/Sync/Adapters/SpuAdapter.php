@@ -92,6 +92,7 @@ class SpuAdapter extends Adapter
                         $firstError ??= $e;
                     }
                 }
+
                 continue;
             }
 
