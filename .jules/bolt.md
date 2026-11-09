@@ -1,0 +1,3 @@
+## 2024-11-09 - Avoid excessive DB hydration on append-only tables
+**Learning:** When retrieving the "latest" records from large, append-only history tables (like `product_events` and `stock_snapshots`), using `->get()->unique(...)` in PHP or looping and overwriting array keys results in downloading thousands of rows just to discard most of them. This causes excessive memory usage and performance bottlenecks due to massive Eloquent hydration.
+**Action:** Always use database-level grouping for append-only tables to pull only the exact rows needed. Example: use a subquery like `WHERE id IN (SELECT MAX(id) FROM table GROUP BY key_id)` to offload the filtering directly to the database before retrieving models.
